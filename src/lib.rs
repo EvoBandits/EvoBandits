@@ -14,7 +14,6 @@ struct FloatKey(f64);
 
 impl Eq for FloatKey {}
 
-//test comment
 impl Ord for FloatKey {
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap_or(Ordering::Less)
