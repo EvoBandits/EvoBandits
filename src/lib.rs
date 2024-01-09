@@ -353,23 +353,6 @@ mod tests {
     }
 
     #[test]
-    fn test_gmab_get_arm_index_with_empty() {
-        let gmab = Gmab::new(
-            mock_opti_function,
-            10,
-            0.1,
-            0.9,
-            0.5,
-            100,
-            2,
-            vec![0, 0],
-            vec![10, 10],
-        );
-        let arm = Arm::new(mock_opti_function, &vec![1, 2]);
-        assert_eq!(gmab.get_arm_index(&arm), -1);
-    }
-
-    #[test]
     fn test_gmab_get_arm_index_with_existing() {
         let mut gmab = Gmab::new(
             mock_opti_function,

@@ -115,6 +115,9 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
                 let max_dim_index = self.dimension - 1;
                 let swap_rv = rand::random::<usize>() % max_dim_index + 1;
 
+                // print crossover point
+                println!("Crossover point: {}", swap_rv);
+
                 for j in 1..=max_dim_index {
                     if swap_rv == j {
                         let mut cross_vec_1: Vec<i32> =
@@ -317,12 +320,20 @@ mod tests {
             1.0, // 100% crossover rate for demonstration
             0.5,
             100,
-            2,
-            vec![0, 0],
-            vec![10, 10],
+            10, // higher dimension for demonstration so low probability of crossover leading to identical individuals
+            vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            vec![10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
         );
 
+        // print individual action vectors
+        println!("Individual 1: {:?}", ga.individuals[0].get_action_vector());
+        println!("Individual 2: {:?}", ga.individuals[1].get_action_vector());
+
         let crossover_population = ga.crossover();
+
+        // print individual action vectors
+        println!("Individual 1: {:?}", ga.individuals[0].get_action_vector());
+        println!("Individual 2: {:?}", ga.individuals[1].get_action_vector());
 
         // Since the crossover rate is 100%, the two individuals should not be identical to the original individuals
         assert_ne!(
