@@ -1,11 +1,14 @@
 <p align="center">
   <img src="Logo.webp" alt="GMAB" width="200"/>
 </p>
+
 <p align="center">
-    <em>GMAB is a novel optimization algorithm for stochastic problems.</em>
+<em>GMAB is a cutting-edge optimization algorithm that merges genetic algorithms and multi-armed bandit strategies to efficiently solve stochastic problems.</em>
 </p>
 
 ---
+
+GMAB (Genetic Multi-Armed Bandits) is an innovative optimization algorithm designed to tackle stochastic problems with high efficiency. By combining genetic algorithms with multi-armed bandit mechanisms, GMAB offers a unique, reinforcement learning-based approach to solving complex, large-scale optimization issues. Whether you're working in operations research, machine learning, or data science, GMAB provides a robust, scalable solution for optimizing your stochastic models.
 
 ## Usage
 To install GMAB, add the following to your Cargo.toml file:

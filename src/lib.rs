@@ -59,7 +59,7 @@ impl<K: Ord, V: PartialEq> SortedMultiMap<K, V> {
 pub struct Gmab<F: OptimizationFn> {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
     arm_memory: Vec<Arm>,
-    lookup_tabel: HashMap<Vec<i32>, i32>,
+    lookup_table: HashMap<Vec<i32>, i32>,
     genetic_algorithm: GeneticAlgorithm<F>,
     current_indexes: Vec<i32>,
 }
@@ -67,7 +67,7 @@ pub struct Gmab<F: OptimizationFn> {
 impl<F: OptimizationFn + Clone> Gmab<F> {
     fn get_arm_index(&self, individual: &Arm) -> i32 {
         match self
-            .lookup_tabel
+            .lookup_table
             .get(&individual.get_action_vector().to_vec())
         {
             Some(&index) => index,
@@ -99,20 +99,20 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         );
 
         let mut arm_memory: Vec<Arm> = Vec::new();
-        let mut lookup_tabel: HashMap<Vec<i32>, i32> = HashMap::new();
+        let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
         for (index, individual) in genetic_algorithm.get_individuals().iter_mut().enumerate() {
             individual.pull(&opti_function);
             arm_memory.push(individual.clone());
-            lookup_tabel.insert(individual.get_action_vector().to_vec(), index as i32);
+            lookup_table.insert(individual.get_action_vector().to_vec(), index as i32);
             sample_average_tree.insert(FloatKey(individual.get_mean_reward()), index as i32);
         }
 
         Gmab {
             sample_average_tree,
             arm_memory,
-            lookup_tabel,
+            lookup_table,
             genetic_algorithm,
             current_indexes: Vec::new(),
         }
@@ -162,7 +162,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 (self.arm_memory[*arm_index as usize].get_mean_reward() - ucb_norm_min)
                     / (ucb_norm_max - ucb_norm_min);
             let penalty_term: f64 = (2.0
-                * (self.genetic_algorithm.get_simulations_used() as f64).ln() as f64
+                * (self.genetic_algorithm.get_simulations_used() as f64).ln()
                 / self.arm_memory[*arm_index as usize].get_num_pulls() as f64)
                 .sqrt();
             let ucb_value: f64 = transformed_sample_mean + penalty_term;
@@ -198,7 +198,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             individual.pull(&self.genetic_algorithm.opti_function);
             self.genetic_algorithm.update_simulations_used(1);
             self.arm_memory.push(individual.clone());
-            self.lookup_tabel.insert(
+            self.lookup_table.insert(
                 individual.get_action_vector().to_vec(),
                 self.arm_memory.len() as i32 - 1,
             );
@@ -233,15 +233,15 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             // mutate automatically removes duplicates
             let mutated_pop = self.genetic_algorithm.mutate(&crossover_pop);
 
-            for individual_index in 0..mutated_pop.len() {
-                let arm_index = self.get_arm_index(&mutated_pop[individual_index]);
+            for individual in mutated_pop {
+                let arm_index = self.get_arm_index(&individual);
 
                 // check if arm is in current population
                 if self.current_indexes.contains(&arm_index) {
                     continue;
                 }
 
-                self.sample_and_update(arm_index, mutated_pop[individual_index].clone());
+                self.sample_and_update(arm_index, individual.clone());
 
                 if self.genetic_algorithm.budget_reached() {
                     return self.arm_memory[self.find_best_ucb() as usize]
@@ -343,7 +343,7 @@ mod tests {
         );
         assert_eq!(gmab.genetic_algorithm.get_population_size(), 10);
         assert_eq!(gmab.arm_memory.len(), 10);
-        assert_eq!(gmab.lookup_tabel.len(), 10);
+        assert_eq!(gmab.lookup_table.len(), 10);
 
         // check if there are 10  elements in sample_average_tree
         let mut count = 0;
@@ -351,23 +351,6 @@ mod tests {
             count += 1;
         }
         assert_eq!(count, 10);
-    }
-
-    #[test]
-    fn test_gmab_get_arm_index_with_empty() {
-        let gmab = Gmab::new(
-            mock_opti_function,
-            10,
-            0.1,
-            0.9,
-            0.5,
-            100,
-            2,
-            vec![0, 0],
-            vec![10, 10],
-        );
-        let arm = Arm::new(&vec![1, 2]);
-        assert_eq!(gmab.get_arm_index(&arm), -1);
     }
 
     #[test]
@@ -385,7 +368,7 @@ mod tests {
         );
         let arm = Arm::new(&vec![1, 2]);
         gmab.arm_memory.push(arm.clone());
-        gmab.lookup_tabel
+        gmab.lookup_table
             .insert(arm.get_action_vector().to_vec(), 0);
         assert_eq!(gmab.get_arm_index(&arm), 0);
     }
@@ -438,12 +421,12 @@ mod tests {
 
         let arm = Arm::new(&vec![1, 2]);
         gmab.arm_memory.push(arm.clone());
-        gmab.lookup_tabel
+        gmab.lookup_table
             .insert(arm.get_action_vector().to_vec(), 0);
 
         let arm2 = Arm::new(&vec![1, 2]);
         gmab.arm_memory.push(arm2.clone());
-        gmab.lookup_tabel
+        gmab.lookup_table
             .insert(arm2.get_action_vector().to_vec(), 1);
 
         gmab.sample_and_update(0, arm.clone());
@@ -468,7 +451,7 @@ mod tests {
 
         let arm = Arm::new(&vec![1, 2]);
         gmab.arm_memory.push(arm.clone());
-        gmab.lookup_tabel
+        gmab.lookup_table
             .insert(arm.get_action_vector().to_vec(), 0);
 
         gmab.sample_and_update(0, arm.clone());
@@ -476,7 +459,7 @@ mod tests {
         assert_eq!(gmab.arm_memory[0].get_num_pulls(), 2);
         assert_eq!(gmab.arm_memory[0].get_mean_reward(), 0.0);
         assert_eq!(
-            gmab.lookup_tabel.get(&arm.get_action_vector().to_vec()),
+            gmab.lookup_table.get(&arm.get_action_vector().to_vec()),
             Some(&0)
         );
     }

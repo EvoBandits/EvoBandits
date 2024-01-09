@@ -314,9 +314,9 @@ mod tests {
             1.0, // 100% crossover rate for demonstration
             0.5,
             100,
-            2,
-            vec![0, 0],
-            vec![10, 10],
+            10, // higher dimension for demonstration so low probability of crossover leading to identical individuals
+            vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            vec![10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
         );
 
         let crossover_population = ga.crossover();
