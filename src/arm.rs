@@ -115,7 +115,7 @@ mod tests {
         arm.pull();
 
         assert_eq!(arm.get_num_pulls(), 2);
-        assert_eq!(arm.get_mean_reward(), 5.0);  // Since reward is always 5.0
+        assert_eq!(arm.get_mean_reward(), 5.0); // Since reward is always 5.0
     }
 
     #[test]
@@ -148,5 +148,4 @@ mod tests {
         assert_eq!(arm.get_num_pulls(), cloned_arm.get_num_pulls());
         assert_eq!(arm.get_mean_reward(), cloned_arm.get_mean_reward());
     }
-
 }
