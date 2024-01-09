@@ -1,16 +1,17 @@
 use std::collections::HashSet;
-use crate::arm::{Arm, OptimizationFn};
-use rand_distr::{Normal, Distribution};
-use rand::Rng;
-use rand::seq::SliceRandom;
 
+use rand::seq::SliceRandom;
+use rand::Rng;
+use rand_distr::{Distribution, Normal};
+
+use crate::arm::{Arm, OptimizationFn};
 
 pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
     mutation_rate: f64,
     crossover_rate: f64,
     mutation_span: f64,
     population_size: usize,
-    individuals: Vec<Arm<F>>,
+    individuals: Vec<Arm>,
     pub(crate) opti_function: F,
     max_simulations: i32,
     dimension: usize,
@@ -24,7 +25,7 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         self.population_size
     }
 
-    pub(crate) fn get_individuals(&mut self) -> &mut Vec<Arm<F>> {
+    pub(crate) fn get_individuals(&mut self) -> &mut Vec<Arm> {
         &mut self.individuals
     }
 
@@ -51,13 +52,18 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
     ) -> Self {
-        let mut individuals: Vec<Arm<F>> = Vec::new();
+        let mut individuals: Vec<Arm> = Vec::new();
         let mut init_solutions: Vec<Vec<i32>> = Vec::new();
 
         for _ in 0..population_size {
-            let action_vector = Self::generate_unique_solution(&init_solutions, &lower_bound, &upper_bound, dimension);
+            let action_vector = Self::generate_unique_solution(
+                &init_solutions,
+                &lower_bound,
+                &upper_bound,
+                dimension,
+            );
             init_solutions.push(action_vector.clone());
-            individuals.push(Arm::new(opti_function.clone(), &action_vector));
+            individuals.push(Arm::new(&action_vector));
         }
 
         Self {
@@ -99,8 +105,8 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         self.individuals.shuffle(&mut rng);
     }
 
-    pub(crate) fn crossover(&self) -> Vec<Arm<F>> {
-        let mut crossover_pop: Vec<Arm<F>> = Vec::new();
+    pub(crate) fn crossover(&self) -> Vec<Arm> {
+        let mut crossover_pop: Vec<Arm> = Vec::new();
         let population_size = self.get_population_size();
 
         for i in (0..population_size).step_by(2) {
@@ -111,14 +117,20 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
 
                 for j in 1..=max_dim_index {
                     if swap_rv == j {
-                        let mut cross_vec_1: Vec<i32> = self.individuals[i].get_action_vector()[0..j].to_vec();
-                        cross_vec_1.extend_from_slice(&self.individuals[i + 1].get_action_vector()[j..=max_dim_index]);
+                        let mut cross_vec_1: Vec<i32> =
+                            self.individuals[i].get_action_vector()[0..j].to_vec();
+                        cross_vec_1.extend_from_slice(
+                            &self.individuals[i + 1].get_action_vector()[j..=max_dim_index],
+                        );
 
-                        let mut cross_vec_2: Vec<i32> = self.individuals[i + 1].get_action_vector()[0..j].to_vec();
-                        cross_vec_2.extend_from_slice(&self.individuals[i].get_action_vector()[j..=max_dim_index]);
+                        let mut cross_vec_2: Vec<i32> =
+                            self.individuals[i + 1].get_action_vector()[0..j].to_vec();
+                        cross_vec_2.extend_from_slice(
+                            &self.individuals[i].get_action_vector()[j..=max_dim_index],
+                        );
 
-                        let new_individual_1 = Arm::new(self.opti_function.clone(), &cross_vec_1);
-                        let new_individual_2 = Arm::new(self.opti_function.clone(), &cross_vec_2);
+                        let new_individual_1 = Arm::new(&cross_vec_1);
+                        let new_individual_2 = Arm::new(&cross_vec_2);
 
                         crossover_pop.push(new_individual_1);
                         crossover_pop.push(new_individual_2);
@@ -126,29 +138,31 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
                 }
             } else {
                 // No Crossover
-                crossover_pop.push(self.individuals[i].clone());  // Assuming your Arm struct implements the Clone trait
-                crossover_pop.push(self.individuals[i + 1].clone());  // Assuming your Arm struct implements the Clone trait
+                crossover_pop.push(self.individuals[i].clone()); // Assuming your Arm struct implements the Clone trait
+                crossover_pop.push(self.individuals[i + 1].clone()); // Assuming your Arm struct implements the Clone trait
             }
         }
 
         crossover_pop
     }
 
-    pub(crate) fn mutate(&self, population: &[Arm<F>]) -> Vec<Arm<F>> {
+    pub(crate) fn mutate(&self, population: &[Arm]) -> Vec<Arm> {
         let mut mutated_population = Vec::new();
         let mut seen = HashSet::new();
         let mut rng = rand::thread_rng();
 
         for individual in population.iter() {
-
             // Clone the action vector
-            let mut new_action_vector = individual.get_action_vector().to_vec();  // Here I assumed `get_action_vector` returns a slice or Vec
+            let mut new_action_vector = individual.get_action_vector().to_vec(); // Here I assumed `get_action_vector` returns a slice or Vec
 
             for (i, value) in new_action_vector.iter_mut().enumerate() {
                 if rng.gen::<f64>() < self.mutation_rate {
-                    let adjustment = Normal::new(0.0, self.mutation_span * (self.upper_bound[i] - self.lower_bound[i]) as f64)
-                        .unwrap()
-                        .sample(&mut rng);
+                    let adjustment = Normal::new(
+                        0.0,
+                        self.mutation_span * (self.upper_bound[i] - self.lower_bound[i]) as f64,
+                    )
+                    .unwrap()
+                    .sample(&mut rng);
 
                     *value = (*value as f64 + adjustment)
                         .max(self.lower_bound[i] as f64)
@@ -156,8 +170,7 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
                 }
             }
 
-
-            let new_individual = Arm::new(individual.arm_fn.clone(), new_action_vector.as_slice());
+            let new_individual = Arm::new(new_action_vector.as_slice());
 
             if seen.insert(new_individual.clone()) {
                 mutated_population.push(new_individual);
@@ -264,7 +277,7 @@ mod tests {
     fn test_mutate() {
         let ga = GeneticAlgorithm::new(
             mock_opti_function,
-            2, // Two individuals in population
+            2,   // Two individuals in population
             1.0, // 100% mutation rate for demonstration
             0.9,
             1.0,
@@ -274,10 +287,7 @@ mod tests {
             vec![10, 10],
         );
 
-        let initial_population = vec![
-            Arm::new(mock_opti_function, &vec![1, 1]),
-            Arm::new(mock_opti_function, &vec![2, 2])
-        ];
+        let initial_population = vec![Arm::new(&vec![1, 1]), Arm::new(&vec![2, 2])];
 
         let mutated_population = ga.mutate(&initial_population);
 
@@ -312,7 +322,13 @@ mod tests {
         let crossover_population = ga.crossover();
 
         // Since the crossover rate is 100%, the two individuals should not be identical to the original individuals
-        assert_ne!(crossover_population[0].get_action_vector(), ga.individuals[0].get_action_vector());
-        assert_ne!(crossover_population[1].get_action_vector(), ga.individuals[1].get_action_vector());
+        assert_ne!(
+            crossover_population[0].get_action_vector(),
+            ga.individuals[0].get_action_vector()
+        );
+        assert_ne!(
+            crossover_population[1].get_action_vector(),
+            ga.individuals[1].get_action_vector()
+        );
     }
 }
