@@ -61,7 +61,6 @@ pub struct Gmab<F: OptimizationFn> {
     arm_memory: Vec<Arm>,
     lookup_table: HashMap<Vec<i32>, i32>,
     genetic_algorithm: GeneticAlgorithm<F>,
-    current_indexes: Vec<i32>,
 }
 
 impl<F: OptimizationFn + Clone> Gmab<F> {
@@ -114,7 +113,6 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             arm_memory,
             lookup_table,
             genetic_algorithm,
-            current_indexes: Vec::new(),
         }
     }
 
@@ -212,7 +210,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
     pub fn optimize(&mut self, verbose: bool) -> Vec<i32> {
         loop {
             self.genetic_algorithm.get_individuals().clear();
-            self.current_indexes.clear();
+            let mut current_indexes: Vec<i32> = Vec::new();
 
             // get first self.population_size elements from sorted tree and use value to get arm
             self.sample_average_tree
@@ -222,7 +220,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                     self.genetic_algorithm
                         .get_individuals()
                         .push(self.arm_memory[*arm_index as usize].clone());
-                    self.current_indexes.push(*arm_index);
+                    current_indexes.push(*arm_index);
                 });
 
             // shuffle population
@@ -239,7 +237,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 let arm_index = self.get_arm_index(&individual);
 
                 // check if arm is in current population
-                if self.current_indexes.contains(&arm_index) {
+                if current_indexes.contains(&arm_index) {
                     continue;
                 }
 
