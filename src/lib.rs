@@ -228,7 +228,9 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             // shuffle population
             self.genetic_algorithm.shuffle_population();
 
-            let crossover_pop = self.genetic_algorithm.crossover();
+            let individuals = self.genetic_algorithm.get_individuals().clone();
+
+            let crossover_pop = self.genetic_algorithm.crossover(&individuals);
 
             // mutate automatically removes duplicates
             let mutated_pop = self.genetic_algorithm.mutate(&crossover_pop);

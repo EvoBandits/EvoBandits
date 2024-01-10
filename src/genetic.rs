@@ -105,7 +105,7 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         self.individuals.shuffle(&mut rng);
     }
 
-    pub(crate) fn crossover(&self) -> Vec<Arm> {
+    pub(crate) fn crossover(&self, population: &[Arm]) -> Vec<Arm> {
         let mut crossover_pop: Vec<Arm> = Vec::new();
         let population_size = self.get_population_size();
 
@@ -118,15 +118,15 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
                 for j in 1..=max_dim_index {
                     if swap_rv == j {
                         let mut cross_vec_1: Vec<i32> =
-                            self.individuals[i].get_action_vector()[0..j].to_vec();
+                            population[i].get_action_vector()[0..j].to_vec();
                         cross_vec_1.extend_from_slice(
-                            &self.individuals[i + 1].get_action_vector()[j..=max_dim_index],
+                            &population[i + 1].get_action_vector()[j..=max_dim_index],
                         );
 
                         let mut cross_vec_2: Vec<i32> =
-                            self.individuals[i + 1].get_action_vector()[0..j].to_vec();
+                            population[i + 1].get_action_vector()[0..j].to_vec();
                         cross_vec_2.extend_from_slice(
-                            &self.individuals[i].get_action_vector()[j..=max_dim_index],
+                            &population[i].get_action_vector()[j..=max_dim_index],
                         );
 
                         let new_individual_1 = Arm::new(&cross_vec_1);
@@ -138,8 +138,8 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
                 }
             } else {
                 // No Crossover
-                crossover_pop.push(self.individuals[i].clone()); // Assuming your Arm struct implements the Clone trait
-                crossover_pop.push(self.individuals[i + 1].clone()); // Assuming your Arm struct implements the Clone trait
+                crossover_pop.push(population[i].clone());
+                crossover_pop.push(population[i + 1].clone());
             }
         }
 
@@ -319,7 +319,9 @@ mod tests {
             vec![10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
         );
 
-        let crossover_population = ga.crossover();
+        let initial_population = vec![Arm::new(&vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), Arm::new(&vec![9, 8, 7, 6, 5, 4, 3, 2, 1, 0])];
+
+        let crossover_population = ga.crossover(&initial_population);
 
         // Since the crossover rate is 100%, the two individuals should not be identical to the original individuals
         assert_ne!(
