@@ -11,7 +11,6 @@ pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
     crossover_rate: f64,
     mutation_span: f64,
     population_size: usize,
-    individuals: Vec<Arm>,
     pub(crate) opti_function: F,
     max_simulations: i32,
     dimension: usize,
@@ -23,10 +22,6 @@ pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
 impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
     pub(crate) fn get_population_size(&self) -> usize {
         self.population_size
-    }
-
-    pub(crate) fn get_individuals(&mut self) -> &mut Vec<Arm> {
-        &mut self.individuals
     }
 
     pub(crate) fn get_simulations_used(&self) -> i32 {
@@ -52,26 +47,12 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
     ) -> Self {
-        let mut individuals: Vec<Arm> = Vec::new();
-        let mut init_solutions: Vec<Vec<i32>> = Vec::new();
-
-        for _ in 0..population_size {
-            let action_vector = Self::generate_unique_solution(
-                &init_solutions,
-                &lower_bound,
-                &upper_bound,
-                dimension,
-            );
-            init_solutions.push(action_vector.clone());
-            individuals.push(Arm::new(&action_vector));
-        }
 
         Self {
             mutation_rate,
             crossover_rate,
             mutation_span,
             population_size,
-            individuals,
             opti_function,
             max_simulations,
             dimension,
@@ -100,9 +81,21 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         }
     }
 
-    pub(crate) fn shuffle_population(&mut self) {
-        let mut rng = rand::thread_rng();
-        self.individuals.shuffle(&mut rng);
+    pub(crate) fn generate_new_population(&self) -> Vec<Arm> {
+        let mut individuals: Vec<Arm> = Vec::new();
+        let mut init_solutions: Vec<Vec<i32>> = Vec::new();
+
+        for _ in 0..self.population_size {
+            let action_vector = Self::generate_unique_solution(
+                &init_solutions,
+                &self.lower_bound,
+                &self.upper_bound,
+                self.dimension,
+            );
+            init_solutions.push(action_vector.clone());
+            individuals.push(Arm::new(&action_vector));
+        }
+        individuals
     }
 
     pub(crate) fn crossover(&self, population: &[Arm]) -> Vec<Arm> {

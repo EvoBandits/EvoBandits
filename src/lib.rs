@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::collections::{BTreeMap, HashMap};
+use rand::seq::SliceRandom;
 
 use arm::Arm;
 use genetic::GeneticAlgorithm;
@@ -101,7 +102,9 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
-        for (index, individual) in genetic_algorithm.get_individuals().iter_mut().enumerate() {
+        let mut initial_population = genetic_algorithm.generate_new_population();
+
+        for (index, individual) in initial_population.iter_mut().enumerate() {
             individual.pull(&opti_function);
             arm_memory.push(individual.clone());
             lookup_table.insert(individual.get_action_vector().to_vec(), index as i32);
@@ -209,24 +212,23 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
 
     pub fn optimize(&mut self, verbose: bool) -> Vec<i32> {
         loop {
-            self.genetic_algorithm.get_individuals().clear();
             let mut current_indexes: Vec<i32> = Vec::new();
+            let mut population: Vec<Arm> = Vec::new();
 
             // get first self.population_size elements from sorted tree and use value to get arm
             self.sample_average_tree
                 .iter()
                 .take(self.genetic_algorithm.get_population_size())
                 .for_each(|(_key, arm_index)| {
-                    self.genetic_algorithm
-                        .get_individuals()
+                    population
                         .push(self.arm_memory[*arm_index as usize].clone());
                     current_indexes.push(*arm_index);
                 });
 
             // shuffle population
-            self.genetic_algorithm.shuffle_population();
+            population.shuffle(&mut rand::thread_rng());
 
-            let individuals = self.genetic_algorithm.get_individuals().clone();
+            let individuals = population.clone();
 
             let crossover_pop = self.genetic_algorithm.crossover(&individuals);
 
@@ -250,7 +252,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 }
             }
 
-            let individuals = self.genetic_algorithm.get_individuals().clone();
+            let individuals = population.clone();
 
             for individual in individuals {
                 let arm_index = self.get_arm_index(&individual);
