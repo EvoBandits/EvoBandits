@@ -86,7 +86,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
     ) -> Gmab<F> {
-        let mut genetic_algorithm = GeneticAlgorithm::new(
+        let genetic_algorithm = GeneticAlgorithm::new(
             opti_function.clone(),
             population_size,
             mutation_rate,
@@ -228,9 +228,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             // shuffle population
             population.shuffle(&mut rand::thread_rng());
 
-            let individuals = population.clone();
-
-            let crossover_pop = self.genetic_algorithm.crossover(&individuals);
+            let crossover_pop = self.genetic_algorithm.crossover(&population);
 
             // mutate automatically removes duplicates
             let mutated_pop = self.genetic_algorithm.mutate(&crossover_pop);
@@ -252,9 +250,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 }
             }
 
-            let individuals = population.clone();
-
-            for individual in individuals {
+            for individual in population {
                 let arm_index = self.get_arm_index(&individual);
                 self.sample_and_update(arm_index, individual.clone());
 

@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 
-use rand::seq::SliceRandom;
 use rand::Rng;
 use rand_distr::{Distribution, Normal};
 
@@ -62,41 +61,24 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         }
     }
 
-    fn generate_unique_solution(
-        existing_solutions: &[Vec<i32>],
-        lower_bound: &[i32],
-        upper_bound: &[i32],
-        dimension: usize,
-    ) -> Vec<i32> {
-        let mut rng = rand::thread_rng();
-
-        loop {
-            let candidate_solution: Vec<i32> = (0..dimension)
-                .map(|j| rng.gen_range(lower_bound[j]..=upper_bound[j]))
-                .collect();
-
-            if !existing_solutions.contains(&candidate_solution) {
-                return candidate_solution;
-            }
-        }
-    }
-
     pub(crate) fn generate_new_population(&self) -> Vec<Arm> {
         let mut individuals: Vec<Arm> = Vec::new();
-        let mut init_solutions: Vec<Vec<i32>> = Vec::new();
+        let mut rng = rand::thread_rng();
 
-        for _ in 0..self.population_size {
-            let action_vector = Self::generate_unique_solution(
-                &init_solutions,
-                &self.lower_bound,
-                &self.upper_bound,
-                self.dimension,
-            );
-            init_solutions.push(action_vector.clone());
-            individuals.push(Arm::new(&action_vector));
+        while individuals.len() < self.population_size {
+            let candidate_solution: Vec<i32> = (0..self.dimension)
+                .map(|j| rng.gen_range(self.lower_bound[j]..=self.upper_bound[j]))
+                .collect();
+
+            let candidate_arm = Arm::new(&candidate_solution);
+
+            if !individuals.contains(&candidate_arm) {
+                individuals.push(candidate_arm);
+            }
         }
         individuals
     }
+
 
     pub(crate) fn crossover(&self, population: &[Arm]) -> Vec<Arm> {
         let mut crossover_pop: Vec<Arm> = Vec::new();
