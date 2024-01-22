@@ -19,7 +19,6 @@ pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
 }
 
 impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
-
     pub(crate) fn update_simulations_used(&mut self, number_of_new_simulations: i32) {
         self.simulations_used += number_of_new_simulations;
     }
@@ -39,7 +38,6 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
     ) -> Self {
-
         Self {
             mutation_rate,
             crossover_rate,
@@ -71,7 +69,6 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         }
         individuals
     }
-
 
     pub(crate) fn crossover(&self, population: &[Arm]) -> Vec<Arm> {
         let mut crossover_pop: Vec<Arm> = Vec::new();
@@ -288,18 +285,21 @@ mod tests {
             vec![10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
         );
 
-        let initial_population = vec![Arm::new(&vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), Arm::new(&vec![9, 8, 7, 6, 5, 4, 3, 2, 1, 0])];
+        let initial_population = vec![
+            Arm::new(&vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            Arm::new(&vec![9, 8, 7, 6, 5, 4, 3, 2, 1, 0]),
+        ];
 
         let crossover_population = ga.crossover(&initial_population);
 
         // Since the crossover rate is 100%, the two individuals should not be identical to the original individuals
         assert_ne!(
             crossover_population[0].get_action_vector(),
-            ga.individuals[0].get_action_vector()
+            initial_population[0].get_action_vector()
         );
         assert_ne!(
             crossover_population[1].get_action_vector(),
-            ga.individuals[1].get_action_vector()
+            initial_population[1].get_action_vector()
         );
     }
 }
