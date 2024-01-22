@@ -56,7 +56,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             individual.pull(&opti_function);
             arm_memory.push(individual.clone());
             lookup_table.insert(individual.get_action_vector().to_vec(), index as i32);
-            sample_average_tree.insert(FloatKey(individual.get_mean_reward()), index as i32);
+            sample_average_tree.insert(FloatKey::new(individual.get_mean_reward()), index as i32);
         }
 
         Gmab {
@@ -134,13 +134,13 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
     fn sample_and_update(&mut self, arm_index: i32, mut individual: Arm) {
         if arm_index >= 0 {
             self.sample_average_tree.delete(
-                &FloatKey(self.arm_memory[arm_index as usize].get_mean_reward()),
+                &FloatKey::new(self.arm_memory[arm_index as usize].get_mean_reward()),
                 &arm_index,
             );
             self.arm_memory[arm_index as usize].pull(&self.genetic_algorithm.opti_function);
             self.genetic_algorithm.update_simulations_used(1);
             self.sample_average_tree.insert(
-                FloatKey(self.arm_memory[arm_index as usize].get_mean_reward()),
+                FloatKey::new(self.arm_memory[arm_index as usize].get_mean_reward()),
                 arm_index,
             );
         } else {
@@ -152,7 +152,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 self.arm_memory.len() as i32 - 1,
             );
             self.sample_average_tree.insert(
-                FloatKey(individual.get_mean_reward()),
+                FloatKey::new(individual.get_mean_reward()),
                 self.arm_memory.len() as i32 - 1,
             );
         }
@@ -241,32 +241,32 @@ mod tests {
     #[test]
     fn test_sorted_multi_map_insert() {
         let mut map = SortedMultiMap::new();
-        map.insert(FloatKey(1.0), 1);
-        map.insert(FloatKey(1.0), 2);
-        map.insert(FloatKey(2.0), 3);
+        map.insert(FloatKey::new(1.0), 1);
+        map.insert(FloatKey::new(1.0), 2);
+        map.insert(FloatKey::new(2.0), 3);
 
         let mut iter = map.iter();
 
-        assert_eq!(iter.next(), Some((&FloatKey(1.0), &1)));
-        assert_eq!(iter.next(), Some((&FloatKey(1.0), &2)));
-        assert_eq!(iter.next(), Some((&FloatKey(2.0), &3)));
+        assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &1)));
+        assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &2)));
+        assert_eq!(iter.next(), Some((&FloatKey::new(2.0), &3)));
         assert_eq!(iter.next(), None);
     }
 
     #[test]
     fn test_sorted_multi_map_delete() {
         let mut map = SortedMultiMap::new();
-        map.insert(FloatKey(1.0), 1);
-        map.insert(FloatKey(1.0), 2);
-        map.insert(FloatKey(2.0), 3);
+        map.insert(FloatKey::new(1.0), 1);
+        map.insert(FloatKey::new(1.0), 2);
+        map.insert(FloatKey::new(2.0), 3);
 
-        assert!(map.delete(&FloatKey(1.0), &1));
-        assert!(map.delete(&FloatKey(2.0), &3));
-        assert!(!map.delete(&FloatKey(2.0), &3));
+        assert!(map.delete(&FloatKey::new(1.0), &1));
+        assert!(map.delete(&FloatKey::new(2.0), &3));
+        assert!(!map.delete(&FloatKey::new(2.0), &3));
 
         let mut iter = map.iter();
 
-        assert_eq!(iter.next(), Some((&FloatKey(1.0), &2)));
+        assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &2)));
         assert_eq!(iter.next(), None);
     }
 

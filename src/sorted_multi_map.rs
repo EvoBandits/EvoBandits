@@ -2,13 +2,22 @@ use std::cmp::Ordering;
 use std::collections::BTreeMap;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
-pub(crate) struct FloatKey(pub f64);
+pub(crate) struct FloatKey(f64);
+
+impl FloatKey {
+    pub fn new(value: f64) -> Self {
+        if value.is_nan() {
+            panic!("FloatKey cannot be created with NaN value");
+        }
+        FloatKey(value)
+    }
+}
 
 impl Eq for FloatKey {}
 
 impl Ord for FloatKey {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap_or(Ordering::Less)
+        self.partial_cmp(other).expect("No NaNs allowed, so this will never panic")
     }
 }
 
@@ -40,6 +49,7 @@ impl<K: Ord, V: PartialEq> SortedMultiMap<K, V> {
         }
         false
     }
+
 
     pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> {
         self.inner
