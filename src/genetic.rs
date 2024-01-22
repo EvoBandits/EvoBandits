@@ -9,23 +9,16 @@ pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
     mutation_rate: f64,
     crossover_rate: f64,
     mutation_span: f64,
-    population_size: usize,
+    pub(crate) population_size: usize,
     pub(crate) opti_function: F,
     max_simulations: i32,
     dimension: usize,
     lower_bound: Vec<i32>,
     upper_bound: Vec<i32>,
-    simulations_used: i32,
+    pub(crate) simulations_used: i32,
 }
 
 impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
-    pub(crate) fn get_population_size(&self) -> usize {
-        self.population_size
-    }
-
-    pub(crate) fn get_simulations_used(&self) -> i32 {
-        self.simulations_used
-    }
 
     pub(crate) fn update_simulations_used(&mut self, number_of_new_simulations: i32) {
         self.simulations_used += number_of_new_simulations;
@@ -82,13 +75,14 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
 
     pub(crate) fn crossover(&self, population: &[Arm]) -> Vec<Arm> {
         let mut crossover_pop: Vec<Arm> = Vec::new();
-        let population_size = self.get_population_size();
+        let population_size = self.population_size;
+        let mut rng = rand::thread_rng();
 
         for i in (0..population_size).step_by(2) {
             if rand::random::<f64>() < self.crossover_rate {
                 // Crossover
                 let max_dim_index = self.dimension - 1;
-                let swap_rv = rand::random::<usize>() % max_dim_index + 1;
+                let swap_rv = rng.gen_range(1..=max_dim_index);
 
                 for j in 1..=max_dim_index {
                     if swap_rv == j {

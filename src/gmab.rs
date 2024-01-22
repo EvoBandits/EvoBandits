@@ -111,7 +111,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 (self.arm_memory[*arm_index as usize].get_mean_reward() - ucb_norm_min)
                     / (ucb_norm_max - ucb_norm_min);
             let penalty_term: f64 = (2.0
-                * (self.genetic_algorithm.get_simulations_used() as f64).ln()
+                * (self.genetic_algorithm.simulations_used as f64).ln()
                 / self.arm_memory[*arm_index as usize].get_num_pulls() as f64)
                 .sqrt();
             let ucb_value: f64 = transformed_sample_mean + penalty_term;
@@ -166,7 +166,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             // get first self.population_size elements from sorted tree and use value to get arm
             self.sample_average_tree
                 .iter()
-                .take(self.genetic_algorithm.get_population_size())
+                .take(self.genetic_algorithm.population_size)
                 .for_each(|(_key, arm_index)| {
                     population
                         .push(self.arm_memory[*arm_index as usize].clone());
@@ -223,7 +223,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 }
                 print!(" f(x): {:.3}", sum / 50.0);
 
-                print!(" n: {}", self.genetic_algorithm.get_simulations_used());
+                print!(" n: {}", self.genetic_algorithm.simulations_used);
                 // print number of pulls of best arm
                 println!(
                     " n(x): {}",
