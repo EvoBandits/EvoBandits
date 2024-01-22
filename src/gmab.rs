@@ -1,7 +1,7 @@
-use std::collections::{HashMap};
-use rand::prelude::SliceRandom;
 use crate::arm::{Arm, OptimizationFn};
 use crate::genetic::GeneticAlgorithm;
+use rand::prelude::SliceRandom;
+use std::collections::HashMap;
 
 use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
 
@@ -110,8 +110,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             let transformed_sample_mean: f64 =
                 (self.arm_memory[*arm_index as usize].get_mean_reward() - ucb_norm_min)
                     / (ucb_norm_max - ucb_norm_min);
-            let penalty_term: f64 = (2.0
-                * (self.genetic_algorithm.simulations_used as f64).ln()
+            let penalty_term: f64 = (2.0 * (self.genetic_algorithm.simulations_used as f64).ln()
                 / self.arm_memory[*arm_index as usize].get_num_pulls() as f64)
                 .sqrt();
             let ucb_value: f64 = transformed_sample_mean + penalty_term;
@@ -168,8 +167,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 .iter()
                 .take(self.genetic_algorithm.population_size)
                 .for_each(|(_key, arm_index)| {
-                    population
-                        .push(self.arm_memory[*arm_index as usize].clone());
+                    population.push(self.arm_memory[*arm_index as usize].clone());
                     current_indexes.push(*arm_index);
                 });
 
@@ -287,7 +285,7 @@ mod tests {
             vec![0, 0],
             vec![10, 10],
         );
-        assert_eq!(gmab.genetic_algorithm.get_population_size(), 10);
+        assert_eq!(gmab.genetic_algorithm.population_size, 10);
         assert_eq!(gmab.arm_memory.len(), 10);
         assert_eq!(gmab.lookup_table.len(), 10);
 

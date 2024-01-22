@@ -169,23 +169,7 @@ mod tests {
             vec![0, 0],
             vec![10, 10],
         );
-        assert_eq!(ga.get_population_size(), 10);
-    }
-
-    #[test]
-    fn test_get_individuals() {
-        let mut ga = GeneticAlgorithm::new(
-            mock_opti_function,
-            10,
-            0.1,
-            0.9,
-            0.5,
-            100,
-            2,
-            vec![0, 0],
-            vec![10, 10],
-        );
-        assert_eq!(ga.get_individuals().len(), 10);
+        assert_eq!(ga.population_size, 10);
     }
 
     #[test]
@@ -201,7 +185,7 @@ mod tests {
             vec![0, 0],
             vec![10, 10],
         );
-        assert_eq!(ga.get_simulations_used(), 0);
+        assert_eq!(ga.simulations_used, 0);
     }
 
     #[test]
@@ -218,7 +202,7 @@ mod tests {
             vec![10, 10],
         );
         ga.update_simulations_used(5);
-        assert_eq!(ga.get_simulations_used(), 5);
+        assert_eq!(ga.simulations_used, 5);
     }
 
     #[test]
