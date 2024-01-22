@@ -2,7 +2,7 @@ use std::time::Instant;
 
 use rand_distr::{Distribution, Poisson};
 
-use gmab::Gmab;
+use gmab::gmab::Gmab;
 
 fn random_poisson(lambda: f64) -> i32 {
     let poi = Poisson::new(lambda).unwrap();
