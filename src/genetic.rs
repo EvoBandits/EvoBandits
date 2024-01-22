@@ -19,14 +19,6 @@ pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
 }
 
 impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
-    pub(crate) fn update_simulations_used(&mut self, number_of_new_simulations: i32) {
-        self.simulations_used += number_of_new_simulations;
-    }
-
-    pub(crate) fn budget_reached(&self) -> bool {
-        self.simulations_used >= self.max_simulations
-    }
-
     pub(crate) fn new(
         opti_function: F,
         population_size: usize,
@@ -50,6 +42,14 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
             upper_bound,
             simulations_used: 0,
         }
+    }
+
+    pub(crate) fn update_simulations_used(&mut self, number_of_new_simulations: i32) {
+        self.simulations_used += number_of_new_simulations;
+    }
+
+    pub(crate) fn budget_reached(&self) -> bool {
+        self.simulations_used >= self.max_simulations
     }
 
     pub(crate) fn generate_new_population(&self) -> Vec<Arm> {
