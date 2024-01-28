@@ -19,28 +19,21 @@ gmab = "0.1.0"
 ```
 
 ```rust
-use gmab::GMAB;
-use std::f64::consts::PI;
+use gmab::gmab::Gmab;
 
-fn ackley_function(x: &[f64]) -> f64 {
-    let n = x.len() as f64;
-    let sum1: f64 = x.iter().map(|&xi| xi.powi(2)).sum();
-    let sum2: f64 = x.iter().map(|&xi| (2.0 * PI * xi).cos()).sum();
-    -20.0 * (-0.2 * sum1 / n).sqrt().exp() - (sum2 / n).exp() + 20.0 + std::f64::consts::E
+fn your_function(x: &[f64]) -> f64 {
+    // your function here
 }
 
 fn main() {
-    let mut gmab = GMAB::new(ackley_function,
-                             20,
-                             0.25,
-                             1.0,
-                             0.1,
-                             10000,
-                             2,
-                             vec![-500, -500],
-                             vec![500, 500]);
-    let result = gmab.optimize(false);
-    println!("Result: {:?}", result);
+    fn main() {
+        let bounds = vec![(1, 100), (1, 100)];
+        let mut gmab = Gmab::new(your_function, bounds);
+        let evaluation_budget = 10000;
+        let result = gmab.optimize(eval_budget);
+        println!("Result: {:?}", result);
+    }
+}
 ```
 
 ## Contributing

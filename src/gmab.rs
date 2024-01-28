@@ -23,7 +23,29 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         }
     }
 
-    pub fn new(
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>) -> Gmab<F> {
+        let dimension = bounds.len();
+        let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
+        let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
+        // Default values for the Genetic Algorithm
+        let population_size = 20; // Default population size
+        let mutation_rate = 0.25; // Default mutation rate
+        let crossover_rate = 1.0; // Default crossover rate
+        let mutation_span = 0.1; // Default mutation span
+
+        Gmab::new_with_parameter(
+            opti_function,
+            population_size,
+            mutation_rate,
+            crossover_rate,
+            mutation_span,
+            dimension,
+            lower_bound,
+            upper_bound,
+        )
+    }
+
+    pub fn new_with_parameter(
         opti_function: F,
         population_size: usize,
         mutation_rate: f64,
@@ -153,7 +175,8 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         }
     }
 
-    pub fn optimize(&mut self, simulation_budget: usize, verbose: bool) -> Vec<i32> {
+    pub fn optimize(&mut self, simulation_budget: usize) -> Vec<i32> {
+        let verbose = false;
         let mut simulation_used: usize = 0;
         loop {
             let mut current_indexes: Vec<i32> = Vec::new();
@@ -273,7 +296,7 @@ mod tests {
 
     #[test]
     fn test_gmab_new() {
-        let gmab = Gmab::new(
+        let gmab = Gmab::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -297,7 +320,7 @@ mod tests {
 
     #[test]
     fn test_gmab_get_arm_index_with_existing() {
-        let mut gmab = Gmab::new(
+        let mut gmab = Gmab::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -316,7 +339,7 @@ mod tests {
 
     #[test]
     fn test_gmab_max_number_pulls() {
-        let gmab = Gmab::new(
+        let gmab = Gmab::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -331,7 +354,7 @@ mod tests {
 
     #[test]
     fn test_gmab_find_best_ucb() {
-        let gmab = Gmab::new(
+        let gmab = Gmab::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -346,7 +369,7 @@ mod tests {
 
     #[test]
     fn test_gmab_find_best_ucb_with_existing() {
-        let mut gmab = Gmab::new(
+        let mut gmab = Gmab::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -375,7 +398,7 @@ mod tests {
 
     #[test]
     fn test_gmab_sample_and_update_with_existing() {
-        let mut gmab = Gmab::new(
+        let mut gmab = Gmab::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
