@@ -11,11 +11,9 @@ pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
     mutation_span: f64,
     pub(crate) population_size: usize,
     pub(crate) opti_function: F,
-    max_simulations: i32,
     dimension: usize,
     lower_bound: Vec<i32>,
     upper_bound: Vec<i32>,
-    pub(crate) simulations_used: i32,
 }
 
 impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
@@ -25,7 +23,6 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
         mutation_rate: f64,
         crossover_rate: f64,
         mutation_span: f64,
-        max_simulations: i32,
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
@@ -36,20 +33,10 @@ impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
             mutation_span,
             population_size,
             opti_function,
-            max_simulations,
             dimension,
             lower_bound,
             upper_bound,
-            simulations_used: 0,
         }
-    }
-
-    pub(crate) fn update_simulations_used(&mut self, number_of_new_simulations: i32) {
-        self.simulations_used += number_of_new_simulations;
-    }
-
-    pub(crate) fn budget_reached(&self) -> bool {
-        self.simulations_used >= self.max_simulations
     }
 
     pub(crate) fn generate_new_population(&self) -> Vec<Arm> {
@@ -164,63 +151,11 @@ mod tests {
             0.1,
             0.9,
             0.5,
-            100,
             2,
             vec![0, 0],
             vec![10, 10],
         );
         assert_eq!(ga.population_size, 10);
-    }
-
-    #[test]
-    fn test_get_simulations_used() {
-        let ga = GeneticAlgorithm::new(
-            mock_opti_function,
-            10,
-            0.1,
-            0.9,
-            0.5,
-            100,
-            2,
-            vec![0, 0],
-            vec![10, 10],
-        );
-        assert_eq!(ga.simulations_used, 0);
-    }
-
-    #[test]
-    fn test_update_simulations_used() {
-        let mut ga = GeneticAlgorithm::new(
-            mock_opti_function,
-            10,
-            0.1,
-            0.9,
-            0.5,
-            100,
-            2,
-            vec![0, 0],
-            vec![10, 10],
-        );
-        ga.update_simulations_used(5);
-        assert_eq!(ga.simulations_used, 5);
-    }
-
-    #[test]
-    fn test_budget_reached() {
-        let mut ga = GeneticAlgorithm::new(
-            mock_opti_function,
-            10,
-            0.1,
-            0.9,
-            0.5,
-            100,
-            2,
-            vec![0, 0],
-            vec![10, 10],
-        );
-        assert_eq!(ga.budget_reached(), false);
-        ga.update_simulations_used(100);
-        assert_eq!(ga.budget_reached(), true);
     }
 
     #[test]
@@ -231,7 +166,6 @@ mod tests {
             1.0, // 100% mutation rate for demonstration
             0.9,
             1.0,
-            100,
             2,
             vec![0, 0],
             vec![10, 10],
@@ -263,7 +197,6 @@ mod tests {
             0.1,
             1.0, // 100% crossover rate for demonstration
             0.5,
-            100,
             10, // higher dimension for demonstration so low probability of crossover leading to identical individuals
             vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             vec![10, 10, 10, 10, 10, 10, 10, 10, 10, 10],

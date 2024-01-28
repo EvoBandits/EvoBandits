@@ -29,7 +29,6 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         mutation_rate: f64,
         crossover_rate: f64,
         mutation_span: f64,
-        max_simulations: i32,
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
@@ -40,7 +39,6 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             mutation_rate,
             crossover_rate,
             mutation_span,
-            max_simulations,
             dimension,
             lower_bound,
             upper_bound,
@@ -77,7 +75,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         max_number_pulls
     }
 
-    fn find_best_ucb(&self) -> i32 {
+    fn find_best_ucb(&self, simulations_used: usize) -> i32 {
         let arm_index_ucb_norm_min: i32 = *self.sample_average_tree.iter().next().unwrap().1;
         let ucb_norm_min: f64 = self.arm_memory[arm_index_ucb_norm_min as usize].get_mean_reward();
 
@@ -110,7 +108,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             let transformed_sample_mean: f64 =
                 (self.arm_memory[*arm_index as usize].get_mean_reward() - ucb_norm_min)
                     / (ucb_norm_max - ucb_norm_min);
-            let penalty_term: f64 = (2.0 * (self.genetic_algorithm.simulations_used as f64).ln()
+            let penalty_term: f64 = (2.0 * (simulations_used as f64).ln()
                 / self.arm_memory[*arm_index as usize].get_num_pulls() as f64)
                 .sqrt();
             let ucb_value: f64 = transformed_sample_mean + penalty_term;
@@ -137,14 +135,12 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 &arm_index,
             );
             self.arm_memory[arm_index as usize].pull(&self.genetic_algorithm.opti_function);
-            self.genetic_algorithm.update_simulations_used(1);
             self.sample_average_tree.insert(
                 FloatKey::new(self.arm_memory[arm_index as usize].get_mean_reward()),
                 arm_index,
             );
         } else {
             individual.pull(&self.genetic_algorithm.opti_function);
-            self.genetic_algorithm.update_simulations_used(1);
             self.arm_memory.push(individual.clone());
             self.lookup_table.insert(
                 individual.get_action_vector().to_vec(),
@@ -157,7 +153,8 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         }
     }
 
-    pub fn optimize(&mut self, verbose: bool) -> Vec<i32> {
+    pub fn optimize(&mut self, simulation_budget: usize, verbose: bool) -> Vec<i32> {
+        let mut simulation_used: usize = 0;
         loop {
             let mut current_indexes: Vec<i32> = Vec::new();
             let mut population: Vec<Arm> = Vec::new();
@@ -188,9 +185,10 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 }
 
                 self.sample_and_update(arm_index, individual.clone());
+                simulation_used += 1;
 
-                if self.genetic_algorithm.budget_reached() {
-                    return self.arm_memory[self.find_best_ucb() as usize]
+                if simulation_used >= simulation_budget {
+                    return self.arm_memory[self.find_best_ucb(simulation_used) as usize]
                         .get_action_vector()
                         .to_vec();
                 }
@@ -199,16 +197,17 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
             for individual in population {
                 let arm_index = self.get_arm_index(&individual);
                 self.sample_and_update(arm_index, individual.clone());
+                simulation_used += 1;
 
-                if self.genetic_algorithm.budget_reached() {
-                    return self.arm_memory[self.find_best_ucb() as usize]
+                if simulation_used >= simulation_budget {
+                    return self.arm_memory[self.find_best_ucb(simulation_used) as usize]
                         .get_action_vector()
                         .to_vec();
                 }
             }
 
             if verbose {
-                let best_arm_index = self.find_best_ucb();
+                let best_arm_index = self.find_best_ucb(simulation_used);
                 print!(
                     "x: {:?}",
                     self.arm_memory[best_arm_index as usize].get_action_vector()
@@ -221,7 +220,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
                 }
                 print!(" f(x): {:.3}", sum / 50.0);
 
-                print!(" n: {}", self.genetic_algorithm.simulations_used);
+                print!(" n: {}", simulation_used);
                 // print number of pulls of best arm
                 println!(
                     " n(x): {}",
@@ -280,7 +279,6 @@ mod tests {
             0.1,
             0.9,
             0.5,
-            100,
             2,
             vec![0, 0],
             vec![10, 10],
@@ -305,7 +303,6 @@ mod tests {
             0.1,
             0.9,
             0.5,
-            100,
             2,
             vec![0, 0],
             vec![10, 10],
@@ -325,7 +322,6 @@ mod tests {
             0.1,
             0.9,
             0.5,
-            100,
             2,
             vec![0, 0],
             vec![10, 10],
@@ -341,12 +337,11 @@ mod tests {
             0.1,
             0.9,
             0.5,
-            100,
             2,
             vec![0, 0],
             vec![10, 10],
         );
-        assert_eq!(gmab.find_best_ucb(), 0);
+        assert_eq!(gmab.find_best_ucb(100), 0);
     }
 
     #[test]
@@ -357,7 +352,6 @@ mod tests {
             0.1,
             0.9,
             0.5,
-            100,
             2,
             vec![0, 0],
             vec![10, 10],
@@ -376,7 +370,7 @@ mod tests {
         gmab.sample_and_update(0, arm.clone());
         gmab.sample_and_update(1, arm2.clone());
 
-        assert_eq!(gmab.find_best_ucb(), 0);
+        assert_eq!(gmab.find_best_ucb(100), 0);
     }
 
     #[test]
@@ -387,7 +381,6 @@ mod tests {
             0.1,
             0.9,
             0.5,
-            100,
             2,
             vec![0, 0],
             vec![10, 10],
