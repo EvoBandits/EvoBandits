@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Preil"
+  given-names: "Deniz"
+  orcid: "https://orcid.org/0000-0001-7928-7267"
+- family-names: "Krapp"
+  given-names: "Michael"
+  orcid: "https://orcid.org/0009-0001-3003-6747"
+title: "Genetic multi-armed bandits: a reinforcement learning approach for discrete optimization via simulation"
+version: 0.1.0
+doi: 10.48550/arXiv.2302.07695
+date-released: 2024-03-18
+url: "https://github.com/TeamMoos/GMAB"
