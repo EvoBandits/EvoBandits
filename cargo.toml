@@ -1,0 +1,3 @@
+[workspace]
+members = ["gmab", "pygmab"]
+resolver = "2"
