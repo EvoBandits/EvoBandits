@@ -1,14 +1,13 @@
 use pyo3::prelude::*;
-use pyo3::types::PyTuple;
+use pyo3::types::PyList;
 
 #[pyfunction]
 fn call_python_function_with_chosen_arg(py: Python, py_func: PyObject) -> PyResult<i64> {
-    let chosen_number: i64 = 3;
-    // Call the passed-in Python function with that chosen number
-    let args = PyTuple::new(py, &[chosen_number]);
-    let result_pyobject = py_func.call1(py, args.unwrap())?;
+    let elements: Vec<i32> = vec![0, 1, 2, 3, 4, 0];
+    let list = PyList::new(py, elements)?;
 
-    // Extract the result back into an i64
+    let result_pyobject = py_func.call1(py, (list,))?;
+
     let result: i64 = result_pyobject.extract(py)?;
     Ok(result)
 }
