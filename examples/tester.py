@@ -8,4 +8,4 @@ def rosenbrock_function(number: list):
 
 if __name__ == '__main__':
     bounds = [(-5, 10), (-5, 10)]
-    print(gmab(rosenbrock_function, bounds, 100))
+    print(gmab(rosenbrock_function, bounds, 10000))
