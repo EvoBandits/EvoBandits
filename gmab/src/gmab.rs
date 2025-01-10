@@ -12,7 +12,7 @@ pub struct Gmab<F: OptimizationFn> {
     genetic_algorithm: GeneticAlgorithm<F>,
 }
 
-impl<F: OptimizationFn + Clone> Gmab<F> {
+impl<F: OptimizationFn> Gmab<F> {
     fn get_arm_index(&self, individual: &Arm) -> i32 {
         match self
             .lookup_table
@@ -56,7 +56,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         upper_bound: Vec<i32>,
     ) -> Gmab<F> {
         let genetic_algorithm = GeneticAlgorithm::new(
-            opti_function.clone(),
+            opti_function,
             population_size,
             mutation_rate,
             crossover_rate,
@@ -73,7 +73,7 @@ impl<F: OptimizationFn + Clone> Gmab<F> {
         let mut initial_population = genetic_algorithm.generate_new_population();
 
         for (index, individual) in initial_population.iter_mut().enumerate() {
-            individual.pull(&opti_function);
+            individual.pull(&genetic_algorithm.opti_function);
             arm_memory.push(individual.clone());
             lookup_table.insert(individual.get_action_vector().to_vec(), index as i32);
             sample_average_tree.insert(FloatKey::new(individual.get_mean_reward()), index as i32);

@@ -16,7 +16,7 @@ pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
     upper_bound: Vec<i32>,
 }
 
-impl<F: OptimizationFn + Clone> GeneticAlgorithm<F> {
+impl<F: OptimizationFn> GeneticAlgorithm<F> {
     pub(crate) fn new(
         opti_function: F,
         population_size: usize,
