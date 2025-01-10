@@ -1,0 +1,16 @@
+## Python Bindings
+
+We use Maturin to build the Python bindings for GMAB.
+
+### Installation
+
+```bash
+pip install maturin
+```
+
+### Building
+To install the Python package into your local environment for development, run the following command:
+
+```bash
+maturin develop
+```
