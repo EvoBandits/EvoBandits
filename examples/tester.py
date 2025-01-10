@@ -1,6 +1,6 @@
 from pygmab import optimizer as gmab
 
-def test_function(number: list):
+def test_function(number: list) -> float:
     return sum([i ** 2 for i in number])
 
 def rosenbrock_function(number: list):

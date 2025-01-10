@@ -26,14 +26,23 @@ fn your_function(x: &[f64]) -> f64 {
 }
 
 fn main() {
-    fn main() {
-        let bounds = vec![(1, 100), (1, 100)];
-        let mut gmab = Gmab::new(your_function, bounds);
-        let evaluation_budget = 10000;
-        let result = gmab.optimize(eval_budget);
-        println!("Result: {:?}", result);
-    }
+    let bounds = vec![(1, 100), (1, 100)];
+    let mut gmab = Gmab::new(your_function, bounds);
+    let evaluation_budget = 10000;
+    let result = gmab.optimize(eval_budget);
+    println!("Result: {:?}", result);
 }
+```
+
+```python
+from pygmab import optimizer as gmab
+
+def test_function(number: list) -> float:
+    # your function here
+
+if __name__ == '__main__':
+    bounds = [(-5, 10), (-5, 10)]
+    print(gmab(test_function, bounds, 10000))
 ```
 
 ## Contributing
