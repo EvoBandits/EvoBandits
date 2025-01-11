@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyList;
 
 use gmab::arm::OptimizationFn;
-use gmab::gmab::Gmab;
+use gmab::gmab::Gmab as RustGmab;
 
 struct PythonOptimizationFn {
     py_func: PyObject,
@@ -27,23 +27,27 @@ impl OptimizationFn for PythonOptimizationFn {
     }
 }
 
-#[pyfunction]
-fn optimizer(
-    py_func: PyObject,
-    bounds: Vec<(i32, i32)>,
-    simulation_budget: usize,
-) -> PyResult<Vec<i32>> {
-    let python_opti_fn = PythonOptimizationFn::new(py_func);
+#[pyclass]
+struct Gmab {
+    gmab: RustGmab<PythonOptimizationFn>,
+}
 
-    let mut gmab = Gmab::new(python_opti_fn, bounds);
+#[pymethods]
+impl Gmab {
+    #[new]
+    fn new(py_func: PyObject, bounds: Vec<(i32, i32)>) -> PyResult<Self> {
+        let python_opti_fn = PythonOptimizationFn::new(py_func);
+        let gmab = RustGmab::new(python_opti_fn, bounds);
+        Ok(Gmab { gmab })
+    }
 
-    let best_solution = gmab.optimize(simulation_budget);
-
-    Ok(best_solution)
+    fn optimize(&mut self, simulation_budget: usize) -> Vec<i32> {
+        self.gmab.optimize(simulation_budget)
+    }
 }
 
 #[pymodule]
 fn pygmab(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(optimizer, m)?)?;
+    m.add_class::<Gmab>().unwrap();
     Ok(())
 }
