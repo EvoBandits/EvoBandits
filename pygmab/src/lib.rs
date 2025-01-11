@@ -1,8 +1,8 @@
 use pyo3::prelude::*;
 use pyo3::types::PyList;
 
-use gmab::arm::OptimizationFn;
-use gmab::gmab::Gmab as RustGmab;
+use gmab_rust::arm::OptimizationFn;
+use gmab_rust::gmab::Gmab as RustGmab;
 
 struct PythonOptimizationFn {
     py_func: PyObject,
@@ -47,7 +47,7 @@ impl Gmab {
 }
 
 #[pymodule]
-fn pygmab(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn gmab(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Gmab>().unwrap();
     Ok(())
 }

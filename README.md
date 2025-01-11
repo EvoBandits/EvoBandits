@@ -35,14 +35,17 @@ fn main() {
 ```
 
 ```python
-from pygmab import optimizer as gmab
+from gmab import Gmab
 
 def test_function(number: list) -> float:
     # your function here
 
 if __name__ == '__main__':
     bounds = [(-5, 10), (-5, 10)]
-    print(gmab(test_function, bounds, 10000))
+    gmab = Gmab(test_function, bounds)
+    evaluation_budget = 10000
+    result = gmab.optimize(evaluation_budget)
+    print(result)
 ```
 
 ## Contributing

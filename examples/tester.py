@@ -1,4 +1,4 @@
-from pygmab import Gmab
+from gmab import Gmab
 
 def test_function(number: list) -> float:
     return sum([i ** 2 for i in number])
@@ -8,7 +8,7 @@ def rosenbrock_function(number: list):
 
 if __name__ == '__main__':
     bounds = [(-5, 10), (-5, 10)]
-
     gmab = Gmab(rosenbrock_function, bounds)
-
-    print(gmab.optimize(10000))
+    evaluation_budget = 10000
+    result = gmab.optimize(evaluation_budget)
+    print(result)
