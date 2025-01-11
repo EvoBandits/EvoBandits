@@ -14,3 +14,6 @@ To install the Python package into your local environment for development, run t
 ```bash
 maturin develop
 ```
+
+### Examples
+See PyO3/Maturin [Examples](https://github.com/PyO3/maturin?tab=readme-ov-file#examples)
