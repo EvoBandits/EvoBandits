@@ -5,7 +5,7 @@ We use Maturin to build the Python bindings for GMAB.
 ### Installation
 
 ```bash
-pip install maturin
+pipx install maturin
 ```
 
 ### Building
