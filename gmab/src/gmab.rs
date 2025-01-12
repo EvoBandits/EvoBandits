@@ -14,10 +14,7 @@ pub struct Gmab<F: OptimizationFn> {
 
 impl<F: OptimizationFn> Gmab<F> {
     fn get_arm_index(&self, individual: &Arm) -> i32 {
-        match self
-            .lookup_table
-            .get(&individual.get_action_vector().to_vec())
-        {
+        match self.lookup_table.get(individual.get_action_vector()) {
             Some(&index) => index,
             None => -1,
         }
@@ -72,11 +69,12 @@ impl<F: OptimizationFn> Gmab<F> {
 
         let mut initial_population = genetic_algorithm.generate_new_population();
 
-        for (index, individual) in initial_population.iter_mut().enumerate() {
+        for index in 0..initial_population.len() {
+            let mut individual = initial_population.remove(0); // Take ownership of individual
             individual.pull(&genetic_algorithm.opti_function);
-            arm_memory.push(individual.clone());
             lookup_table.insert(individual.get_action_vector().to_vec(), index as i32);
             sample_average_tree.insert(FloatKey::new(individual.get_mean_reward()), index as i32);
+            arm_memory.push(individual);
         }
 
         Gmab {
@@ -163,15 +161,15 @@ impl<F: OptimizationFn> Gmab<F> {
             );
         } else {
             individual.pull(&self.genetic_algorithm.opti_function);
-            self.arm_memory.push(individual.clone());
             self.lookup_table.insert(
                 individual.get_action_vector().to_vec(),
-                self.arm_memory.len() as i32 - 1,
+                self.arm_memory.len() as i32,
             );
             self.sample_average_tree.insert(
                 FloatKey::new(individual.get_mean_reward()),
-                self.arm_memory.len() as i32 - 1,
+                self.arm_memory.len() as i32,
             );
+            self.arm_memory.push(individual);
         }
     }
 
@@ -207,7 +205,7 @@ impl<F: OptimizationFn> Gmab<F> {
                     continue;
                 }
 
-                self.sample_and_update(arm_index, individual.clone());
+                self.sample_and_update(arm_index, individual);
                 simulation_used += 1;
 
                 if simulation_used >= simulation_budget {
@@ -219,7 +217,7 @@ impl<F: OptimizationFn> Gmab<F> {
 
             for individual in population {
                 let arm_index = self.get_arm_index(&individual);
-                self.sample_and_update(arm_index, individual.clone());
+                self.sample_and_update(arm_index, individual);
                 simulation_used += 1;
 
                 if simulation_used >= simulation_budget {

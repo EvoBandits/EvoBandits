@@ -17,7 +17,8 @@ impl Eq for FloatKey {}
 
 impl Ord for FloatKey {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).expect("No NaNs allowed, so this will never panic")
+        self.partial_cmp(other)
+            .expect("No NaNs allowed, so this will never panic")
     }
 }
 
@@ -34,7 +35,7 @@ impl<K: Ord, V: PartialEq> SortedMultiMap<K, V> {
     }
 
     pub fn insert(&mut self, key: K, value: V) {
-        self.inner.entry(key).or_insert_with(Vec::new).push(value);
+        self.inner.entry(key).or_default().push(value);
     }
 
     pub fn delete(&mut self, key: &K, value: &V) -> bool {
@@ -49,7 +50,6 @@ impl<K: Ord, V: PartialEq> SortedMultiMap<K, V> {
         }
         false
     }
-
 
     pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> {
         self.inner
