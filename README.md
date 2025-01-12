@@ -5,6 +5,11 @@
 <p align="center">
 <em>GMAB is a cutting-edge optimization algorithm that merges genetic algorithms and multi-armed bandit strategies to efficiently solve stochastic problems.</em>
 </p>
+<p align="center">
+<a href="https://github.com/E-MAB/G-MAB/actions?query=workflow%3ARust+event%3Apush+branch%3Amain" target="_blank">
+    <img src="https://github.com/E-MAB/G-MAB/actions/workflows/rust.yml/badge.svg?event=push&branch=main" alt="Build & Test">
+</a>
+</p>
 
 ---
 
