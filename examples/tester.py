@@ -1,6 +1,9 @@
 from gmab import Gmab, tester, GmabSearchCV
 import random
 
+def test_function(number: list) -> float:
+    return sum([i ** 2 for i in number])
+
 def rosenbrock_function(number: list):
     return sum([100 * (number[i + 1] - number[i] ** 2) ** 2 + (1 - number[i]) ** 2 for i in range(len(number) - 1)])
 
@@ -9,13 +12,11 @@ def random_noise_rosenbrock_function(number: list):
 
 
 if __name__ == '__main__':
-    evaluation_budget = 10000
     bounds = [(-5, 10), (-5, 10)]
     gmab = Gmab(random_noise_rosenbrock_function, bounds)
-
-    gmab.optimize(evaluation_budget)
-
-    print(gmab.optimize(evaluation_budget))
+    evaluation_budget = 10000
+    result = gmab.optimize(evaluation_budget)
+    print(result)
 
     tester()
 
