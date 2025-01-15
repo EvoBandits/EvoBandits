@@ -73,3 +73,5 @@ pip-selfcheck.json
 
 # Pyenv
 .python-version
+
+*.so
