@@ -1,4 +1,4 @@
-from gmab import Gmab, tester, GmabSearchCV
+from gmab import Gmab, GmabSearchCV
 
 def test_function(number: list) -> float:
     return sum([i ** 2 for i in number])
@@ -13,15 +13,16 @@ if __name__ == '__main__':
     result = gmab.optimize(evaluation_budget)
     print(result)
 
-    tester()
-
     from sklearn.datasets import load_iris
     from sklearn.linear_model import LogisticRegression
     from scipy.stats import uniform
     iris = load_iris()
     logistic = LogisticRegression(solver='saga', tol=1e-2, max_iter=200,
                                   random_state=0)
-    distributions = dict(C=uniform(loc=0, scale=4))
+    distributions = {
+        'max_iter': (100, 200),
+        'random_state': (0, 100),
+    }
     clf = GmabSearchCV(logistic, distributions)
     search = clf.fit(iris.data, iris.target)
     print(search.best_params_)
