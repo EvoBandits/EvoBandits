@@ -1,4 +1,4 @@
-from .search import tester
+from .search import tester, GmabSearchCV
 from .gmab import Gmab
 
-__all__ = ['Gmab', 'tester']
+__all__ = ['Gmab', 'tester', 'GmabSearchCV']
