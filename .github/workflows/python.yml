@@ -44,11 +44,11 @@ jobs:
           args: --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
           sccache: "true"
           manylinux: auto
-      #      - name: Upload wheels
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: wheels-linux-${{ matrix.platform.target }}
-      #          path: dist
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-${{ matrix.platform.target }}
+          path: dist
       - name: pytest
         if: ${{ startsWith(matrix.platform.target, 'x86_64') }}
         shell: bash
@@ -100,11 +100,11 @@ jobs:
           args: --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
           sccache: "true"
           manylinux: musllinux_1_2
-      #      - name: Upload wheels
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: wheels-musllinux-${{ matrix.platform.target }}
-      #          path: dist
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-musllinux-${{ matrix.platform.target }}
+          path: dist
       - name: pytest
         if: ${{ startsWith(matrix.platform.target, 'x86_64') }}
         uses: addnab/docker-run-action@v3
@@ -157,11 +157,11 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
           sccache: "true"
-      #      - name: Upload wheels
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: wheels-windows-${{ matrix.platform.target }}
-      #          path: dist
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-${{ matrix.platform.target }}
+          path: dist
       - name: pytest
         if: ${{ !startsWith(matrix.platform.target, 'aarch64') }}
         shell: bash
@@ -193,11 +193,11 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
           sccache: "true"
-      #      - name: Upload wheels
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: wheels-macos-${{ matrix.platform.target }}
-      #          path: dist
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-${{ matrix.platform.target }}
+          path: dist
       - name: pytest
         run: |
           set -e
