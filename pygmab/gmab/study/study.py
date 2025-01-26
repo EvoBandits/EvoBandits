@@ -56,6 +56,6 @@ class Study:
         self._best_trial = gmab.optimize(n_simulations)
 
 
-def create_study(study_name: str | None = None) -> Study:
+def create_study() -> Study:
     """Create a new :class:`~gmab.study.Study`."""
-    return Study(study_name)
+    return Study()
