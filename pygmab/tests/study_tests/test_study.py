@@ -15,7 +15,7 @@ def rosenbrock_function(number: list):
 def test_best_trial():
     study = gmab.create_study()
 
-    # best_trial cannot be inspected before optimizing
+    # best_trial requires running study.optimize()
     with pytest.raises(RuntimeError):
         result = study.best_trial
 
