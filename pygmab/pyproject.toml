@@ -14,7 +14,7 @@ dynamic = ["version"]
 dependencies = ["scikit-learn"]
 
 [tool.maturin]
-module-name = "gmab._gmab"
+python-source = "python"
 features = ["pyo3/extension-module"]
 
 [tool.ruff]
