@@ -15,7 +15,6 @@ dependencies = ["scikit-learn"]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
-module-name = "gmab._gmab"
 
 [tool.ruff]
 target-version = "py310"

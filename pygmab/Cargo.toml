@@ -10,4 +10,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = "0.23.4"
-gmab_rust = { package = "gmab", path = "../gmab" }
+gmab-core = { workspace = true }

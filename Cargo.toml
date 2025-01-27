@@ -1,3 +1,6 @@
 [workspace]
-members = ["gmab", "pygmab"]
+members = ["crates/*", "pygmab"]
 resolver = "2"
+
+[workspace.dependencies]
+gmab-core = { path = "crates/gmab-core" }

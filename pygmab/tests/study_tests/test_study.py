@@ -1,6 +1,6 @@
 import pytest
 
-import gmab
+from gmab import create_study
 
 
 def rosenbrock_function(number: list):
@@ -13,7 +13,7 @@ def rosenbrock_function(number: list):
 
 
 def test_best_trial():
-    study = gmab.create_study()
+    study = create_study()
 
     # best_trial requires running study.optimize()
     with pytest.raises(RuntimeError):

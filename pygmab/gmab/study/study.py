@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from gmab import Gmab
+from ..gmab import Gmab
 
 
 class Study:
