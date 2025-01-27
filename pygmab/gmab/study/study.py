@@ -1,8 +1,6 @@
 from collections.abc import Callable
-import contextlib
 
-with contextlib.suppress(ImportError):
-    from gmab.gmab import Gmab
+from gmab.gmab import Gmab
 
 
 class Study:
