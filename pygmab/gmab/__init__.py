@@ -1,4 +1,4 @@
-from gmab._gmab import Gmab
+from ._gmab import Gmab
 
 from .search import GmabSearchCV
 from .study import Study, create_study
