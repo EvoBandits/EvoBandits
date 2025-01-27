@@ -1,4 +1,4 @@
-from .gmab import Gmab
+from gmab.gmab import Gmab
 from sklearn.model_selection._search import BaseSearchCV
 import numpy as np
 
