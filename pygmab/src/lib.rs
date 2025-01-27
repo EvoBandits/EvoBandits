@@ -47,7 +47,7 @@ impl Gmab {
 }
 
 #[pymodule]
-fn gmab(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _gmab(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Gmab>().unwrap();
     Ok(())
 }
