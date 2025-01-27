@@ -1,7 +1,9 @@
-from gmab.gmab import Gmab
+import contextlib
 from sklearn.model_selection._search import BaseSearchCV
 import numpy as np
 
+with contextlib.suppress(ImportError):
+    from gmab.gmab import Gmab
 
 # https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/model_selection/_search.py#L433
 class GmabSearchCV(BaseSearchCV):
