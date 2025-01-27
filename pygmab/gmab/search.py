@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.model_selection._search import BaseSearchCV
 
-from gmab.gmab import Gmab
+from gmab._gmab import Gmab
 
 # https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/model_selection/_search.py#L433
 class GmabSearchCV(BaseSearchCV):
