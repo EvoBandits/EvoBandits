@@ -54,8 +54,8 @@ class Study:
                 The number of simulations per trial. A trial will continue until the
                 number of elapsed simulations reaches `n_simulations`.
         """
-        gmab = Gmab(func, bounds)
-        self._best_trial = gmab.optimize(n_simulations)
+        gmab_opt = Gmab(func, bounds)
+        self._best_trial = gmab_opt.optimize(n_simulations)
 
 
 def create_study() -> Study:
