@@ -21,10 +21,11 @@ class Trial(Singleton):
             self._bounds = bounds
         return self._bounds
 
-    def suggest_int(self, name: str, low: int, high: int) -> None:
-        self._names.append(name)
-        self._low.append(low)
-        self._high.append(high)
+    def suggest_int(self, name: str, low: int, high: int, size: int = 1) -> None:
+        for idx in range(size):
+            self._names.append(f"{name}_{idx}")
+            self._low.append(low)
+            self._high.append(high)
 
 
 # Instantiate Trial in the module to replicate Optuna's behaviour
