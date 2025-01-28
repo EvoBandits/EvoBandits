@@ -1,6 +1,7 @@
 from collections.abc import Callable
 
 from gmab.gmab import Gmab
+from gmab.trial.trial import Trial
 
 
 class Study:
@@ -15,6 +16,7 @@ class Study:
     """
 
     def __init__(self) -> None:
+        self._trial: Trial = Trial()
         self._best_trial: dict | None = None
 
     @property
@@ -32,7 +34,7 @@ class Study:
     def optimize(
         self,
         func: Callable,
-        bounds: list[tuple],
+        params: dict,
         n_simulations: int,
     ) -> None:
         """Optimize an objective function.
@@ -46,13 +48,13 @@ class Study:
         Args:
             func:
                 A callable that implements the objective function.
-            bounds:
-                A list of of tuples that define the bounds for each decision variable.
+            params:
+                A dict that sets bounds for the arguments of the objective function.
             n_simulations:
                 The number of simulations per trial. A trial will continue until the
                 number of elapsed simulations reaches `n_simulations`.
         """
-        gmab = Gmab(func, bounds)
+        gmab = Gmab(func, self._trial.bounds)
         self._best_trial = gmab.optimize(n_simulations)
 
 

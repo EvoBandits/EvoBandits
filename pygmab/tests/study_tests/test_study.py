@@ -1,6 +1,5 @@
 import pytest
-
-import gmab
+from gmab import create_study, trial
 
 
 def rosenbrock_function(number: list):
@@ -13,14 +12,14 @@ def rosenbrock_function(number: list):
 
 
 def test_best_trial():
-    study = gmab.create_study()
+    study = create_study()
 
     # best_trial requires running study.optimize()
     with pytest.raises(RuntimeError):
         result = study.best_trial
 
-    bounds = [(-5, 10), (-5, 10)]
+    params = {"number": trial.suggest_int("number", -5, 10, 2)}
     n_simulations = 10_000
-    study.optimize(rosenbrock_function, bounds, n_simulations)
+    study.optimize(rosenbrock_function, params, n_simulations)
     result = study.best_trial
     assert result == [1, 1]
