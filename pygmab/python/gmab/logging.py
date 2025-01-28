@@ -109,55 +109,16 @@ def get_logger(name: str) -> logging.Logger:
 #     return _get_library_root_logger().getEffectiveLevel()
 
 
-# def set_verbosity(verbosity: int) -> None:
-#     """Set the level for the Optuna's root logger.
+def set_level(level: int) -> None:
+    """Set the level for gmab's root logger.
 
-#     Example:
+    Args:
+        verbosity:
+            Logging level, e.g., ``gmab.logging.DEBUG`` or ``gmab.logging.INFO``.
 
-#         Set the logging level ``optuna.logging.WARNING``.
-
-#         .. testsetup::
-
-#             def objective(trial):
-#                 x = trial.suggest_int("x", -10, 10)
-#                 return x**2
-
-#         .. testcode::
-
-#             import optuna
-
-#             # There are INFO level logs.
-#             study = optuna.create_study()
-#             study.optimize(objective, n_trials=10)
-#             # [I 2021-10-31 02:59:35,088] Trial 0 finished with value: 16.0 ...
-#             # [I 2021-10-31 02:59:35,091] Trial 1 finished with value: 1.0 ...
-#             # [I 2021-10-31 02:59:35,096] Trial 2 finished with value: 1.0 ...
-
-#             # Setting the logging level WARNING, the INFO logs are suppressed.
-#             optuna.logging.set_verbosity(optuna.logging.WARNING)
-#             study.optimize(objective, n_trials=10)
-
-#         .. testcleanup::
-
-#             optuna.logging.set_verbosity(optuna.logging.INFO)
-
-
-#     Args:
-#         verbosity:
-#             Logging level, e.g., ``optuna.logging.DEBUG`` and ``optuna.logging.INFO``.
-
-#     .. note::
-#         Optuna has following logging levels:
-
-#         - ``optuna.logging.CRITICAL``, ``optuna.logging.FATAL``
-#         - ``optuna.logging.ERROR``
-#         - ``optuna.logging.WARNING``, ``optuna.logging.WARN``
-#         - ``optuna.logging.INFO``
-#         - ``optuna.logging.DEBUG``
-#     """
-
-#     _configure_library_root_logger()
-#     _get_library_root_logger().setLevel(verbosity)
+    """
+    _configure_library_root_logger()
+    _get_library_root_logger().setLevel(level)
 
 
 # def disable_default_handler() -> None:
