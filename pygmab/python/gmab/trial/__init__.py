@@ -1,3 +1,3 @@
-from gmab.trial.trial import trial
+from gmab.trial.trial import Trial, trial
 
-__all__ = ["trial"]
+__all__ = ["Trial", "trial"]

@@ -16,7 +16,7 @@ class Study:
     """
 
     def __init__(self) -> None:
-        self._trial: Trial = Trial()  # returns the current singleton
+        self._trial: Trial = Trial()  # points to singleton trial instance
         self._best_trial: dict | None = None
 
     @property

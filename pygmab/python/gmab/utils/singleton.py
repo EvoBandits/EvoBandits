@@ -1,5 +1,12 @@
 class Singleton:
-    """A singleton class that ensures only one instance per class exists."""
+    """
+    A singleton class that ensures only one instance of the class exists.
+
+    This design pattern restricts the instantiation of a class to a single object. The
+    `__new__` method is overridden to check if an instance already exists. If it does,
+    the existing instance is returned; otherwise, a new instance is created and stored.
+
+    """
 
     _instance = None
 
@@ -10,4 +17,5 @@ class Singleton:
 
     @classmethod
     def reset(cls):
+        """Resets the singleton instance, allowing the creation of a new instance."""
         cls._instance = None
