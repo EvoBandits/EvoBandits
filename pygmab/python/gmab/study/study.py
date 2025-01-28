@@ -16,7 +16,7 @@ class Study:
     """
 
     def __init__(self) -> None:
-        self._trial: Trial = Trial()
+        self._trial: Trial = Trial()  # returns the current singleton
         self._best_trial: dict | None = None
 
     @property
@@ -56,6 +56,11 @@ class Study:
         """
         gmab = Gmab(func, self._trial.bounds)
         self._best_trial = gmab.optimize(n_simulations)
+
+        # By resetting _trial, this trial instance is decoupled from the Singleton,
+        # enabling the next optimization run with different params, while keeping
+        # this trial for evaluation purposes.
+        self._trial.reset()
 
 
 def create_study() -> Study:

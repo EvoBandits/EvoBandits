@@ -7,3 +7,7 @@ class Singleton:
         if not cls._instance:
             cls._instance = super().__new__(cls, *args, **kwargs)
         return cls._instance
+
+    @classmethod
+    def reset(cls):
+        cls._instance = None

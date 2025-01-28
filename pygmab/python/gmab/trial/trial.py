@@ -12,6 +12,12 @@ class Trial(Singleton):
         if not hasattr(self, "_bounds"):
             self._bounds: list[tuple] | None = None
 
+    @classmethod
+    def reset(cls):
+        """Reset the Trial singleton instance, without cleanup.
+        # Decouple this instance from the singleton"""
+        super().reset()
+
     @property
     def bounds(self) -> list[tuple]:
         if not self._bounds:
