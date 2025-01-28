@@ -1,25 +1,37 @@
 import _pytest
-import _pytest.logging
+import _pytest.capture
 from gmab import logging
 
 
-def test_get_logger(caplog: _pytest.logging.LogCaptureFixture) -> None:
-    _logger = logging.get_logger("gmab.foo")
-    _logger.info("hello")
-    _logger.debug("bye")
+def test_get_logger(capsys: _pytest.capture.CaptureFixture) -> None:
+    logger = logging.get_logger("gmab.foo")
 
-    # Check if default level is logging.INFO
-    assert "hello" in caplog.text
-    assert "bye" not in caplog.text
+    logger.info("hello")
+    assert "hello" in capsys.readouterr().err  # Checks logging with a simple example
+
+    logger.debug("bye")
+    assert "bye" not in capsys.readouterr().err  # DEBUG is not displayed per default
 
 
-def test_level(caplog: _pytest.logging.LogCaptureFixture) -> None:
-    _logger = logging.get_logger("gmab.foo")
+def test_set_level(capsys: _pytest.capture.CaptureFixture) -> None:
+    logger = logging.get_logger("gmab.foo")
 
     logging.set_level(logging.DEBUG)
-    _logger.debug("debug_msg")
-    assert "debug_msg" in caplog.text  # Check if level has been lowered
+    logger.debug("debug_msg")
+    assert "debug_msg" in capsys.readouterr().err  # level is set to DEBUG
 
     logging.set_level(logging.CRITICAL)
-    _logger.error("error_msg")
-    assert "error_msg" not in caplog.text  # Check if level has been increased
+    logger.error("error_msg")
+    assert "error_msg" not in capsys.readouterr().err  # level is set to CRITICAL
+
+
+def test_disable(capsys: _pytest.capture.CaptureFixture) -> None:
+    logger = logging.get_logger("gmab.foo")
+
+    logging.disable()
+    logger.info("hello")
+    assert "hello" not in capsys.readouterr().err  # Logging is disabled
+
+    logging.enable()
+    logger.info("bye")
+    assert "bye" in capsys.readouterr().err  # Logging is enabled
