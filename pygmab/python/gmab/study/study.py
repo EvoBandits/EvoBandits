@@ -1,6 +1,9 @@
 from collections.abc import Callable
 
+from gmab import logging
 from gmab.gmab import Gmab
+
+_logger = logging.get_logger(__name__)
 
 
 class Study:
@@ -54,6 +57,7 @@ class Study:
         """
         gmab = Gmab(func, bounds)
         self._best_trial = gmab.optimize(n_simulations)
+        _logger.info("completed")
 
 
 def create_study() -> Study:
