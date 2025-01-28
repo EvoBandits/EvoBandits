@@ -1,10 +1,8 @@
-import _pytest
-import _pytest.capture
-import _pytest.logging
 from gmab import logging
+from pytest import CaptureFixture, LogCaptureFixture
 
 
-def test_get_logger(caplog: _pytest.logging.LogCaptureFixture) -> None:
+def test_get_logger(caplog: LogCaptureFixture) -> None:
     logger = logging.get_logger("gmab.foo")
 
     logger.info("hello")
@@ -14,7 +12,7 @@ def test_get_logger(caplog: _pytest.logging.LogCaptureFixture) -> None:
     assert "bye" not in caplog.text  # DEBUG is not displayed per default
 
 
-def test_set_level(caplog: _pytest.logging.LogCaptureFixture) -> None:
+def test_set_level(caplog: LogCaptureFixture) -> None:
     logger = logging.get_logger("gmab.foo")
 
     logging.set_level(logging.DEBUG)
@@ -26,7 +24,7 @@ def test_set_level(caplog: _pytest.logging.LogCaptureFixture) -> None:
     assert "error_msg" not in caplog.text  # level is set to CRITICAL
 
 
-def test_disable(capsys: _pytest.capture.CaptureFixture) -> None:
+def test_disable(capsys: CaptureFixture) -> None:
     logger = logging.get_logger("gmab.foo")
 
     logging.disable()

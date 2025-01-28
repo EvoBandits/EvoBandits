@@ -1,6 +1,6 @@
-import _pytest.logging
 import gmab
 import pytest
+from pytest import LogCaptureFixture
 
 
 def rosenbrock_function(number: list):
@@ -12,7 +12,7 @@ def rosenbrock_function(number: list):
     )
 
 
-def test_best_trial(caplog: _pytest.logging.LogCaptureFixture):
+def test_best_trial(caplog: LogCaptureFixture):
     study = gmab.create_study()
 
     # best_trial requires running study.optimize()
