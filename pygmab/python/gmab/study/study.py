@@ -59,8 +59,9 @@ class Study:
                 The number of simulations per trial. A trial will continue until the
                 number of elapsed simulations reaches `n_simulations`.
         """
-        # ToDo: Propagate the seed to rust-gmab, as soon as possible, like:
-        # gmab = Gmab(seed, func, bounds)
+        # ToDo: Propagate seed to Rust (32 or 64 bit?)
+        # algo_seed = self._rng.integers(0, 2**64)
+        # gmab = Gmab(algo_seed, func, bounds)
         gmab = Gmab(func, bounds)
         self._best_trial = gmab.optimize(n_simulations)
         _logger.info("completed")
