@@ -1,5 +1,5 @@
+import gmab
 import pytest
-from gmab import Study, create_study
 from pytest import LogCaptureFixture
 
 from tests._functions import rosenbrock
@@ -13,8 +13,8 @@ from tests._functions import rosenbrock
     ],
 )
 def test_create_study(seed, expected_warning, caplog: LogCaptureFixture):
-    study = create_study(seed)
-    assert isinstance(study, Study)
+    study = gmab.create_study(seed)
+    assert isinstance(study, gmab.Study)
     assert expected_warning in caplog.text
 
 
@@ -32,7 +32,7 @@ def test_create_study(seed, expected_warning, caplog: LogCaptureFixture):
     ],
 )
 def test_best_trial(seed, skip_optimize, expected_info, caplog: LogCaptureFixture):
-    study = create_study(seed)
+    study = gmab.create_study(seed)
 
     if not skip_optimize:
         n_simulations = 10_000
