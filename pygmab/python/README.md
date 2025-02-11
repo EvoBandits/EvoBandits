@@ -3,8 +3,8 @@ Suggestions how a user interface for pygmab can be implemented. Feel free to com
 
 ## 1. Create a Study
 
-Use create_study() to initialize an instance of Study, which is a class that handles algorithm
-control, and Bounds, which is a class that handles the algorithm's bounds and mapping of all parameters.
+Use create_study() to initialize an instance of `Study`, which is a class that handles algorithm
+control, and `Bounds`, which is a class that handles the algorithm's bounds and mapping of all parameters.
 
 ```python
 import gmab
@@ -18,7 +18,7 @@ The direct interface with rust uses a list of integers as action_vector, where a
 defines the bounds for each element of the action_vector. The action_vector is then used to
 simulate the objective.
 
-From ./examples/tester.py:
+From [./examples/tester.py](https://github.com/E-MAB/GMAB/blob/add-pygmab-readme/examples/tester.py)
 
 ```python
 from gmab import Gmab
@@ -37,8 +37,8 @@ if __name__ == "__main__":
     ...
 ```
 
-While this works well for an objective function with one integer decision vector, users likely
-expect an interactive interface that enables setting bounds for multiple parameters dynamically.
+While this works well for an objective function with one integer decision vector, users will
+expect an interface that enables dynamically setting bounds for multiple parameters and types.
 
 Internally, this will require:
 
@@ -53,14 +53,13 @@ parameter is configured with `bounds.suggest_categorical(["euclidean", "manhatta
 Below are two examples to illustrate how users will be able to define the objective and the
 params.
 
-### Net present value example (just for illustration of UI)
+### Net present value example (just for illustration of the UI)
 
-Compared to the rosenbrock function, a similar vector (list of numbers) is input as cash_flows
-if the net present value is calculated. The implementation below would enable the user to
-dynamically set bounds for cash_flows (in example: 3 periods, with 100 values between 0 and 100_000)
+Similar to integer decision vector of the rosenbrock function, the calculation of the net present
+value requires a `cash_flows` vector.
 
-In addition, an interest rate is also needed as input. With an `objective(numbers: list)` type
-of function, the user would need to explicitly handle this in the objective function.
+In addition, an interest rate is also needed to calcuate the NPV. With an `objective(numbers: list)`
+type of function, the user would need to explicitly handle this in the objective function.
 
 ```python
 def objective(cash_flows: list, interest: float) -> float:
@@ -99,6 +98,23 @@ params = {
 
 Use `study.optimize()` to start optimization with given settings.
 
+Names for settings are (somewhat) based on:
+
+* [optuna.study.Study](https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study)
+* [optuna.samplers.NSGAIISampler](https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.NSGAIISampler.html)
+
+
+| Name              | Description                                                             |
+|-------------------|-------------------------------------------------------------------------|
+| `max_time`        | Maximum execution time per algorithm instance                           |
+| `max_trials`      | Maximum number of simulations per algorithm instance                    |
+| `population_size` | Number of individuals (trials) in a generation                          |
+| `crossover_rate`  | Probability for a crossover (exchange of values between individuals)    |
+| `mutation_rate`   | Probability for a mutation (change to a value of an individual)         |
+| `mutation_span`   | Sets how much a value is altered during mutation                        |
+| `...`             | Other parameters to set verbose, parallelization, name, ...             |
+
+
 Internally, the method will store and transform the user inputs for rust-gmab, and then create
 and execute the set number of algorithm instances. Finally, it will also collect the results.
 
@@ -106,7 +122,7 @@ and execute the set number of algorithm instances. Finally, it will also collect
 study.optimize(objective, params, n_trials=5, n_simulations=10000, popsize=100, ...)
 ```
 
-## 4. Access the results (TBD.)
+## 4. Access the results (additional features TBD.)
 
 Use `study.best_trial()` to output the best result that has been returned.
 
