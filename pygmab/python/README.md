@@ -14,11 +14,11 @@ study, bounds = gmab.create_study(seed=42)
 
 ## 2. Define objective and bounds
 
-Rust-gmab uses a list of integers as action_vector, where a tuple (low. high) defines the bounds
-for each element of the action_vector. The action_vector is then used as single parameter to simulate
-with the objective function.
+The direct interface with rust uses a list of integers as action_vector, where a tuple `(low, high)`
+defines the bounds for each element of the action_vector. The action_vector is then used to
+simulate the objective.
 
-From examples/tester.py:
+From ./examples/tester.py:
 
 ```python
 from gmab import Gmab
@@ -38,8 +38,7 @@ if __name__ == "__main__":
 ```
 
 While this works well for an objective function with one integer decision vector, users likely
-expect a simple, and more interactive interface that enables setting bounds for multiple parameters,
-and with different types.
+expect an interactive interface that enables setting bounds for multiple parameters dynamically.
 
 Internally, this will require:
 
@@ -47,9 +46,9 @@ Internally, this will require:
 starting the optimization.
 * For each simulation, mapping the action_vector from rust to the kwargs of the objective.
 * For example, the value `1` in the action_vector will be mapped to `10` if the parameter is
-configured with bounds.suggest_int(low=0, high=100, steps=10).
+configured with `bounds.suggest_int(low=0, high=100, steps=10)`.
 * Alternatively, the value `1` in the action_vector will be mapped to `manhattan` if the
-parameter is configured with bounds.suggest_categorical(["euclidean", "manhattan", "canberra"])
+parameter is configured with `bounds.suggest_categorical(["euclidean", "manhattan", "canberra"])`.
 
 Below are two examples to illustrate how users will be able to define the objective and the
 params.
@@ -60,8 +59,8 @@ Compared to the rosenbrock function, a similar vector (list of numbers) is input
 if the net present value is calculated. The implementation below would enable the user to
 dynamically set bounds for cash_flows (in example: 3 periods, with 100 values between 0 and 100_000)
 
-In addition, an interest rate is also needed as input, which would be complicated to manage
-with an `objective(numbers: list)` type of function due to the different variable type and bounds.
+In addition, an interest rate is also needed as input. With an `objective(numbers: list)` type
+of function, the user would need to explicitly handle this in the objective function.
 
 ```python
 def objective(cash_flows: list, interest: float) -> float:
@@ -85,8 +84,8 @@ from sklearn.metrics import silhouette_score
 # Assume data is defined as x_train
 
 def objective(eps: float, min_samples:int, metric: str) -> float:
-    clusterer = DBSCAN(eps, min_samples, metric)
-    clusterer.fix(x_train)
+    clusterer = DBSCAN(eps=eps, min_samples=min_samples, metric=metric)
+    clusterer.fit(x_train)
     return silhouette_score(x_train, clusterer.labels_)
 
 params = {
@@ -100,9 +99,8 @@ params = {
 
 Use `study.optimize()` to start optimization with given settings.
 
-Internally, the method will need to store and transform the user inputs for rust-gmab,
-and then create and execute the set number of algorithm instances. Finally, it will also
-collect the results in a storage.
+Internally, the method will store and transform the user inputs for rust-gmab, and then create
+and execute the set number of algorithm instances. Finally, it will also collect the results.
 
 ```python
 study.optimize(objective, params, n_trials=5, n_simulations=10000, popsize=100, ...)
