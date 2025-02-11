@@ -2,14 +2,7 @@ import pytest
 from gmab import Study, create_study
 from pytest import LogCaptureFixture
 
-
-def rosenbrock_function(number: list):
-    return sum(
-        [
-            100 * (number[i + 1] - number[i] ** 2) ** 2 + (1 - number[i]) ** 2
-            for i in range(len(number) - 1)
-        ]
-    )
+from tests._functions import rosenbrock
 
 
 @pytest.mark.parametrize(
@@ -42,10 +35,9 @@ def test_best_trial(seed, skip_optimize, expected_info, caplog: LogCaptureFixtur
     study = create_study(seed)
 
     if not skip_optimize:
-        bounds = [(-5, 10), (-5, 10)]
         n_simulations = 10_000
-        study.optimize(rosenbrock_function, bounds, n_simulations)
+        study.optimize(rosenbrock.objective, rosenbrock.BOUNDS_2D, n_simulations)
         assert expected_info in caplog.text
 
     result = study.best_trial
-    assert result == [1, 1]
+    assert result == rosenbrock.RESULT_2D
