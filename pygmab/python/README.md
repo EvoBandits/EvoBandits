@@ -3,13 +3,13 @@ Suggestions how a user interface for pygmab can be implemented. Feel free to com
 
 ## 1. Create a Study
 
-Use create_study() to initialize an instance of `Study`, which is a class that handles algorithm
+Use `initialize()` to initialize instances of `Study`, which is a class that handles algorithm
 control, and `Bounds`, which is a class that handles the algorithm's bounds and mapping of all parameters.
 
 ```python
 import gmab
 
-study, bounds = gmab.create_study(seed=42)
+study, bounds = gmab.initialize(seed=42) # prev. gmab.create_study()
 ```
 
 ## 2. Define objective and bounds
@@ -42,9 +42,9 @@ expect an interface that enables dynamically setting bounds for multiple paramet
 
 Internally, this will require:
 
-* Handling and checking the user's inputs to create the bounds tuple for rust-gmab before
-starting the optimization.
-* For each simulation, mapping the action_vector from rust to the kwargs of the objective.
+* Handling and checking the user's inputs to create the `bounds` tuple that is expected by
+rust-gmab when starting the optimization.
+* For each simulation, mapping the action_vector generated in rust to the `kwargs` of the objective.
 * For example, the value `1` in the action_vector will be mapped to `10` if the parameter is
 configured with `bounds.suggest_int(low=0, high=100, steps=10)`.
 * Alternatively, the value `1` in the action_vector will be mapped to `manhattan` if the
@@ -55,7 +55,7 @@ params.
 
 ### Net present value example (just for illustration of the UI)
 
-Similar to integer decision vector of the rosenbrock function, the calculation of the net present
+Similar to the integer decision vector of the rosenbrock function, the calculation of the net present
 value requires a `cash_flows` vector.
 
 In addition, an interest rate is also needed to calcuate the NPV. With an `objective(numbers: list)`
