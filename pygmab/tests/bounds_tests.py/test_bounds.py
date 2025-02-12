@@ -1,0 +1,16 @@
+import gmab
+import pytest
+
+
+@pytest.mark.parametrize(
+    "low, high, kwargs, exp_tuples",
+    [
+        pytest.param(0, 1, {}, [(0, 1)]),
+        pytest.param(0, 5, {"size": 1}, [(0, 5)]),
+        pytest.param(0, 5, {"size": 2}, [(0, 5), (0, 5)]),
+    ],
+)
+def test_suggest_int(low, high, kwargs, exp_tuples):
+    bounds = gmab.Bounds()
+    bounds.suggest_int(low=low, high=high, **kwargs)
+    assert bounds.as_tuples == exp_tuples
