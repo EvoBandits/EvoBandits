@@ -9,10 +9,12 @@ class Bounds:
         return as_tuple
 
     def suggest_int(self, low: int, high: int, size: int = 1) -> None:
-        # Add checks if low, high, size are valid
+        if not all(isinstance(var, int) for var in [low, high, size]):
+            raise TypeError("low, high, size must be integers when suggesting an int.")
         if high <= low:
-            raise ValueError(f"high={high} must be > low={low} when suggesting an int.")
-
+            raise ValueError("high must be larger than low when suggesting an int.")
+        if size <= 0:
+            raise ValueError("size must be positive when suggesting an int.")
         for _ in range(size):
             self.low.append(low)
             self.high.append(high)
