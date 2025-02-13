@@ -21,6 +21,22 @@ class Bounds:
         as_tuple = [(0, self.n_steps[idx]) for idx in range(len(self.n_steps))]
         return as_tuple
 
+    def map_to_external_repr(self, action_vector: list[int]) -> list[int]:
+        """Map the internal action vector to the external value representation
+
+        Args:
+            action_vector (list[int]): An internal action_vector.
+
+        Returns:
+            list[int]: The external represenation of the action_vector, based on mapping
+            the action_vector using the bounds.
+        """
+        values = [
+            self.low[idx] + self.step[idx] * action_vector[idx]
+            for idx in range(len(action_vector))
+        ]
+        return values
+
     def suggest_int(self, low: int, high: int, size: int = 1, step: int = 1) -> None:
         """Adds an integer decision parameter to the bounds.
 
