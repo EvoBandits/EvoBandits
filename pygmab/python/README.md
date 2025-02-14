@@ -58,7 +58,7 @@ params.
 Similar to the integer decision vector of the rosenbrock function, the calculation of the net present
 value requires a `cash_flows` vector.
 
-In addition, an interest rate is also needed to calcuate the NPV. With an `objective(numbers: list)`
+In addition, an interest rate is also needed to calculate the NPV. With an `objective(numbers: list)`
 type of function, the user would need to explicitly handle this in the objective function.
 
 ```python
@@ -66,8 +66,8 @@ def objective(cash_flows: list, interest: float) -> float:
     return sum([cf / (1 + interest) ** t for t, cf in enumerate(cash_flows)])
 
 params = {
-    "cash_flows": bounds.suggest_int(low=0, high=100000, steps=100, size=3),
-    "interest": bounds.suggest_float(low=0.0, high=0.1, steps=100)
+    "cash_flows": bounds.suggest_int(low=0, high=100000, step=100, size=3),
+    "interest": bounds.suggest_float(low=0.0, high=0.1, step=0.001)
 }
 ```
 
@@ -88,7 +88,7 @@ def objective(eps: float, min_samples:int, metric: str) -> float:
     return silhouette_score(x_train, clusterer.labels_)
 
 params = {
-    "eps": bounds.suggest_float(low=0.1, high=0.9, steps=10),
+    "eps": bounds.suggest_float(low=0.1, high=0.9, step=0.001),
     "min_samples": bounds.suggest_int(low=2, high=10),
     "metric": bounds.suggest_categorical(["euclidean", "manhattan", "canberra"]),
 }
