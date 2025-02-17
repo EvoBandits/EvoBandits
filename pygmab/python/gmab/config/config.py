@@ -1,15 +1,13 @@
 class Configurator:
-    """The Configurator module manages the user-configured boundaries for gmab.
+    """Manages the user-configured boundaries for gmab.
 
-    This object provides interfaces to set the configuration that will be suggested
+    This object provides interfaces to define the configuration that will be suggested
     for the optimization.
     """
 
     def __init__(self) -> None:
         self.low: list[int] = []
         self.high: list[int] = []
-        self.step: list[int] = []
-        self.n_steps: list[int] = []
         self._bounds: list[tuple] | None = None
 
     @property
@@ -20,33 +18,16 @@ class Configurator:
             list[tuple]: A list of tuples, containing a (low, high) pair for each bound.
         """
         if not self._bounds:
-            self._bounds = [(0, self.n_steps[idx]) for idx in range(len(self.n_steps))]
+            self._bounds = [(self.low[idx], self.high[idx]) for idx in range(len(self.high))]
         return self._bounds
 
-    def map_to_external_repr(self, action_vector: list[int]) -> list[int]:
-        """Map the internal action vector to the external value representation
-
-        Args:
-            action_vector (list[int]): An internal action_vector.
-
-        Returns:
-            list[int]: The external represenation of the action_vector, based on mapping
-            the action_vector using the bounds.
-        """
-        values = [
-            self.low[idx] + self.step[idx] * action_vector[idx]
-            for idx in range(len(action_vector))
-        ]
-        return values
-
-    def suggest_int(self, low: int, high: int, size: int = 1, step: int = 1) -> None:
-        """Adds an integer decision parameter to the configuration.
+    def suggest_int(self, low: int, high: int, step: int = 1, size: int = 1) -> None:
+        """Sets up the config to suggest integer value for the decision parameter.
 
         Args:
             low (int): The lower bound of the parameter.
             high (int): The upper bound of the parameter.
-            size (int, optional): Length of the decision vector, defaults to 1.
-            step (int, optional): Stepsize for the decision vector, defaults to 1.
+            size (int, optional): Length, if parameter is a vector. Defaults to 1.
 
         Raises:
             TypeError: If low, high, or size are not integers.
@@ -58,15 +39,7 @@ class Configurator:
             raise ValueError("high must be larger than low when suggesting an int.")
         if size < 1:
             raise ValueError("size must be positive when suggesting an int.")
-        if step < 1:
-            raise ValueError("step must be positive when suggeting an int.")
-
-        n_steps = (high - low) // step
-        if n_steps < 1:
-            raise ValueError("step must be smaller than the difference between low and high.")
 
         for _ in range(size):
             self.low.append(low)
             self.high.append(high)
-            self.step.append(step)
-            self.n_steps.append(n_steps)
