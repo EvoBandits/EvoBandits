@@ -13,15 +13,15 @@ def rosenbrock_function(number: list):
 
 
 def test_best_trial(caplog: LogCaptureFixture):
-    study = gmab.create_study()
+    study, config = gmab.initialize()
 
     # best_trial requires running study.optimize()
     with pytest.raises(RuntimeError):
         result = study.best_trial
 
-    bounds = [(-5, 10), (-5, 10)]
+    config.suggest_int(-5, 10, size=2)
     n_simulations = 10_000
-    study.optimize(rosenbrock_function, bounds, n_simulations)
+    study.optimize(rosenbrock_function, config, n_simulations)
     assert "completed" in caplog.text  # integrates logging
 
     result = study.best_trial

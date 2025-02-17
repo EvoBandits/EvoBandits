@@ -1,3 +1,3 @@
-from gmab.study.study import Study, create_study
+from gmab.study.study import Study
 
-__all__ = ["Study", "create_study"]
+__all__ = ["Study"]
