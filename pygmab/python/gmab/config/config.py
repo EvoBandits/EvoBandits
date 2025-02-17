@@ -10,18 +10,18 @@ class Configurator:
         self.high: list[int] = []
         self.step: list[int] = []
         self.n_steps: list[int] = []
-        self._internal: list[tuple] | None = None
+        self._bounds: list[tuple] | None = None
 
     @property
-    def internal(self) -> list[tuple]:
-        """Creates and returns the internal bounds for gmab.
+    def bounds(self) -> list[tuple]:
+        """Returns the (cached) bounds for rust-gmab.
 
         Returns:
             list[tuple]: A list of tuples, containing a (low, high) pair for each bound.
         """
-        if not self._internal:
-            self._internal = [(0, self.n_steps[idx]) for idx in range(len(self.n_steps))]
-        return self._internal
+        if not self._bounds:
+            self._bounds = [(0, self.n_steps[idx]) for idx in range(len(self.n_steps))]
+        return self._bounds
 
     def map_to_external_repr(self, action_vector: list[int]) -> list[int]:
         """Map the internal action vector to the external value representation

@@ -3,7 +3,7 @@ import pytest
 
 
 @pytest.mark.parametrize(
-    "low, high, kwargs, exp_internal",
+    "low, high, kwargs, exp_bounds",
     [
         pytest.param(0, 1, {}, [(0, 1)]),
         pytest.param(0, 5, {"size": 1}, [(0, 5)]),
@@ -19,21 +19,21 @@ import pytest
         pytest.param(0, 1, {"step": 2}, [], marks=pytest.mark.xfail(raises=ValueError)),
     ],
 )
-def test_suggest_int(low, high, kwargs, exp_internal):
+def test_suggest_int(low, high, kwargs, exp_bounds):
     config = gmab.Configurator()
     config.suggest_int(low=low, high=high, **kwargs)
-    assert config.internal == exp_internal
+    assert config.bounds == exp_bounds
 
 
 @pytest.mark.parametrize(
-    "low, high, kwargs, internal, external",
+    "low, high, kwargs, bounds, external_repr",
     [
         pytest.param(100, 200, {}, [100], [200]),
         pytest.param(0, 5, {"step": 5}, [1], [5]),
         pytest.param(-10, 10, {"size": 3}, [0, 1, 20], [-10, -9, 10]),
     ],
 )
-def test_map_to_external_repr(low, high, kwargs, internal, external):
+def test_map_to_external_repr(low, high, kwargs, bounds, external_repr):
     config = gmab.Configurator()
     config.suggest_int(low=low, high=high, **kwargs)
-    assert config.map_to_external_repr(internal) == external
+    assert config.map_to_external_repr(bounds) == external_repr
