@@ -4,15 +4,15 @@ Suggestions how a user interface for pygmab can be implemented. Feel free to com
 ## 1. Create a Study
 
 Use `initialize()` to initialize instances of `Study`, which is a class that handles algorithm
-control, and `Bounds`, which is a class that handles the algorithm's bounds and mapping of all parameters.
+control, and `Configurator`, which is a class that handles the algorithm's bounds and mapping of all parameters.
 
 ```python
 import gmab
 
-study, bounds = gmab.initialize(seed=42) # prev. gmab.create_study()
+study, config = gmab.initialize(seed=42)
 ```
 
-## 2. Define objective and bounds
+## 2. Define objective and configure bounds
 
 The direct interface with rust uses a list of integers as action_vector, where a tuple `(low, high)`
 defines the bounds for each element of the action_vector. The action_vector is then used to
@@ -46,9 +46,9 @@ Internally, this will require:
 rust-gmab when starting the optimization.
 * For each simulation, mapping the action_vector generated in rust to the `kwargs` of the objective.
 * For example, the value `1` in the action_vector will be mapped to `10` if the parameter is
-configured with `bounds.suggest_int(low=0, high=100, steps=10)`.
+configured with `config.suggest_int(low=0, high=100, steps=10)`.
 * Alternatively, the value `1` in the action_vector will be mapped to `manhattan` if the
-parameter is configured with `bounds.suggest_categorical(["euclidean", "manhattan", "canberra"])`.
+parameter is configured with `config.suggest_categorical(["euclidean", "manhattan", "canberra"])`.
 
 Below are two examples to illustrate how users will be able to define the objective and the
 params.
@@ -66,8 +66,8 @@ def objective(cash_flows: list, interest: float) -> float:
     return sum([cf / (1 + interest) ** t for t, cf in enumerate(cash_flows)])
 
 params = {
-    "cash_flows": bounds.suggest_int(low=0, high=100000, step=100, size=3),
-    "interest": bounds.suggest_float(low=0.0, high=0.1, step=0.001)
+    "cash_flows": config.suggest_int(low=0, high=100000, step=100, size=3),
+    "interest": config.suggest_float(low=0.0, high=0.1, step=0.001)
 }
 ```
 
@@ -88,9 +88,9 @@ def objective(eps: float, min_samples:int, metric: str) -> float:
     return silhouette_score(x_train, clusterer.labels_)
 
 params = {
-    "eps": bounds.suggest_float(low=0.1, high=0.9, step=0.001),
-    "min_samples": bounds.suggest_int(low=2, high=10),
-    "metric": bounds.suggest_categorical(["euclidean", "manhattan", "canberra"]),
+    "eps": config.suggest_float(low=0.1, high=0.9, step=0.001),
+    "min_samples": config.suggest_int(low=2, high=10),
+    "metric": config.suggest_categorical(["euclidean", "manhattan", "canberra"]),
 }
 ```
 
