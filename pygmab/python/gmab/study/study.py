@@ -17,7 +17,8 @@ class Study:
     Instead, use :func:`~gmab.initialize`.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, config: Configurator) -> None:
+        self._config: Configurator = config
         self._best_trial: dict | None = None
 
     @property
@@ -35,7 +36,6 @@ class Study:
     def optimize(
         self,
         func: Callable,
-        config: Configurator,
         n_simulations: int,
     ) -> None:
         """Optimize an objective function.
@@ -55,6 +55,6 @@ class Study:
                 The number of simulations per trial. A trial will continue until the
                 number of elapsed simulations reaches `n_simulations`.
         """
-        gmab = Gmab(func, config.bounds)
+        gmab = Gmab(func, self._config.bounds)
         self._best_trial = gmab.optimize(n_simulations)
         _logger.info("completed")

@@ -21,7 +21,7 @@ def test_best_trial(caplog: LogCaptureFixture):
 
     config.suggest_int(-5, 10, size=2)
     n_simulations = 10_000
-    study.optimize(rosenbrock_function, config, n_simulations)
+    study.optimize(rosenbrock_function, n_simulations)
     assert "completed" in caplog.text  # integrates logging
 
     result = study.best_trial

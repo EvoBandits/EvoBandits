@@ -17,5 +17,5 @@ def initialize() -> tuple[Study, Configurator]:
     """Initialize gmab by creating a new :class:`~gmab.study.Study` and its
     :class:`~gmab.config.Configurator`"""
     config = Configurator()
-    study = Study()
+    study = Study(config)
     return study, config
