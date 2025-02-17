@@ -1,25 +1,27 @@
-class Bounds:
-    """The Bounds module manages the user-configured boundaries for gmab.
+class Configurator:
+    """The Configurator module manages the user-configured boundaries for gmab.
 
-    This object provides interfaces to set the bounds that will be suggested
+    This object provides interfaces to set the configuration that will be suggested
     for the optimization.
     """
 
     def __init__(self) -> None:
-        self.low = []
-        self.high = []
-        self.step = []
-        self.n_steps = []
+        self.low: list[int] = []
+        self.high: list[int] = []
+        self.step: list[int] = []
+        self.n_steps: list[int] = []
+        self._internal: list[tuple] | None = None
 
     @property
     def internal(self) -> list[tuple]:
         """Creates and returns the internal bounds for gmab.
 
         Returns:
-            list[tuple]: A list of tuples, containaing a (low, high) pair for each bound.
+            list[tuple]: A list of tuples, containing a (low, high) pair for each bound.
         """
-        as_tuple = [(0, self.n_steps[idx]) for idx in range(len(self.n_steps))]
-        return as_tuple
+        if not self._internal:
+            self._internal = [(0, self.n_steps[idx]) for idx in range(len(self.n_steps))]
+        return self._internal
 
     def map_to_external_repr(self, action_vector: list[int]) -> list[int]:
         """Map the internal action vector to the external value representation
@@ -38,7 +40,7 @@ class Bounds:
         return values
 
     def suggest_int(self, low: int, high: int, size: int = 1, step: int = 1) -> None:
-        """Adds an integer decision parameter to the bounds.
+        """Adds an integer decision parameter to the configuration.
 
         Args:
             low (int): The lower bound of the parameter.
