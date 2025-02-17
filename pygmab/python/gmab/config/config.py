@@ -1,8 +1,8 @@
 class Configurator:
-    """Manages the user-configured boundaries for gmab.
+    """Manages the user's configuration of the objective.
 
     This object provides interfaces to define the configuration that will be suggested
-    for the optimization.
+    for the optimization of the Study.
     """
 
     def __init__(self) -> None:
@@ -21,8 +21,8 @@ class Configurator:
             self._bounds = [(self.low[idx], self.high[idx]) for idx in range(len(self.high))]
         return self._bounds
 
-    def suggest_int(self, low: int, high: int, step: int = 1, size: int = 1) -> None:
-        """Sets up the config to suggest integer value for the decision parameter.
+    def suggest_int(self, low: int, high: int, size: int = 1) -> None:
+        """Sets up the configuration to suggest integer values for the decision parameter.
 
         Args:
             low (int): The lower bound of the parameter.
@@ -33,7 +33,7 @@ class Configurator:
             TypeError: If low, high, or size are not integers.
             ValueError: If high <= low or size non-positive.
         """
-        if not all(isinstance(var, int) for var in [low, high, size, step]):
+        if not all(isinstance(var, int) for var in [low, high, size]):
             raise TypeError("low, high, size must be integers when suggesting an int.")
         if high <= low:
             raise ValueError("high must be larger than low when suggesting an int.")
