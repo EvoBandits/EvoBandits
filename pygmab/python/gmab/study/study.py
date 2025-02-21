@@ -21,6 +21,7 @@ class Study:
     def __init__(self, algorithm=Gmab) -> None:
         self.func: Callable | None = None
         self.params: dict[str, IntParam] | None = None
+
         self._algorithm = algorithm
         self._best_trial: dict | None = None
 
@@ -36,13 +37,17 @@ class Study:
             raise RuntimeError("best_trial is not available yet. Run study.optimize().")
         return self._best_trial
 
-    def _run_trial(self, action_vector: list) -> float:
-        kwargs = {}
+    def _map_to_params(self, action_vector: list) -> dict:
+        result = {}
         idx = 0
         for key, param in self.params.items():
-            kwargs[key] = param.map(action_vector[idx : idx + param.size])
+            result[key] = param.map(action_vector[idx : idx + param.size])
             idx += param.size
-        return self.func(**kwargs)
+        return result
+
+    def _run_trial(self, action_vector: list) -> float:
+        action_params = self._map_to_params(action_vector)
+        return self.func(**action_params)
 
     def optimize(
         self,
@@ -72,7 +77,9 @@ class Study:
 
         bounds = next(param.bounds for param in self.params.values())
         gmab = self._algorithm(self._run_trial, bounds)
-        self._best_trial = gmab.optimize(trials)
+        result = gmab.optimize(trials)
+
+        self._best_trial = self._map_to_params(result)
         _logger.info("completed")
 
 

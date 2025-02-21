@@ -13,10 +13,9 @@ def test_best_trial(caplog: LogCaptureFixture):
         result = study.best_trial
 
     params = {"number": gmab.suggest_int(-5, 10, size=2)}
-    # bounds = [(-5, 10), (-5, 10)]
     n_simulations = 10_000
     study.optimize(rosenbrock.func, params, n_simulations)
     assert "completed" in caplog.text  # integrates logging
 
     result = study.best_trial
-    assert result == [1, 1]  # returns expected result
+    assert result == {"number": [1, 1]}
