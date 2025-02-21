@@ -1,11 +1,18 @@
 class IntParam:
     """
-    ToDo
+    A class representing an integer parameter.
     """
 
     def __init__(self, low: int, high: int, size: int = 1, step: int = 1):
         """
-        ToDo
+        Construct a  instance of IntParam.
+
+        Args:
+            low (int): A valid lower bound of the parameter.
+            high (int): A valid upper bound of the parameter.
+            size (int): A valid, positive size of the parameter. Default is 1.
+            step (int): A valid, positive step size for the parameter. Default is 1.
+
         """
         self.low: int = low
         self.high: int = high
@@ -16,7 +23,14 @@ class IntParam:
     @property
     def bounds(self) -> list[tuple]:
         """
-        ToDo
+        Calculate and return the parameter's internal bounds for the optimization.
+
+        The bounds will be used as constraints for the internal representation (or actions)
+        of the optimization algorithm about the parameter's value.
+
+        Returns:
+            list[tuple]: A list of tuples representing the bounds.
+
         """
         if not self._bounds:
             if self.step == 1:
@@ -28,21 +42,44 @@ class IntParam:
             self._bounds = [(self.low, upper_bound)] * self.size
         return self._bounds
 
-    def map(self, numbers: list[int]) -> int | list[int]:
+    def map_to_value(self, actions: list[int]) -> int | list[int]:
         """
-        ToDo
+        Maps a single set of internal actions for this parameter to its value.
+
+        Args:
+            actions (list[int]): A list of integers to map.
+
+        Returns:
+            int | list[int]: The resulting value.
         """
         if self.step > 1:
-            numbers = [min(self.low + x * self.step, self.high) for x in numbers]
+            actions = [min(self.low + x * self.step, self.high) for x in actions]
 
         if self.size == 1:
-            return numbers[0]
-        return numbers
+            return actions[0]
+        return actions
 
 
 def suggest_int(low: int, high: int, size: int = 1, step: int = 1) -> IntParam:
     """
-    ToDo
+    Creates an integer parameter to suggest values for the optimization.
+
+    The parameter can be either a simple integer, or a list of integers, depending on the specified
+    size. The values that can be sampled by the optimization will be limited to the specified
+    lower and upper bound, as well as the stepsize.
+
+    Args:
+        low (int): The lower bound of the parameter.
+        high (int): The upper bound of the parameter.
+        size (int): The size of the parameter, if it should be list. Default is 1.
+        step (int): The step size for the parameter. Default is 1.
+
+    Returns:
+        IntParam: An instance of the parameter with the specified properties.
+
+    Raises:
+        TypeError: If any of the arguments are not integers.
+        ValueError: If high is not greater than low, or if size or step is not positive.
     """
     if not all(isinstance(args, int) for args in [low, high, size, step]):
         raise TypeError("low, high, size and step must be int when suggesting an integer param.")
