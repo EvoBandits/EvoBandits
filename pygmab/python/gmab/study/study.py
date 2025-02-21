@@ -8,17 +8,23 @@ _logger = logging.get_logger(__name__)
 
 
 class Study:
-    """A Study corresponds to an optimization task, i.e. a set of trials.
+    """
+    A Study represents an optimization task consisting of a set of trials.
 
-    This objecht provides interfaces to optimize an objective within its bounds,
-    and to set/get attributes of the study itself that are user-defined.
+    This class provides interfaces to optimize an objective function within specified bounds
+    and to manage user-defined attributes related to the study.
 
-    Note that the direct use of this constructor is not recommended.
-    To create a study, use :func:`~gmab.create_study`.
-
+    Note: It is recommended to use the `create_study` function to instantiate a Study
+    instead of using the constructor directly.
     """
 
     def __init__(self, algorithm=Gmab) -> None:
+        """
+        Initialize a Study instance.
+
+        Args:
+            algorithm: The optimization algorithm to use. Defaults to Gmab.
+        """
         self.func: Callable | None = None
         self.params: dict[str, IntParam] | None = None
 
@@ -27,17 +33,29 @@ class Study:
 
     @property
     def best_trial(self) -> dict:
-        """Return the parameters of the best trial in the study.
+        """
+        Retrieve the parameters of the best trial in the study.
 
         Returns:
-            A dictionary containing parameters of the best trial.
+            dict: A dictionary containing the parameters of the best trial.
 
+        Raises:
+            RuntimeError: If the best trial is not available yet.
         """
         if not self._best_trial:
             raise RuntimeError("best_trial is not available yet. Run study.optimize().")
         return self._best_trial
 
     def _map_to_params(self, action_vector: list) -> dict:
+        """
+        Map an action vector to a dictionary of values for each parameter.
+
+        Args:
+            action_vector (list): A list of actions to map.
+
+        Returns:
+            dict: A dictionary of mapped parameter values.
+        """
         result = {}
         idx = 0
         for key, param in self.params.items():
@@ -46,31 +64,29 @@ class Study:
         return result
 
     def _run_trial(self, action_vector: list) -> float:
-        action_params = self._map_to_params(action_vector)
-        return self.func(**action_params)
-
-    def optimize(
-        self,
-        func: Callable,
-        params: dict,
-        trials: int,
-    ) -> None:
-        """Optimize an objective function.
-
-        Optimization is done by choosing a suitable set of hyperparmeter values within
-        given ``bounds``
-
-        The optimization trial will be stopped after ``n_simulations`` of the
-        :func:`func`.
+        """
+        Execute a trial with the given action vector.
 
         Args:
-            func:
-                A callable that implements the objective function.
-            bounds:
-                A list of of tuples that define the bounds for each decision variable.
-            trials:
-                The number of simulations. An optimization will continue until the
-                number of elapsed simulations reaches `trials`.
+            action_vector (list): A list of actions to execute.
+
+        Returns:
+            float: The result of the objective function.
+        """
+        solution_vector = self._map_to_params(action_vector)
+        return self.func(**solution_vector)
+
+    def optimize(self, func: Callable, params: dict, trials: int) -> None:
+        """
+        Optimize the objective function.
+
+        The optimization process involves selecting suitable hyperparameter values within
+        specified bounds and running the objective function for a given number of trials.
+
+        Args:
+            func (Callable): The objective function to optimize.
+            params (dict): A dictionary of parameters with their bounds.
+            trials (int): The number of trials to run.
         """
         self.func = func  # ToDo: Add input validation
         self.params = params  # ToDo: Add input validation
@@ -84,5 +100,10 @@ class Study:
 
 
 def create_study() -> Study:
-    """Create a new :class:`~gmab.study.Study`."""
+    """
+    Create a new Study instance.
+
+    Returns:
+        Study: A new instance of the Study class.
+    """
     return Study()
