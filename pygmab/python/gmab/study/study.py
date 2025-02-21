@@ -45,7 +45,7 @@ class Study:
         self,
         func: Callable,
         params: dict,
-        n_simulations: int,
+        trials: int,
     ) -> None:
         """Optimize an objective function.
 
@@ -60,13 +60,13 @@ class Study:
                 A callable that implements the objective function.
             bounds:
                 A list of of tuples that define the bounds for each decision variable.
-            n_simulations:
-                The number of simulations per trial. A trial will continue until the
-                number of elapsed simulations reaches `n_simulations`.
+            trials:
+                The number of simulations. An optimization will continue until the
+                number of elapsed simulations reaches `trials`.
         """
         bounds = self._collect_bounds(params)
         gmab = self.algorithm(func, bounds)
-        self._best_trial = gmab.optimize(n_simulations)
+        self._best_trial = gmab.optimize(trials)
         _logger.info("completed")
 
 

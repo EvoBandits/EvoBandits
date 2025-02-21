@@ -107,8 +107,10 @@ Names for settings are (somewhat) based on:
 
 | Name              | Description                                                             |
 |-------------------|-------------------------------------------------------------------------|
+| implemented       |                                                                         |
+| `trials`          | Maximum number of simulations per algorithm instance                    |
+| tbd.              |                                                                         |
 | `max_time`        | Maximum execution time per algorithm instance                           |
-| `max_trials`      | Maximum number of simulations per algorithm instance                    |
 | `population_size` | Number of individuals (trials) in a generation                          |
 | `crossover_rate`  | Probability for a crossover (exchange of values between individuals)    |
 | `mutation_rate`   | Probability for a mutation (change to a value of an individual)         |
