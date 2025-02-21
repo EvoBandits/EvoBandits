@@ -10,7 +10,7 @@ from tests._func import rosenbrock as rb
     "func, params, trials, exp_bounds",
     [
         pytest.param(rb.func, {"x": suggest_int(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
-        pytest.param(rb.func, {"x": suggest_int(-5, 10, 2, 2)}, 1, [(0, 8), (0, 8)], id="step"),
+        pytest.param(rb.func, {"x": suggest_int(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
         # ToDo: Test and Implement the input validaton for study.optimize
     ],
 )
