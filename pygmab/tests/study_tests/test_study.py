@@ -1,25 +1,21 @@
-from unittest.mock import MagicMock
-
+import gmab
 import pytest
-from gmab import Study, suggest_int
+from pytest import LogCaptureFixture
 
-from tests._func import rosenbrock as rb
+from tests._func import rosenbrock
 
 
-@pytest.mark.parametrize(
-    "func, params, trials, exp_bounds",
-    [
-        pytest.param(rb.func, {"x": suggest_int(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
-        pytest.param(rb.func, {"x": suggest_int(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
-        # ToDo: Implement the input validaton for study.optimize
-    ],
-)
-def test_optimize(func, params, trials, exp_bounds):
-    mock_gmab = MagicMock()
-    mock_gmab.optimize.return_value = [1, 1]
+def test_best_trial(caplog: LogCaptureFixture):
+    study = gmab.create_study()
 
-    study = Study(algorithm=mock_gmab)
-    study.optimize(func, params, trials)
+    # best_trial requires running study.optimize()
+    with pytest.raises(RuntimeError):
+        result = study.best_trial
 
-    mock_gmab.assert_called_once_with(study._run_trial, exp_bounds)  # Use of Gmab(...)
-    mock_gmab.return_value.optimize.assert_called_once_with(trials)  # Use of gmab.optimize(...)
+    params = {"number": gmab.suggest_int(-5, 10, size=2)}
+    n_simulations = 10_000
+    study.optimize(rosenbrock.func, params, n_simulations)
+    assert "completed" in caplog.text  # integrates logging
+
+    result = study.best_trial
+    assert result == {"number": [1, 1]}

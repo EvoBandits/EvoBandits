@@ -31,6 +31,7 @@ are logically consistent.
 
 ```python
 # Create a new set of parameters
+from gmab import suggest_int
 param = suggest_int(low=1, high=10, size=3, step=2)
 
 # Access the bounds of the parameter
