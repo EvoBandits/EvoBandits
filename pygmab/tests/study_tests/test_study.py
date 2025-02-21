@@ -5,14 +5,14 @@ from gmab import Study, suggest_int
 
 from tests._func import rosenbrock
 
-PARAMS = {"x": suggest_int(-5, 10, 2)}
 EXP_BOUNDS = [(-5, 10), (-5, 10)]
 
 
 @pytest.mark.parametrize(
     "func, params, trials, exp_bounds",
     [
-        pytest.param(rosenbrock.func, PARAMS, 1, EXP_BOUNDS, id="base"),
+        pytest.param(rosenbrock.func, {"x": suggest_int(-5, 10, 2)}, 1, EXP_BOUNDS, id="base"),
+        pytest.param(rosenbrock.func, {"x": suggest_int(-5, 10, 2, 2)}, 1, EXP_BOUNDS, id="base"),
         # ToDo: Test and Implement the input for study.optimize
     ],
 )
