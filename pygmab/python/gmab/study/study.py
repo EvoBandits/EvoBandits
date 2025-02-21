@@ -41,8 +41,8 @@ class Study:
         kwargs = {}
         idx = 0
         for key, param in self._params.items():
-            kwargs[key] = self._param.map(action_vector[idx : idx + param.size])
-            idx += self._param.size
+            kwargs[key] = param.map(action_vector[idx : idx + param.size])
+            idx += param.size
         return self._func(**kwargs)
 
     def optimize(

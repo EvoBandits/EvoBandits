@@ -26,6 +26,8 @@ class IntParam:
         """
         ToDo
         """
+        if len(numbers) == 1:
+            return numbers[0]
         return numbers
 
 
@@ -52,7 +54,10 @@ class SteppedIntParam(IntParam):
         """
         ToDo
         """
-        return [min(self.low + x * self.step, self.high) for x in numbers]
+        mapping = [min(self.low + x * self.step, self.high) for x in numbers]
+        if len(mapping) == 1:
+            return mapping[0]
+        return mapping
 
 
 def suggest_int(low: int, high: int, size: int = 1, step: int = 1) -> IntParam:
