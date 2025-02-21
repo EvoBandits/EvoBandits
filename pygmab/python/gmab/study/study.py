@@ -2,6 +2,7 @@ from collections.abc import Callable
 
 from gmab import logging
 from gmab.gmab import Gmab
+from gmab.params import IntParam
 
 _logger = logging.get_logger(__name__)
 
@@ -32,10 +33,17 @@ class Study:
             raise RuntimeError("best_trial is not available yet. Run study.optimize().")
         return self._best_trial
 
+    def _collect_bounds(self, params: dict) -> list[tuple]:
+        all_bounds = []
+        for key, value in params.items():
+            assert isinstance(value, IntParam), f"{key} is not valid. Try gmab.suggest_int."
+            all_bounds += value.bounds
+        return all_bounds
+
     def optimize(
         self,
         func: Callable,
-        bounds: list[tuple],
+        params: dict,
         n_simulations: int,
     ) -> None:
         """Optimize an objective function.
@@ -55,6 +63,7 @@ class Study:
                 The number of simulations per trial. A trial will continue until the
                 number of elapsed simulations reaches `n_simulations`.
         """
+        bounds = self._collect_bounds(params)
         gmab = Gmab(func, bounds)
         self._best_trial = gmab.optimize(n_simulations)
         _logger.info("completed")
