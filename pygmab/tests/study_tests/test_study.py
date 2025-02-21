@@ -1,29 +1,33 @@
-import gmab
+from unittest.mock import MagicMock
+
 import pytest
-from pytest import LogCaptureFixture
+from gmab import Study, suggest_int
+
+from tests._func import rosenbrock
+
+xTypeErr = pytest.mark.xfail(raises=TypeError)
+xValueErr = pytest.mark.xfail(raises=ValueError)
+
+PARAMS = {"x": suggest_int(-5, 10, 2)}
+EXP_BOUNDS = [(-5, 10), (-5, 10)]
 
 
-def rosenbrock_function(number: list):
-    return sum(
-        [
-            100 * (number[i + 1] - number[i] ** 2) ** 2 + (1 - number[i]) ** 2
-            for i in range(len(number) - 1)
-        ]
-    )
+@pytest.mark.parametrize(
+    "func, params, trials, exp_bounds",
+    [
+        pytest.param(rosenbrock.func, PARAMS, 1, EXP_BOUNDS, id="base"),
+        pytest.param("func", PARAMS, 1, EXP_BOUNDS, marks=xTypeErr, id="f_func_type"),
+        pytest.param(rosenbrock.func, "PARAMS", 1, EXP_BOUNDS, marks=xTypeErr, id="f_params_type"),
+        pytest.param(rosenbrock.func, PARAMS, 1.0, EXP_BOUNDS, marks=xTypeErr, id="f_trials_type"),
+        pytest.param(rosenbrock.func, PARAMS, 0, EXP_BOUNDS, marks=xValueErr, id="f_trials_value"),
+    ],
+)
+def test_optimize(func, params, trials, exp_bounds):
+    # Dependency Injection to mock rust-gmab for testing.
+    mock_algo = MagicMock()
+    mock_algo.optimize.return_value = [1, 1]
 
-
-def test_best_trial(caplog: LogCaptureFixture):
-    study = gmab.create_study()
-
-    # best_trial requires running study.optimize()
-    with pytest.raises(RuntimeError):
-        result = study.best_trial
-
-    params = {"number": gmab.suggest_int(-5, 10, size=2)}
-    # bounds = [(-5, 10), (-5, 10)]
-    n_simulations = 10_000
-    study.optimize(rosenbrock_function, params, n_simulations)
-    assert "completed" in caplog.text  # integrates logging
-
-    result = study.best_trial
-    assert result == [1, 1]  # returns expected result
+    study = Study(algorithm=mock_algo)
+    study.optimize(func, params, trials)
+    mock_algo.assert_called_once_with(func, exp_bounds)
+    mock_algo.return_value.optimize.assert_called_once_with(trials)

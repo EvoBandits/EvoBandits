@@ -18,7 +18,8 @@ class Study:
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, algorithm=Gmab) -> None:
+        self.algorithm = algorithm
         self._best_trial: dict | None = None
 
     @property
@@ -64,7 +65,7 @@ class Study:
                 number of elapsed simulations reaches `n_simulations`.
         """
         bounds = self._collect_bounds(params)
-        gmab = Gmab(func, bounds)
+        gmab = self.algorithm(func, bounds)
         self._best_trial = gmab.optimize(n_simulations)
         _logger.info("completed")
 
