@@ -19,9 +19,9 @@ class Study:
     """
 
     def __init__(self, algorithm=Gmab) -> None:
+        self.func: Callable | None = None
+        self.params: dict[str, IntParam] | None = None
         self._algorithm = algorithm
-        self._params: dict | None = None
-        self._func: Callable | None = None
         self._best_trial: dict | None = None
 
     @property
@@ -36,14 +36,13 @@ class Study:
             raise RuntimeError("best_trial is not available yet. Run study.optimize().")
         return self._best_trial
 
-    # Set up the mapping
     def _run_trial(self, action_vector: list) -> float:
         kwargs = {}
         idx = 0
-        for key, param in self._params.items():
+        for key, param in self.params.items():
             kwargs[key] = param.map(action_vector[idx : idx + param.size])
             idx += param.size
-        return self._func(**kwargs)
+        return self.func(**kwargs)
 
     def optimize(
         self,
@@ -68,16 +67,10 @@ class Study:
                 The number of simulations. An optimization will continue until the
                 number of elapsed simulations reaches `trials`.
         """
+        self.func = func  # ToDo: Add input validation
+        self.params = params  # ToDo: Add input validation
 
-        # Collect the bounds from params.
-        bounds = []
-        for key, param in params.items():
-            assert isinstance(param, IntParam), f"{key} is not valid. Try gmab.suggest_int."
-            bounds += param.bounds
-        self._params = params
-        self._func = func
-
-        # Execute
+        bounds = next(param.bounds for param in self.params.values())
         gmab = self._algorithm(self._run_trial, bounds)
         self._best_trial = gmab.optimize(trials)
         _logger.info("completed")
