@@ -24,8 +24,8 @@ class IntParam(BaseParam):
             IntParam: An instance of the parameter with the specified properties.
 
         Raises:
-            TypeError: If any of the arguments are not integers.
-            ValueError: If high is not greater than low, or if size or step is not positive.
+            ValueError: If low is not an integer, if high is not an integer that is greater than
+            low, or if size or step are not positive integers.
 
         Example:
         >>> param = IntParam(low=1, high=10, size=3, step=2)

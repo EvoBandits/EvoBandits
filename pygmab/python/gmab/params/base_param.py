@@ -2,7 +2,27 @@ from abc import ABC, abstractmethod
 
 
 class BaseParam(ABC):
+    """
+    An abstract base class representing a parameter in an optimization problem.
+
+    This class defines the interface for parameters that suggest values during
+    optimization. Subclasses must implement the `bounds` property and the
+    `map_to_value` method to define how the parameter's bounds are calculated
+    and how actions are mapped to parameter values for the objective function.
+    The `size` attribute determines the dimensionality of the parameter.
+    """
+
     def __init__(self, size: int = 1):
+        """
+        Initializes a BaseParam instance.
+
+        Args:
+            size (int): The size of the parameter if it is a list. This determines
+            the number of dimensions for the parameter. Defaults to 1.
+
+        Raises:
+            ValueError: If size is not a positive integer.
+        """
         if not isinstance(size, int) or size < 1:
             raise ValueError("size must be a positive integer.")
         self.size: int = size
@@ -12,28 +32,39 @@ class BaseParam(ABC):
     @abstractmethod
     def bounds(self) -> list[tuple]:
         """
-        Calculate and return the parameter's internal bounds for the optimization.
+        Abstract property to calculate and return the parameter's internal bounds.
 
-        The bounds will be used as constraints for the internal representation (or actions)
-        of the optimization algorithm about the parameter's value.
+        The bounds are used as constraints for the optimization algorithm's
+        internal representation of the parameter's value. Subclasses must
+        implement this property to provide the specific bounds for the parameter,
+        taking into account the `size`.
 
         Returns:
-            list[tuple]: A list of tuples representing the bounds.
+            list[tuple]: A list of tuples representing the bounds, where each tuple
+            contains the lower and upper bounds for a dimension. The length of the
+            list should match the `size`.
 
         """
         if not self._bounds:
-            raise NotImplementedError
+            raise NotImplementedError("Subclasses must implement the 'bounds' property.")
         return self._bounds
 
     @abstractmethod
     def map_to_value(self, actions: list[int]) -> bool | int | str | float | list:
         """
-        Maps an action by the optimization problem to the value of the parameter.
+        Abstract method to map optimization actions to parameter values.
+
+        This method converts a list of integers (actions) into the corresponding
+        parameter value(s). Subclasses must implement this method to define the
+        specific mapping logic, considering the `size`.
 
         Args:
-            actions (list[int]): A list of integers to map.
+            actions (list[int]): A list of integers representing actions from the
+            optimization algorithm. The length of this list should match the `size`.
 
         Returns:
-            int | list[int]: The resulting value(s).
+            bool | int | str | float | list: The resulting parameter value(s)
+            corresponding to the given actions.
+
         """
-        raise NotImplementedError
+        raise NotImplementedError("Subclasses must implement the 'map_to_value' method.")
