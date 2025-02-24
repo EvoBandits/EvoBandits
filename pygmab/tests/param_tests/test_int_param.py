@@ -31,7 +31,7 @@ def test_suggest_int(MockIntParam, low, high, kwargs):
 
 
 @pytest.mark.parametrize(
-    "low, high, kwargs, exp_bounds, numbers, exp_mapping",
+    "low, high, kwargs, exp_bounds, action, exp_value",
     [
         pytest.param(0, 1, {}, [(0, 1)], [1], 1, id="base"),
         pytest.param(0, 1, {"size": 2}, [(0, 1), (0, 1)], [1, 1], [1, 1], id="vector"),
@@ -39,7 +39,7 @@ def test_suggest_int(MockIntParam, low, high, kwargs):
         pytest.param(0, 4, {"step": 3}, [(0, 2)], [2], 4, id="step_edge_case"),
     ],
 )
-def test_int_param(low, high, kwargs, exp_bounds, numbers, exp_mapping):
+def test_int_param(low, high, kwargs, exp_bounds, action, exp_value):
     param = IntParam(low, high, **kwargs)
     assert param.bounds == exp_bounds
-    assert param.map(numbers) == exp_mapping
+    assert param.map_to_value(action) == exp_value

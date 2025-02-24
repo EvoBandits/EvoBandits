@@ -46,20 +46,20 @@ class Study:
             raise RuntimeError("best_trial is not available yet. Run study.optimize().")
         return self._best_trial
 
-    def _map_to_params(self, action_vector: list) -> dict:
+    def _map_to_solution(self, action_vector: list) -> dict:
         """
-        Map an action vector to a dictionary of values for each parameter.
+        Map an action vector to a dictionary that contains the solution value for each parameter.
 
         Args:
             action_vector (list): A list of actions to map.
 
         Returns:
-            dict: A dictionary of mapped parameter values.
+            dict: The distinct solution for the action vector, formatted as dictionary.
         """
         result = {}
         idx = 0
         for key, param in self.params.items():
-            result[key] = param.map(action_vector[idx : idx + param.size])
+            result[key] = param.map_to_value(action_vector[idx : idx + param.size])
             idx += param.size
         return result
 
@@ -73,8 +73,8 @@ class Study:
         Returns:
             float: The result of the objective function.
         """
-        solution_vector = self._map_to_params(action_vector)
-        return self.func(**solution_vector)
+        solution = self._map_to_solution(action_vector)
+        return self.func(**solution)
 
     def optimize(self, func: Callable, params: dict, trials: int) -> None:
         """
@@ -93,9 +93,9 @@ class Study:
 
         bounds = next(param.bounds for param in self.params.values())
         gmab = self._algorithm(self._run_trial, bounds)
-        result = gmab.optimize(trials)
+        best_action_vector = gmab.optimize(trials)
 
-        self._best_trial = self._map_to_params(result)
+        self._best_trial = self._map_to_solution(best_action_vector)
         _logger.info("completed")
 
 
