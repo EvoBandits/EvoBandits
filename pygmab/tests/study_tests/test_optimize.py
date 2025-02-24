@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 import pytest
-from gmab import Study, suggest_int
+from gmab import IntParam, Study
 
 from tests._func import rosenbrock as rb
 
@@ -9,8 +9,8 @@ from tests._func import rosenbrock as rb
 @pytest.mark.parametrize(
     "func, params, trials, exp_bounds",
     [
-        pytest.param(rb.func, {"x": suggest_int(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
-        pytest.param(rb.func, {"x": suggest_int(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
+        pytest.param(rb.func, {"x": IntParam(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
+        pytest.param(rb.func, {"x": IntParam(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
         # ToDo: Implement the input validaton for study.optimize
     ],
 )

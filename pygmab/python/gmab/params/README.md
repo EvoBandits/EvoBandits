@@ -2,64 +2,15 @@
 
 The `params` module provides a flexible and robust way to handle parameters for gmab.
 
-## Vocabulary
+## Motivation
 
-- **Value**: Corresponds to an actual value of a parameter of the user's objective function.
-The value is valid within the specified constraints (type, limits, size) of the parameter.
-- **Solution**: A set of values that can be used as (valid) input for the objective function.
-- **Action**: The internal, integer representation of a parameter's value that gmab uses for
-optimization. An action always corresponds to one distint value for a parameter.
-- **Bounds**: The internal, integer representation of a parameter's constraints (limits, size) that
-is used by gmab. The bounds constrain the selection (=sampling, mutation) of actions.
-- **Action Vector**: A set of actions that serve as internal representation of one distinct solution.
-- **Mapping**: Translation of an action (action_vector) to it's value (solution), or reversed.
+On the one hand, we agree that having a "bulky" interface for defining and handling parameters
+might not be an ideal solution.
 
-## Implementation
-
-### Class: `IntParam`
-
-The `IntParam` class encapsulates an integer parameter with a defined range
-(`low` to `high`) and step size. It supports mapping input values to this range.
-
-### Function: `suggest_int`
-
-The `suggest_int` function is a factory function that creates an instance of `IntParam` with
-validated inputs. It ensures that the parameters are integers and that the bounds and step sizes
-are logically consistent.
-
-## Example Usage
-
-```python
-# Create a new parameter
-from gmab import suggest_int
-param = suggest_int(low=1, high=10, size=3, step=2)
-
-# Access the bounds of the parameter
-print(param.bounds)  # Output: [(1, 6), (1, 6), (1, 6)]
-
-# Map a list of actions to the parameter
-values = param.map_to_value([0, 1, 2])
-print(values)  # Output: [1, 3, 5]
-```
-
-## Potential Advantages of this Design:
-
-We aggree that having a separate class for defining and holding parameters, instead of just exposing `suggest_int` is not ideal. Example:
-
-```python
-import gmab
-
-study, config = gmab.initialize()
-
-bounds = {
-   "dim_1": config.suggest_int(0, 10, size=2),
-   "dim_2": config.suggest_int(0, 10, size=2)
-}
-```
-
-On the other hand, having a lot of freedom over the values of the params
-dictionary is not needed for the user: The gmab algorithm can handle only discrete
-parameter (list of numbers or categoricals). Besides, more freedom for the user means more complicated validation and handling them in code, and more potential of errors when defining the params. Example:
+On the other hand, a lot of freedom over how parameters can be defined (like in the example below)
+will require more complex validation in the `Study` module. The validation, and especially the
+mapping from gmab's internal action_vector to the solution is depends on how each individual
+parameter has been defined by the user.
 
 ```python
 from sklearn.utils.fixes import loguniform
@@ -69,31 +20,50 @@ from sklearn.utils.fixes import loguniform
  'class_weight':['balanced', None]}
 ```
 
-The approach above tries to combine both aspects by having an instance of a class
-`Param` for each parameter. This can provide both a streamlined interface for
-defining the parameter, as well as enough standardization so that `Study`
-can easily handle the inputs in a unified way:
+Therefore, a streamlined interface to define and handle parameters for the Study module is
+desirable, leading to the idea of this approach:
 
-- Each Parameter needs to offer an interface for creating bounds (`(low, high)` tuples of a specified `size`) and mapping actions to values.
-- Depending on the Parameter type, additional functionality may be required, for
-example for handling lookup of categories
+* As each parameter is defined separately by the user depending on their specific requirements,
+pygmab should offer intefaces for each type of parameter.
+* A "type" summarizes parameters have similar requirements, specifically: Similar steps to
+define their bounds and map their values from gmab's internal action_vector. For now, there will
+be the types: Integer, Float, and Categorical.
+* Having a class for each type guarantess separation of concern and extensibility for how different
+parameters can be converted to integer representation that the gmab algorithm will handle.
+* At the same time, the types need to implement a "generic" interface that the Study is able to
+access, possibly through inheritance.
 
-Currently, only an IntParam is implemented. In the future, other types of parameteres
-can be added without changes to Study, if they are inherited, for example like:
+Example usage:
+```python
+# Definition of parameters (User):
+params = {
+   "a": IntParam(low=0, high=1000, size=10, step=20)
+   "b": FloatParam(low=0, high=1, step=100) # Future work
+   "c": CategoricalParam(['balanced', 'None']) # Future work
+}
 
-```plaintext
-ABCParam
-├── size
-├── low
-├── high
-├── bounds
-└── map_to_value
-|
-├── IntParam
-│   ├── step
-│   ├── bounds
-│   └── map_to_value
-|
-└── CategoricalParam
-    ├── lookup_table
-    └── map_to_value
+# Collect the bounds for all parameters (Study module).
+bounds = [p.bounds for p in params.values()]
+```
+
+## Implementation
+
+### Class: `IntParam`
+
+The `IntParam` class encapsulates an integer parameter with a defined range
+(`low` to `high`) and step size. It supports mapping input values to this range.
+
+## Example Usage
+
+```python
+# Create a new parameter
+from gmab import IntParam
+param = IntParam(low=1, high=10, size=3, step=2)
+
+# Access the bounds
+print(param.bounds)  # Output: [(1, 6), (1, 6), (1, 6)]
+
+# Map a list of actions to values
+values = param.map_to_value([0, 1, 2])
+print(values)  # Output: [1, 3, 5]
+```

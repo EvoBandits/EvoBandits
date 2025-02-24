@@ -12,7 +12,7 @@ def test_best_trial(caplog: LogCaptureFixture):
     with pytest.raises(RuntimeError):
         result = study.best_trial
 
-    params = {"number": gmab.suggest_int(-5, 10, size=2)}
+    params = {"number": gmab.IntParam(-5, 10, size=2)}
     n_simulations = 10_000
     study.optimize(rosenbrock.func, params, n_simulations)
     assert "completed" in caplog.text  # integrates logging

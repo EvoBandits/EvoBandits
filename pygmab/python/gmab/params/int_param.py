@@ -5,20 +5,52 @@ class IntParam:
 
     def __init__(self, low: int, high: int, size: int = 1, step: int = 1):
         """
-        Construct a  instance of IntParam.
+        Creates an IntParam that will suggest integer values during the optimization.
+
+        The parameter can be either an integer, or a list of integers, depending on the specified
+        size. The values sampled by the optimization will be limited to the specified granularity,
+        lower and upper bounds.
 
         Args:
-            low (int): A valid lower bound of the parameter.
-            high (int): A valid upper bound of the parameter.
-            size (int): A valid, positive size of the parameter. Default is 1.
-            step (int): A valid, positive step size for the parameter. Default is 1.
+            low (int): The lower bound of the suggested values.
+            high (int): The upper bound of the suggested values.
+            size (int): The size if the parameter shall be a list of integers. Default is 1.
+            step (int): The step size between the suggested values. Default is 1.
+
+        Returns:
+            IntParam: An instance of the parameter with the specified properties.
+
+        Raises:
+            TypeError: If any of the arguments are not integers.
+            ValueError: If high is not greater than low, or if size or step is not positive.
+
+        Example:
+        >>> param = IntParam(low=1, high=10, size=3, step=2)
+        >>> print(param)
+        IntParam(low=1, high=10, size=3, step=2)
+
+        Notes:
+            The step size determines the granularity of the sampled values. For example, a step
+            of 2 means that only every second integer within the range will be considered.
 
         """
+        if not all(isinstance(args, int) for args in [low, high, size, step]):
+            raise TypeError("low, high, size and step must be int for IntParams")
+        if high <= low:
+            raise ValueError("high must be larger than low for IntParams.")
+        if size < 1:
+            raise ValueError("size must be positive for IntParams.")
+        if step < 1:
+            raise ValueError("step must be positive for IntParams")
+
         self.low: int = low
         self.high: int = high
         self.size: int = size
         self.step: int = step
         self._bounds: list[tuple] | None = None
+
+    def __repr__(self):
+        return f"IntParam(low={self.low}, high={self.high}, size={self.size}, step={self.step})"
 
     @property
     def bounds(self) -> list[tuple]:
@@ -44,7 +76,7 @@ class IntParam:
 
     def map_to_value(self, actions: list[int]) -> int | list[int]:
         """
-        Maps a single set of internal actions for this parameter to its value.
+        Maps an action by the optimization problem to the value of the parameter.
 
         Args:
             actions (list[int]): A list of integers to map.
@@ -58,36 +90,3 @@ class IntParam:
         if self.size == 1:
             return actions[0]
         return actions
-
-
-def suggest_int(low: int, high: int, size: int = 1, step: int = 1) -> IntParam:
-    """
-    Creates an integer parameter to suggest values for the optimization.
-
-    The parameter can be either a simple integer, or a list of integers, depending on the specified
-    size. The values that can be sampled by the optimization will be limited to the specified
-    lower and upper bound, as well as the stepsize.
-
-    Args:
-        low (int): The lower bound of the parameter.
-        high (int): The upper bound of the parameter.
-        size (int): The size of the parameter, if it should be list. Default is 1.
-        step (int): The step size for the parameter. Default is 1.
-
-    Returns:
-        IntParam: An instance of the parameter with the specified properties.
-
-    Raises:
-        TypeError: If any of the arguments are not integers.
-        ValueError: If high is not greater than low, or if size or step is not positive.
-    """
-    if not all(isinstance(args, int) for args in [low, high, size, step]):
-        raise TypeError("low, high, size and step must be int when suggesting an integer param.")
-    if high <= low:
-        raise ValueError("high must be larger than low when suggesting an integer param.")
-    if size < 1:
-        raise ValueError("size must be positive when suggesting an integer param.")
-    if step < 1:
-        raise ValueError("step must be positive when suggesting an integer param.")
-
-    return IntParam(low, high, size, step)

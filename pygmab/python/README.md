@@ -1,6 +1,18 @@
 # Vision for pygmab interface
 Suggestions how a user interface for pygmab can be implemented. Feel free to comment!
 
+## Vocabulary
+
+- **Value**: Corresponds to an actual value of a parameter of the user's objective function.
+The value is valid within the specified constraints (type, limits, size) of the parameter.
+- **Solution**: A set of values that can be used as (valid) input for the objective function.
+- **Action**: The internal, integer representation of a parameter's value that gmab uses for
+optimization. An action always corresponds to one distint value for a parameter.
+- **Bounds**: The internal, integer representation of a parameter's constraints (limits, size) that
+is used by gmab. The bounds constrain the selection (=sampling, mutation) of actions.
+- **Action Vector**: A set of actions that serve as internal representation of one distinct solution.
+- **Mapping**: Translation of an action (action_vector) to it's value (solution), or reversed.
+
 ## 1. Import Gmab and create a Study
 
 Use `initialize()` to initialize instances of `Study`, which is a class that handles algorithm
@@ -8,7 +20,7 @@ control. Additionally, procedures for defining parameters can be imported separa
 
 ```python
 import gmab
-from gmab import suggest_int, suggest_float, suggest_categorical
+from gmab import IntParam, FloatParam, CategoricalParam
 
 study = gmab.initialize(seed=42)
 ```
@@ -47,9 +59,9 @@ Internally, this will require:
 rust-gmab when starting the optimization.
 * For each simulation, mapping the action_vector generated in rust to the `kwargs` of the objective.
 * For example, the value `1` in the action_vector will be mapped to `10` if the parameter is
-configured with `suggest_int(low=0, high=100, steps=10)`.
+configured with `IntParam(low=0, high=100, steps=10)`.
 * Alternatively, the value `1` in the action_vector will be mapped to `manhattan` if the
-parameter is configured with `suggest_categorical(["euclidean", "manhattan", "canberra"])`.
+parameter is configured with `CategoricalParam(["euclidean", "manhattan", "canberra"])`.
 
 Below are two examples to illustrate how users will be able to define the objective and the
 params.
@@ -67,8 +79,8 @@ def objective(cash_flows: list, interest: float) -> float:
     return sum([cf / (1 + interest) ** t for t, cf in enumerate(cash_flows)])
 
 params = {
-    "cash_flows": suggest_int(low=0, high=100000, step=100, size=3),
-    "interest": suggest_float(low=0.0, high=0.1, step=0.001)
+    "cash_flows": IntParam(low=0, high=100000, step=100, size=3),
+    "interest": FloatParam(low=0.0, high=0.1, step=0.001)
 }
 ```
 
@@ -90,8 +102,8 @@ def objective(eps: float, min_samples:int, metric: str) -> float:
 
 params = {
     "eps": suggest_float(low=0.1, high=0.9, step=0.001),
-    "min_samples": suggest_int(low=2, high=10),
-    "metric": suggest_categorical(["euclidean", "manhattan", "canberra"]),
+    "min_samples": IntParam(low=2, high=10),
+    "metric": CategoricalParam(["euclidean", "manhattan", "canberra"]),
 }
 ```
 
