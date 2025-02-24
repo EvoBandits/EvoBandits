@@ -3,14 +3,21 @@ from unittest.mock import MagicMock
 import pytest
 from gmab import IntParam, Study
 
-from tests._func import rosenbrock as rb
+
+def rb_func(number: list):
+    return sum(
+        [
+            100 * (number[i + 1] - number[i] ** 2) ** 2 + (1 - number[i]) ** 2
+            for i in range(len(number) - 1)
+        ]
+    )
 
 
 @pytest.mark.parametrize(
     "func, params, trials, exp_bounds",
     [
-        pytest.param(rb.func, {"x": IntParam(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
-        pytest.param(rb.func, {"x": IntParam(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
+        pytest.param(rb_func, {"x": IntParam(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
+        pytest.param(rb_func, {"x": IntParam(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
         # ToDo: Implement the input validaton for study.optimize
     ],
 )

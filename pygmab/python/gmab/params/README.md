@@ -9,7 +9,7 @@ might not be an ideal solution.
 
 On the other hand, a lot of freedom over how parameters can be defined (like in the example below)
 will require more complex validation in the `Study` module. The validation, and especially the
-mapping from gmab's internal action_vector to the solution is depends on how each individual
+mapping from gmab's internal action_vector to the solution depends on how each individual
 parameter has been defined by the user.
 
 ```python
@@ -29,11 +29,22 @@ pygmab should offer intefaces for each type of parameter.
 define their bounds and map their values from gmab's internal action_vector. For now, there will
 be the types: Integer, Float, and Categorical.
 * Having a class for each type guarantess separation of concern and extensibility for how different
-parameters can be converted to integer representation that the gmab algorithm will handle.
-* At the same time, the types need to implement a "generic" interface that the Study is able to
-access, possibly through inheritance.
+parameters can be converted to integer representation that the gmab algorithm will handle. At the
+same time, the types need to implement an abstract interface that the Study is able to access.
+This will be implemented through inheritance.
 
-Example usage:
+```plaintext
+BaseParam
+├── size
+├── bounds
+├── map_to_value
+|
+├── IntParam
+├── FloatParam # Future Work
+└── CategoricalParam # Future Work
+```
+
+## Example usage:
 ```python
 # Definition of parameters (User):
 params = {
@@ -44,26 +55,4 @@ params = {
 
 # Collect the bounds for all parameters (Study module).
 bounds = [p.bounds for p in params.values()]
-```
-
-## Implementation
-
-### Class: `IntParam`
-
-The `IntParam` class encapsulates an integer parameter with a defined range
-(`low` to `high`) and step size. It supports mapping input values to this range.
-
-## Example Usage
-
-```python
-# Create a new parameter
-from gmab import IntParam
-param = IntParam(low=1, high=10, size=3, step=2)
-
-# Access the bounds
-print(param.bounds)  # Output: [(1, 6), (1, 6), (1, 6)]
-
-# Map a list of actions to values
-values = param.map_to_value([0, 1, 2])
-print(values)  # Output: [1, 3, 5]
 ```
