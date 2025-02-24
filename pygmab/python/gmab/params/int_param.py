@@ -1,4 +1,7 @@
-class IntParam:
+from gmab.params.base_param import BaseParam
+
+
+class IntParam(BaseParam):
     """
     A class representing an integer parameter.
     """
@@ -34,20 +37,17 @@ class IntParam:
             of 2 means that only every second integer within the range will be considered.
 
         """
-        if not all(isinstance(args, int) for args in [low, high, size, step]):
-            raise TypeError("low, high, size and step must be int for IntParams")
-        if high <= low:
-            raise ValueError("high must be larger than low for IntParams.")
-        if size < 1:
-            raise ValueError("size must be positive for IntParams.")
-        if step < 1:
-            raise ValueError("step must be positive for IntParams")
+        if not isinstance(low, int):
+            raise ValueError("low must be an integer.")
+        if not isinstance(high, int) or high <= low:
+            raise ValueError("high must be an integer that is greater than low.")
+        if not isinstance(step, int) or step < 1:
+            raise ValueError("step must be a positive integer.")
 
+        super().__init__(size)
         self.low: int = low
         self.high: int = high
-        self.size: int = size
         self.step: int = step
-        self._bounds: list[tuple] | None = None
 
     def __repr__(self):
         return f"IntParam(low={self.low}, high={self.high}, size={self.size}, step={self.step})"
@@ -82,7 +82,7 @@ class IntParam:
             actions (list[int]): A list of integers to map.
 
         Returns:
-            int | list[int]: The resulting value.
+            int | list[int]: The resulting integer value(s).
         """
         if self.step > 1:
             actions = [min(self.low + x * self.step, self.high) for x in actions]

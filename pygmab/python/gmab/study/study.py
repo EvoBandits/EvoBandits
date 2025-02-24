@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 from gmab import logging
 from gmab.gmab import Gmab
-from gmab.params import IntParam
+from gmab.params import BaseParam
 
 _logger = logging.get_logger(__name__)
 
@@ -26,7 +26,7 @@ class Study:
             algorithm: The optimization algorithm to use. Defaults to Gmab.
         """
         self.func: Callable | None = None
-        self.params: dict[str, IntParam] | None = None
+        self.params: dict[str, BaseParam] | None = None
 
         self._algorithm = algorithm
         self._best_trial: dict | None = None
