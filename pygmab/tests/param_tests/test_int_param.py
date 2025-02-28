@@ -3,8 +3,6 @@ from contextlib import nullcontext
 import pytest
 from gmab.params import IntParam
 
-pytest.raises(ValueError)
-
 test_data = [
     pytest.param(0, 1, {}, [(0, 1)], [1], 1, nullcontext(), id="base"),
     pytest.param(0, 1, {"size": 2}, [(0, 1), (0, 1)], [1, 1], [1, 1], nullcontext(), id="vector"),
