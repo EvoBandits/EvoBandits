@@ -1,7 +1,7 @@
 from contextlib import nullcontext
 
+import gmab
 import pytest
-from gmab.params import IntParam
 
 test_data = [
     pytest.param(0, 1, {}, [(0, 1)], [1], 1, nullcontext(), id="base"),
@@ -21,6 +21,6 @@ test_data = [
 @pytest.mark.parametrize("low, high, kwargs, exp_bounds, action, value, expectation", test_data)
 def test_int_param(low, high, kwargs, exp_bounds, action, value, expectation):
     with expectation:
-        param = IntParam(low, high, **kwargs)
+        param = gmab.IntParam(low, high, **kwargs)
         assert param.bounds == exp_bounds
         assert param.map_to_value(action) == value
