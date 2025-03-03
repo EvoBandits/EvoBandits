@@ -44,8 +44,14 @@ jobs:
           override: true
       - name: Install maturin
         run: pip install maturin
+
       - name: Build wheels
-        run: maturin build --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml --platform ${{ matrix.platform.target }}
+        run: maturin build --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
+        env:
+          SCCACHE: "true"
+          MYPY_CACHE_DIR: "/tmp/mypy_cache"
+          CARGO_TARGET_DIR: "target"
+          MANYLINUX: "auto"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
