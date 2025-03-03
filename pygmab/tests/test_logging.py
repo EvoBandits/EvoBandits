@@ -1,9 +1,9 @@
-import gmab
+from gmab import logging
 from pytest import CaptureFixture, LogCaptureFixture
 
 
 def test_get_logger(caplog: LogCaptureFixture) -> None:
-    logger = gmab.logging.get_logger("gmab.foo")
+    logger = logging.get_logger("gmab.foo")
 
     logger.info("hello")
     assert "hello" in caplog.text  # Checks logging with a simple example
@@ -13,24 +13,24 @@ def test_get_logger(caplog: LogCaptureFixture) -> None:
 
 
 def test_set_level(caplog: LogCaptureFixture) -> None:
-    logger = gmab.logging.get_logger("gmab.foo")
+    logger = logging.get_logger("gmab.foo")
 
-    gmab.logging.set_level(gmab.logging.DEBUG)
+    logging.set_level(logging.DEBUG)
     logger.debug("debug_msg")
     assert "debug_msg" in caplog.text  # level is set to DEBUG
 
-    gmab.logging.set_level(gmab.logging.CRITICAL)
+    logging.set_level(logging.CRITICAL)
     logger.error("error_msg")
     assert "error_msg" not in caplog.text  # level is set to CRITICAL
 
 
 def test_disable(capsys: CaptureFixture) -> None:
-    logger = gmab.logging.get_logger("gmab.foo")
+    logger = logging.get_logger("gmab.foo")
 
-    gmab.logging.disable()
+    logging.disable()
     logger.info("hello")
     assert "hello" not in capsys.readouterr().err  # Logging is disabled
 
-    gmab.logging.enable()
+    logging.enable()
     logger.info("bye")
     assert "bye" in capsys.readouterr().err  # Logging is enabled

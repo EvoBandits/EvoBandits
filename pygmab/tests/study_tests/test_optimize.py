@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock
 
-import gmab
 import pytest
+from gmab.params import IntParam
+from gmab.study import Study
 
 
 def rb_func(number: list):
@@ -14,8 +15,8 @@ def rb_func(number: list):
 
 
 test_data = [
-    pytest.param(rb_func, {"x": gmab.IntParam(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
-    pytest.param(rb_func, {"x": gmab.IntParam(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
+    pytest.param(rb_func, {"x": IntParam(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
+    pytest.param(rb_func, {"x": IntParam(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
     # ToDo: Implement the input validaton for study.optimize
 ]
 
@@ -25,7 +26,7 @@ def test_optimize(func, params, trials, exp_bounds):
     mock_gmab = MagicMock()
     mock_gmab.optimize.return_value = [1, 1]
 
-    study = gmab.Study(algorithm=mock_gmab)
+    study = Study(algorithm=mock_gmab)
     study.optimize(func, params, trials)
 
     mock_gmab.assert_called_once_with(study._run_trial, exp_bounds)  # Use of Gmab(...)
