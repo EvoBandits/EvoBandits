@@ -58,6 +58,9 @@ jobs:
           source .venv/bin/activate
           pip install gmab --find-links dist --force-reinstall
           pip install pytest
+          cd pygmab
+          pip install maturin
+          maturin develop
           pytest
       - name: pytest
         if: ${{ !startsWith(matrix.platform.target, 'x86') && matrix.platform.target != 'ppc64' }}
@@ -171,6 +174,9 @@ jobs:
           source .venv/Scripts/activate
           pip install gmab --find-links dist --force-reinstall
           pip install pytest
+          cd pygmab
+          pip install maturin
+          maturin develop
           pytest
 
   macos:
@@ -205,6 +211,9 @@ jobs:
           source .venv/bin/activate
           pip install gmab --find-links dist --force-reinstall
           pip install pytest
+          cd pygmab
+          pip install maturin
+          maturin develop
           pytest
 
 #  sdist:
