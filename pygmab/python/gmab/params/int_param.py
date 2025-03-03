@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from gmab.params.base_param import BaseParam
 
 
@@ -52,7 +54,7 @@ class IntParam(BaseParam):
     def __repr__(self):
         return f"IntParam(low={self.low}, high={self.high}, size={self.size}, step={self.step})"
 
-    @property
+    @cached_property
     def bounds(self) -> list[tuple]:
         """
         Calculate and return the parameter's internal bounds for the optimization.
@@ -64,15 +66,13 @@ class IntParam(BaseParam):
             list[tuple]: A list of tuples representing the bounds.
 
         """
-        if not self._bounds:
-            if self.step == 1:
-                upper_bound = self.high
-            else:
-                upper_bound = (self.high - self.low) // self.step
-                upper_bound += 1 if (self.high - self.low) % self.step != 0 else 0
-                upper_bound += self.low
-            self._bounds = [(self.low, upper_bound)] * self.size
-        return self._bounds
+        if self.step == 1:
+            upper_bound = self.high
+        else:
+            upper_bound = (self.high - self.low) // self.step
+            upper_bound += 1 if (self.high - self.low) % self.step != 0 else 0
+            upper_bound += self.low
+        return [(self.low, upper_bound)] * self.size
 
     def map_to_value(self, actions: list[int]) -> int | list[int]:
         """

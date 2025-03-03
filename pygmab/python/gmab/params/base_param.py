@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from functools import cached_property
 
 
 class BaseParam(ABC):
@@ -26,9 +27,8 @@ class BaseParam(ABC):
         if not isinstance(size, int) or size < 1:
             raise ValueError("size must be a positive integer.")
         self.size: int = size
-        self._bounds: list[tuple] | None = None
 
-    @property
+    @cached_property
     @abstractmethod
     def bounds(self) -> list[tuple]:
         """
@@ -45,9 +45,7 @@ class BaseParam(ABC):
             list should match the `size`.
 
         """
-        if not self._bounds:
-            raise NotImplementedError("Subclasses must implement the 'bounds' property.")
-        return self._bounds
+        raise NotImplementedError("Subclasses must implement the 'bounds' property.")
 
     @abstractmethod
     def map_to_value(self, actions: list[int]) -> bool | int | str | float | list:
