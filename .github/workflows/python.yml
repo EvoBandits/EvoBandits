@@ -1,6 +1,7 @@
 # differences to the original file:
 # - added manifest path to the maturin-action
 # - commented out not so popular platforms (could be added if someone needs them)
+# - modified pytest step to build the package before testing.
 
 name: Test & Build Python
 
@@ -37,6 +38,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          source $HOME/.cargo/env
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -154,6 +159,10 @@ jobs:
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          source $HOME/.cargo/env
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -193,6 +202,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+          source $HOME/.cargo/env
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
