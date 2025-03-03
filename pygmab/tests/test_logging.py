@@ -1,5 +1,6 @@
-from gmab import logging
 from pytest import CaptureFixture, LogCaptureFixture
+
+from python.gmab import logging
 
 
 def test_get_logger(caplog: LogCaptureFixture) -> None:
