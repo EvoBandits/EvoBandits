@@ -11,7 +11,10 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
-dependencies = ["scikit-learn"]
+dependencies = [
+    "maturin>=1.8.2",
+    "scikit-learn",
+]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
@@ -31,3 +34,9 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = []
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.1.0",
+    "pytest>=8.3.5",
+]
