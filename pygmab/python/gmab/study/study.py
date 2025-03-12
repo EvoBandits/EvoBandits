@@ -1,9 +1,9 @@
+import logging
 from collections.abc import Callable
 
-from gmab import logging
 from gmab.gmab import Gmab
 
-_logger = logging.get_logger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class Study:
