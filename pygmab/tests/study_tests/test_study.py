@@ -12,6 +12,9 @@ def rosenbrock_function(number: list):
 
 
 def test_best_trial():
+    # Test
+    print(dir(gmab))
+
     study = gmab.create_study()
 
     # best_trial requires running study.optimize()
