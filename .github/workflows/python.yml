@@ -64,7 +64,7 @@ jobs:
           set -e
           python3 -m venv .venv
           source .venv/bin/activate
-          pip install pygmab --find-links dist --force-reinstall
+          pip install gmab --find-links dist --force-reinstall
           pip install pytest
           pytest
       - name: pytest
