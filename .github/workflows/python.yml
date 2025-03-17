@@ -37,12 +37,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-
-      - name: Debug Cargo metadata
-        run: cargo metadata --format-version 1
-
       - name: Build wheels
         uses: PyO3/maturin-action@v1
+        env:
+          CARGO_TARGET_DIR: target
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
