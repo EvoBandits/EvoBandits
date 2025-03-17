@@ -39,17 +39,15 @@ class IntParam(BaseParam):
             of 2 means that only every second integer within the range will be considered.
 
         """
-        if not isinstance(low, int):
-            raise ValueError("low must be an integer.")
-        if not isinstance(high, int) or high <= low:
+        if high <= low:
             raise ValueError("high must be an integer that is greater than low.")
-        if not isinstance(step, int) or step < 1:
+        if step < 1:
             raise ValueError("step must be a positive integer.")
 
         super().__init__(size)
-        self.low: int = low
-        self.high: int = high
-        self.step: int = step
+        self.low: int = int(low)
+        self.high: int = int(high)
+        self.step: int = int(step)
 
     def __repr__(self):
         return f"IntParam(low={self.low}, high={self.high}, size={self.size}, step={self.step})"

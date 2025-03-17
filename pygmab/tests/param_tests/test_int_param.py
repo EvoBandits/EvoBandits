@@ -8,11 +8,7 @@ test_data = [
     pytest.param(0, 1, {"size": 2}, [(0, 1), (0, 1)], [1, 1], [1, 1], nullcontext(), id="vector"),
     pytest.param(3, 6, {"step": 3}, [(3, 4)], [1], 6, nullcontext(), id="step"),
     pytest.param(0, 4, {"step": 3}, [(0, 2)], [2], 4, nullcontext(), id="step_edge_case"),
-    pytest.param(0.0, 1, {}, None, None, None, pytest.raises(ValueError), id="low_type"),
-    pytest.param(0, 1.0, {}, None, None, None, pytest.raises(ValueError), id="high_type"),
     pytest.param(0, 0, {}, None, None, None, pytest.raises(ValueError), id="high_value"),
-    pytest.param(0, 1, {"size": 2.0}, None, None, None, pytest.raises(ValueError), id="size_type"),
-    pytest.param(0, 4, {"step": 2.0}, None, None, None, pytest.raises(ValueError), id="step_type"),
     pytest.param(0, 1, {"size": 0}, None, None, None, pytest.raises(ValueError), id="size_value"),
     pytest.param(0, 4, {"step": 0}, None, None, None, pytest.raises(ValueError), id="step_value"),
 ]

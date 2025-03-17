@@ -24,9 +24,9 @@ class BaseParam(ABC):
         Raises:
             ValueError: If size is not a positive integer.
         """
-        if not isinstance(size, int) or size < 1:
+        if size < 1:
             raise ValueError("size must be a positive integer.")
-        self.size: int = size
+        self.size: int = int(size)
 
     @cached_property
     @abstractmethod
