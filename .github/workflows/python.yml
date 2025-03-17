@@ -38,11 +38,8 @@ jobs:
         with:
           python-version: 3.x
 
-      - name: Check Cargo.toml
-        run: ls -l pygmab/Cargo.toml
-      - name: Verify Cargo installation
-        run: cargo --version
-
+      - name: Debug Cargo metadata
+        run: cargo metadata --format-version 1
 
       - name: Build wheels
         uses: PyO3/maturin-action@v1
