@@ -13,7 +13,7 @@ def rosenbrock_function(number: list):
 
 
 def test_best_trial(caplog: LogCaptureFixture):
-    study = gmab.create_study()
+    study = gmab.Study()
 
     # best_trial requires running study.optimize()
     with pytest.raises(RuntimeError):

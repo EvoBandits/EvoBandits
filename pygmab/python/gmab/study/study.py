@@ -13,9 +13,6 @@ class Study:
 
     This class provides interfaces to optimize an objective function within specified bounds
     and to manage user-defined attributes related to the study.
-
-    Note: It is recommended to use the `create_study` function to instantiate a Study
-    instead of using the constructor directly.
     """
 
     def __init__(self, algorithm=Gmab) -> None:
@@ -97,13 +94,3 @@ class Study:
 
         self._best_trial = self._map_to_solution(best_action_vector)
         _logger.info("completed")
-
-
-def create_study() -> Study:
-    """
-    Create a new Study instance.
-
-    Returns:
-        Study: A new instance of the Study class.
-    """
-    return Study()
