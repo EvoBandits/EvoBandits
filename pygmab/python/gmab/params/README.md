@@ -24,7 +24,7 @@ Therefore, a streamlined interface to define and handle parameters for the Study
 desirable, leading to the idea of this approach:
 
 * As each parameter is defined separately by the user depending on their specific requirements,
-pygmab should offer intefaces for each type of parameter.
+pygmab should offer interfaces for each type of parameter.
 * A "type" summarizes parameters have similar requirements, specifically: Similar steps to
 define their bounds and map their values from gmab's internal action_vector. For now, there will
 be the types: Integer, Float, and Categorical.
