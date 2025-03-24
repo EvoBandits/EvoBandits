@@ -41,9 +41,9 @@ class FloatParam(BaseParam):
             raise ValueError("step must be positive float.")
 
         super().__init__(size)
-        self.low: Decimal = Decimal(f"{low}")
-        self.high: Decimal = Decimal(f"{high}")
-        self.step: Decimal = Decimal(f"{step}")
+        self.low: Decimal = Decimal(f"{float(low)}")
+        self.high: Decimal = Decimal(f"{float(high)}")
+        self.step: Decimal = Decimal(f"{float(step)}")
         self._prec: int = len(str(float(step)).split(".")[1]) + 1
 
     def __repr__(self):
