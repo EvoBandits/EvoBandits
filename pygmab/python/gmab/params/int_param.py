@@ -83,8 +83,8 @@ class IntParam(BaseParam):
             int | list[int]: The resulting integer value(s).
         """
         if self.step > 1:
-            actions = [min(self.low + x * self.step, self.high) for x in actions]
+            actions = [min(self.low + (x - self.low) * self.step, self.high) for x in actions]
 
-        if self.size == 1:
+        if len(actions) == 1:
             return actions[0]
         return actions
