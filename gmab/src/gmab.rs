@@ -192,7 +192,7 @@ impl<F: OptimizationFn> Gmab<F> {
                 });
 
             // shuffle population
-            population.shuffle(&mut rand::thread_rng());
+            population.shuffle(&mut rand::rng());
 
             let crossover_pop = self.genetic_algorithm.crossover(&population);
 

@@ -41,11 +41,11 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
 
     pub(crate) fn generate_new_population(&self) -> Vec<Arm> {
         let mut individuals: Vec<Arm> = Vec::new();
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         while individuals.len() < self.population_size {
             let candidate_solution: Vec<i32> = (0..self.dimension)
-                .map(|j| rng.gen_range(self.lower_bound[j]..=self.upper_bound[j]))
+                .map(|j| rng.random_range(self.lower_bound[j]..=self.upper_bound[j]))
                 .collect();
 
             let candidate_arm = Arm::new(&candidate_solution);
@@ -60,13 +60,13 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
     pub(crate) fn crossover(&self, population: &[Arm]) -> Vec<Arm> {
         let mut crossover_pop: Vec<Arm> = Vec::new();
         let population_size = self.population_size;
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         for i in (0..population_size).step_by(2) {
             if rand::random::<f64>() < self.crossover_rate {
                 // Crossover
                 let max_dim_index = self.dimension - 1;
-                let swap_rv = rng.gen_range(1..=max_dim_index);
+                let swap_rv = rng.random_range(1..=max_dim_index);
 
                 for j in 1..=max_dim_index {
                     if swap_rv == j {
@@ -102,14 +102,14 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
     pub(crate) fn mutate(&self, population: &[Arm]) -> Vec<Arm> {
         let mut mutated_population = Vec::new();
         let mut seen = HashSet::new();
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         for individual in population.iter() {
             // Clone the action vector
             let mut new_action_vector = individual.get_action_vector().to_vec(); // Here I assumed `get_action_vector` returns a slice or Vec
 
             for (i, value) in new_action_vector.iter_mut().enumerate() {
-                if rng.gen::<f64>() < self.mutation_rate {
+                if rng.random::<f64>() < self.mutation_rate {
                     let adjustment = Normal::new(
                         0.0,
                         self.mutation_span * (self.upper_bound[i] - self.lower_bound[i]) as f64,
