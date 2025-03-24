@@ -63,7 +63,8 @@ class FloatParam(BaseParam):
         if self.step == Decimal("1.0"):
             return [(int(self.low), int(self.high))] * self.size
 
-        with localcontext(prec=self._prec):
+        with localcontext() as ctx:
+            ctx.prec = self._prec
             upper_bound = (self.high - self.low) // self.step
             upper_bound += 1 if (self.high - self.low) % self.step != 0 else 0
             return [(0, int(upper_bound))] * self.size
@@ -78,7 +79,8 @@ class FloatParam(BaseParam):
         Returns:
             int | list[int]: The resulting integer value(s).
         """
-        with localcontext(prec=self._prec):
+        with localcontext() as ctx:
+            ctx.prec = self._prec
             actions = [float(min(self.low + x * self.step, self.high)) for x in actions]
 
         if len(actions) == 1:
