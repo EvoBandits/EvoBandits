@@ -28,10 +28,10 @@ impl<F: OptimizationFn> Gmab<F> {
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
 
         // Default values for the Genetic Algorithm
-        let population_size = 20;
-        let mutation_rate = 0.25;
-        let crossover_rate = 1.0;
-        let mutation_span = 0.1;
+        let population_size = 20; // Default population size
+        let mutation_rate = 0.25; // Default mutation rate
+        let crossover_rate = 1.0; // Default crossover rate
+        let mutation_span = 0.1; // Default mutation span
 
         Gmab::new_with_parameter(
             opti_function,
