@@ -1,9 +1,8 @@
 use crate::arm::{Arm, OptimizationFn};
 use crate::genetic::GeneticAlgorithm;
+use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
 use rand::prelude::SliceRandom;
 use std::collections::HashMap;
-
-use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
 
 pub struct Gmab<F: OptimizationFn> {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
@@ -23,15 +22,16 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>) -> Gmab<F> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>) -> Result<Gmab<F>, String> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
+
         // Default values for the Genetic Algorithm
-        let population_size = 20; // Default population size
-        let mutation_rate = 0.25; // Default mutation rate
-        let crossover_rate = 1.0; // Default crossover rate
-        let mutation_span = 0.1; // Default mutation span
+        let population_size = 20;
+        let mutation_rate = 0.25;
+        let crossover_rate = 1.0;
+        let mutation_span = 0.1;
 
         Gmab::new_with_parameter(
             opti_function,
@@ -54,7 +54,7 @@ impl<F: OptimizationFn> Gmab<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
-    ) -> Gmab<F> {
+    ) -> Result<Gmab<F>, String> {
         let genetic_algorithm = GeneticAlgorithm::new(
             opti_function,
             population_size,
@@ -62,13 +62,23 @@ impl<F: OptimizationFn> Gmab<F> {
             crossover_rate,
             mutation_span,
             dimension,
-            lower_bound,
-            upper_bound,
+            lower_bound.clone(),
+            upper_bound.clone(),
         );
 
-        let mut arm_memory: Vec<Arm> = Vec::new();
-        let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
-        let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
+        let arm_memory: Vec<Arm> = Vec::new();
+        let lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
+        let sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
+
+        let solution_size: u128 = (0..dimension)
+            .map(|i: usize| (upper_bound[i] - lower_bound[i]) as u128)
+            .product();
+
+        if solution_size < population_size as u128 {
+            return Err(
+                "population_size is larger than the number of potential solutions.".to_string(),
+            );
+        }
 
         let mut initial_population = genetic_algorithm.generate_new_population();
 
@@ -79,12 +89,12 @@ impl<F: OptimizationFn> Gmab<F> {
             sample_average_tree.insert(FloatKey::new(individual.get_mean_reward()), index as i32);
         }
 
-        Gmab {
+        Ok(Gmab {
             sample_average_tree,
             arm_memory,
             lookup_table,
             genetic_algorithm,
-        }
+        })
     }
 
     fn max_number_pulls(&self) -> i32 {

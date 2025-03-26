@@ -40,13 +40,6 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
     }
 
     pub(crate) fn generate_new_population(&self) -> Vec<Arm> {
-        let solution_size: u128 = (0..self.dimension)
-            .map(|i| (self.upper_bound[i] - self.lower_bound[i]) as u128)
-            .product();
-        if solution_size < self.population_size as u128 {
-            panic!("population_size is larger than number of potential solutions.")
-        }
-
         let mut individuals: Vec<Arm> = Vec::new();
         let mut rng = rand::rng();
 
