@@ -70,11 +70,16 @@ impl<F: OptimizationFn> Gmab<F> {
         let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
-        let solution_size: u128 = (0..dimension)
-            .map(|i: usize| (upper_bound[i] - lower_bound[i]) as u128)
-            .product();
-
-        if solution_size < population_size as u128 {
+        let mut solution_size: usize = 0;
+        let mut not_enough_solutions = true;
+        for i in 0..dimension {
+            solution_size *= (upper_bound[i] - lower_bound[i] + 1) as usize;
+            if solution_size >= population_size {
+                not_enough_solutions = false;
+                break;
+            }
+        }
+        if not_enough_solutions {
             panic!("population_size is larger than the number of potential solutions.");
         }
 
