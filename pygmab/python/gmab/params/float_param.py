@@ -19,7 +19,7 @@ class FloatParam(BaseParam):
 
         Args:
             low (float): The lower bound of the suggested values.
-            high (float)): The upper bound of the suggested values.
+            high (float): The upper bound of the suggested values.
             size (int): The size if the parameter shall be a list of integers. Default is 1.
             step (float): The step size between the suggested values. Default is 1.0.
 
