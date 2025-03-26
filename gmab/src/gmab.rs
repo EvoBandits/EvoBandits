@@ -327,6 +327,21 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "population_size is larger than the number of potential solutions.")]
+    fn test_gmab_new_panic() {
+        Gmab::new_with_parameter(
+            mock_opti_function,
+            10,
+            0.1,
+            0.9,
+            0.5,
+            2,
+            vec![0, 0],
+            vec![1, 1], // less possible solutions that population_size
+        );
+    }
+
+    #[test]
     fn test_gmab_get_arm_index_with_existing() {
         let mut gmab = Gmab::new_with_parameter(
             mock_opti_function,
