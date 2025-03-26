@@ -70,7 +70,7 @@ impl<F: OptimizationFn> Gmab<F> {
         let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
-        let mut solution_size: usize = 0;
+        let mut solution_size: usize = 1;
         let mut not_enough_solutions = true;
         for i in 0..dimension {
             solution_size *= (upper_bound[i] - lower_bound[i] + 1) as usize;
