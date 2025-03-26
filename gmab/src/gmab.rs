@@ -22,7 +22,7 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>) -> Result<Gmab<F>, String> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>) -> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
@@ -54,7 +54,7 @@ impl<F: OptimizationFn> Gmab<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
-    ) -> Result<Gmab<F>, String> {
+    ) -> Gmab<F> {
         let genetic_algorithm = GeneticAlgorithm::new(
             opti_function,
             population_size,
@@ -75,9 +75,7 @@ impl<F: OptimizationFn> Gmab<F> {
             .product();
 
         if solution_size < population_size as u128 {
-            return Err(
-                "population_size is larger than the number of potential solutions.".to_string(),
-            );
+            panic!("population_size is larger than the number of potential solutions.");
         }
 
         let mut initial_population = genetic_algorithm.generate_new_population();
@@ -89,12 +87,12 @@ impl<F: OptimizationFn> Gmab<F> {
             sample_average_tree.insert(FloatKey::new(individual.get_mean_reward()), index as i32);
         }
 
-        Ok(Gmab {
+        Gmab {
             sample_average_tree,
             arm_memory,
             lookup_table,
             genetic_algorithm,
-        })
+        }
     }
 
     fn max_number_pulls(&self) -> i32 {
