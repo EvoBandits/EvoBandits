@@ -77,7 +77,7 @@ class FloatParam(BaseParam):
             actions (list[int]): A list of integer to map.
 
         Returns:
-            int | list[int]: The resulting integer value(s).
+            float | list[float]: The resulting float value(s).
         """
         with localcontext() as ctx:
             ctx.prec = self._prec
