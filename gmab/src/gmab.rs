@@ -66,9 +66,9 @@ impl<F: OptimizationFn> Gmab<F> {
             upper_bound.clone(),
         );
 
-        let arm_memory: Vec<Arm> = Vec::new();
-        let lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
-        let sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
+        let mut arm_memory: Vec<Arm> = Vec::new();
+        let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
+        let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
         let solution_size: u128 = (0..dimension)
             .map(|i: usize| (upper_bound[i] - lower_bound[i]) as u128)
