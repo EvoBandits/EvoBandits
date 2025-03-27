@@ -50,25 +50,25 @@ class FloatParam(BaseParam):
         self.steps: int = int(steps)
 
     def __repr__(self):
-        repr = f"FloatParam(low={self.low}, high={self.high}, size={self.size},"
+        repr = f"FloatParam(low={self.low}, high={self.high}, size={self.size}, "
         repr += f"steps={self.steps}, log={self.log})"
         return repr
 
     @cached_property
     def _offset(self):
+        """Only relevant if self.log"""
+        return 1 - self.low
+
+    @cached_property
+    def _low_trans(self):
         if self.log:
-            return math.log(self.low)
+            return math.log(self.low + self._offset)
         return self.low
 
     @cached_property
-    def _cap(self):
-        if self.log:
-            return math.log(self.high)
-        return self.high
-
-    @cached_property
-    def _scale(self):
-        return (self._cap - self._offset) / self.steps
+    def _step(self):
+        high_trans = math.log(self.high + self._offset) if self.log else self.high
+        return (high_trans - self._low_trans) / self.steps
 
     @cached_property
     def bounds(self) -> list[tuple]:
@@ -94,11 +94,11 @@ class FloatParam(BaseParam):
             float | list[float]: The resulting float value(s).
         """
         # Apply scaling
-        actions = [self._offset + self._scale * x for x in actions]
+        actions = [self._low_trans + self._step * x for x in actions]
 
         # Optional log-transformation
         if self.log:
-            actions = [math.exp(x) for x in actions]
+            actions = [math.exp(x) - self._offset for x in actions]
 
         if len(actions) == 1:
             return actions[0]
