@@ -3,7 +3,6 @@ from contextlib import nullcontext
 import pytest
 from gmab.params import IntParam
 
-# ToDo: remove step to avoid confusion
 test_int_param_data = [
     pytest.param(0, 1, {}, [(0, 1)], [0, 1], id="base"),
     pytest.param(0, 1, {"size": 2}, [(0, 1), (0, 1)], [0, 1], id="vector"),

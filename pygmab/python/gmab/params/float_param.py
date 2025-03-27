@@ -10,7 +10,7 @@ class FloatParam(BaseParam):
     """
 
     def __init__(
-        self, low: float, high: float, size: int = 1, steps: float = 100, log: bool = False
+        self, low: float, high: float, size: int = 1, nsteps: float = 100, log: bool = False
     ):
         """
         Creates a FloatParam that will suggest float values during the optimization.
@@ -40,18 +40,18 @@ class FloatParam(BaseParam):
         """
         if high <= low:
             raise ValueError("high must be a float that is greater than low.")
-        if steps <= 0:
+        if nsteps <= 0:
             raise ValueError("steps must be positive integer.")
 
         super().__init__(size)
         self.log: bool = bool(log)
         self.low: float = float(low)
         self.high: float = float(high)
-        self.steps: int = int(steps)
+        self.nsteps: int = int(nsteps)
 
     def __repr__(self):
         repr = f"FloatParam(low={self.low}, high={self.high}, size={self.size}, "
-        repr += f"steps={self.steps}, log={self.log})"
+        repr += f"steps={self.nsteps}, log={self.log})"
         return repr
 
     @cached_property
@@ -66,9 +66,9 @@ class FloatParam(BaseParam):
         return self.low
 
     @cached_property
-    def _step(self):
+    def _stepsize(self):
         high_trans = math.log(self.high + self._offset) if self.log else self.high
-        return (high_trans - self._low_trans) / self.steps
+        return (high_trans - self._low_trans) / self.nsteps
 
     @cached_property
     def bounds(self) -> list[tuple]:
@@ -81,7 +81,7 @@ class FloatParam(BaseParam):
         Returns:
             list[tuple]: A list of tuples representing the bounds
         """
-        return [(0, self.steps)] * self.size
+        return [(0, self.nsteps)] * self.size
 
     def map_to_value(self, actions: list[int]) -> float | list[float]:
         """
@@ -94,7 +94,7 @@ class FloatParam(BaseParam):
             float | list[float]: The resulting float value(s).
         """
         # Apply scaling
-        actions = [self._low_trans + self._step * x for x in actions]
+        actions = [self._low_trans + self._stepsize * x for x in actions]
 
         # Optional log-transformation
         if self.log:
