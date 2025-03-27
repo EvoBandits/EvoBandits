@@ -9,7 +9,9 @@ class FloatParam(BaseParam):
     A class representing a float parameter.
     """
 
-    def __init__(self, low: float, high: float, size: int = 1, step: float = 1, log: bool = False):
+    def __init__(
+        self, low: float, high: float, size: int = 1, steps: float = 100, log: bool = False
+    ):
         """
         Creates a FloatParam that will suggest float values during the optimization.
 
@@ -21,7 +23,7 @@ class FloatParam(BaseParam):
             low (float): The lower bound of the suggested values.
             high (float): The upper bound of the suggested values.
             size (int): The size if the parameter shall be a list of floats. Default is 1.
-            step (float): The step size between the suggested values. Default is 1.0.
+            steps (int): The number of steps between low and high. Default is 100.
             log (bool): A flag to indicate log-transformation. Default is False.
 
         Returns:
@@ -38,18 +40,18 @@ class FloatParam(BaseParam):
         """
         if high <= low:
             raise ValueError("high must be a float that is greater than low.")
-        if step <= 0:
-            raise ValueError("step must be positive float.")
+        if steps <= 0:
+            raise ValueError("steps must be positive integer.")
 
         super().__init__(size)
         self.log: bool = bool(log)
         self.low: float = float(low)
         self.high: float = float(high)
-        self.step: float = float(step)
+        self.steps: int = int(steps)
 
     def __repr__(self):
         repr = f"FloatParam(low={self.low}, high={self.high}, size={self.size},"
-        repr += f"step={self.step}, log={self.log})"
+        repr += f"steps={self.steps}, log={self.log})"
         return repr
 
     @cached_property
@@ -66,10 +68,7 @@ class FloatParam(BaseParam):
 
     @cached_property
     def _scale(self):
-        if self.log:
-            n_steps = (self.high - self.low) / self.step
-            return (self._cap - self._offset) / n_steps
-        return self.step
+        return (self._cap - self._offset) / self.steps
 
     @cached_property
     def bounds(self) -> list[tuple]:
@@ -82,8 +81,7 @@ class FloatParam(BaseParam):
         Returns:
             list[tuple]: A list of tuples representing the bounds
         """
-        n_steps = (self._cap - self._offset) / self._scale
-        return [(0, int(n_steps))] * self.size
+        return [(0, self.steps)] * self.size
 
     def map_to_value(self, actions: list[int]) -> float | list[float]:
         """
@@ -98,7 +96,7 @@ class FloatParam(BaseParam):
         # Apply scaling
         actions = [self._offset + self._scale * x for x in actions]
 
-        # Apply transformation
+        # Optional log-transformation
         if self.log:
             actions = [math.exp(x) for x in actions]
 
