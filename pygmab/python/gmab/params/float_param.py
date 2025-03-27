@@ -1,4 +1,4 @@
-from decimal import Decimal, localcontext
+import math
 from functools import cached_property
 
 from gmab.params.base_param import BaseParam
@@ -9,7 +9,7 @@ class FloatParam(BaseParam):
     A class representing a float parameter.
     """
 
-    def __init__(self, low: float, high: float, size: int = 1, step: float = 0.1):
+    def __init__(self, low: float, high: float, size: int = 1, step: float = 1, log: bool = False):
         """
         Creates a FloatParam that will suggest float values during the optimization.
 
@@ -22,6 +22,7 @@ class FloatParam(BaseParam):
             high (float): The upper bound of the suggested values.
             size (int): The size if the parameter shall be a list of floats. Default is 1.
             step (float): The step size between the suggested values. Default is 1.0.
+            log (bool): A flag to indicate log-transformation. Default is False.
 
         Returns:
             FloatParam: An instance of the parameter with the specified properties.
@@ -41,13 +42,34 @@ class FloatParam(BaseParam):
             raise ValueError("step must be positive float.")
 
         super().__init__(size)
-        self.low: Decimal = Decimal(f"{float(low)}")
-        self.high: Decimal = Decimal(f"{float(high)}")
-        self.step: Decimal = Decimal(f"{float(step)}")
-        self._prec: int = len(str(float(step)).split(".")[1]) + 1
+        self.log: bool = bool(log)
+        self.low: float = float(low)
+        self.high: float = float(high)
+        self.step: float = float(step)
 
     def __repr__(self):
-        return f"FloatParam(low={self.low}, high={self.high}, size={self.size}, step={self.step})"
+        repr = f"FloatParam(low={self.low}, high={self.high}, size={self.size},"
+        repr += f"step={self.step}, log={self.log})"
+        return repr
+
+    @cached_property
+    def _offset(self):
+        if self.log:
+            return math.log(self.low)
+        return self.low
+
+    @cached_property
+    def _cap(self):
+        if self.log:
+            return math.log(self.high)
+        return self.high
+
+    @cached_property
+    def _scale(self):
+        if self.log:
+            n_steps = (self.high - self.low) / self.step
+            return (self._cap - self._offset) / n_steps
+        return self.step
 
     @cached_property
     def bounds(self) -> list[tuple]:
@@ -60,14 +82,8 @@ class FloatParam(BaseParam):
         Returns:
             list[tuple]: A list of tuples representing the bounds
         """
-        if self.step == Decimal("1.0"):
-            return [(int(self.low), int(self.high))] * self.size
-
-        with localcontext() as ctx:
-            ctx.prec = self._prec
-            upper_bound = (self.high - self.low) // self.step
-            upper_bound += 1 if (self.high - self.low) % self.step != 0 else 0
-            return [(0, int(upper_bound))] * self.size
+        n_steps = (self._cap - self._offset) / self._scale
+        return [(0, int(n_steps))] * self.size
 
     def map_to_value(self, actions: list[int]) -> float | list[float]:
         """
@@ -79,9 +95,12 @@ class FloatParam(BaseParam):
         Returns:
             float | list[float]: The resulting float value(s).
         """
-        with localcontext() as ctx:
-            ctx.prec = self._prec
-            actions = [float(min(self.low + x * self.step, self.high)) for x in actions]
+        # Apply scaling
+        actions = [self._offset + self._scale * x for x in actions]
+
+        # Apply transformation
+        if self.log:
+            actions = [math.exp(x) for x in actions]
 
         if len(actions) == 1:
             return actions[0]
