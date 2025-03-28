@@ -45,6 +45,8 @@ impl Gmab {
             Err(err) => {
                 let err_message = if let Some(msg) = err.downcast_ref::<&str>() {
                     format!("gmab core raised an exception: {}", msg)
+                } else if let Sopyme(msg) = err.downcast_ref::<String>() {
+                    format!("gmab core raised an exception: {}", msg)
                 } else {
                     "gmab core raised an exception (unknown cause)".to_string()
                 };
