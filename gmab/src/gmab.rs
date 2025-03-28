@@ -55,21 +55,7 @@ impl<F: OptimizationFn> Gmab<F> {
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
     ) -> Gmab<F> {
-        let genetic_algorithm = GeneticAlgorithm::new(
-            opti_function,
-            population_size,
-            mutation_rate,
-            crossover_rate,
-            mutation_span,
-            dimension,
-            lower_bound.clone(),
-            upper_bound.clone(),
-        );
-
-        let mut arm_memory: Vec<Arm> = Vec::new();
-        let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
-        let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
-
+        // Raise an Exception if population_size > solution space
         let mut solution_size: usize = 1;
         let mut not_enough_solutions = true;
         for i in 0..dimension {
@@ -80,8 +66,26 @@ impl<F: OptimizationFn> Gmab<F> {
             }
         }
         if not_enough_solutions {
-            panic!("population_size is larger than the number of potential solutions.");
+            panic!(
+                "population_size ({}) is larger than the number of potential solutions ({}).",
+                population_size, solution_size
+            );
         }
+
+        let genetic_algorithm = GeneticAlgorithm::new(
+            opti_function,
+            population_size,
+            mutation_rate,
+            crossover_rate,
+            mutation_span,
+            dimension,
+            lower_bound,
+            upper_bound,
+        );
+
+        let mut arm_memory: Vec<Arm> = Vec::new();
+        let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
+        let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
         let mut initial_population = genetic_algorithm.generate_new_population();
 
@@ -332,7 +336,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "population_size is larger than the number of potential solutions.")]
+    #[should_panic(expected = "population_size")]
     fn test_gmab_new_panic() {
         Gmab::new_with_parameter(
             mock_opti_function,
