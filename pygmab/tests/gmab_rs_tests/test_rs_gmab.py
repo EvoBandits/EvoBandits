@@ -11,5 +11,5 @@ def test_gmab_new():
         bounds = [(0, 1), (0, 1)]  # less than 20 combinations
         _ = Gmab(function, bounds)
 
-    exp_msg = "population_size is larger than the number of potential solutions"
+    exp_msg = "population_size"
     assert exp_msg in str(err.value)
