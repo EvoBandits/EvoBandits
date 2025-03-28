@@ -44,9 +44,9 @@ impl Gmab {
             Ok(gmab) => Ok(Gmab { gmab }),
             Err(err) => {
                 let err_message = if let Some(msg) = err.downcast_ref::<&str>() {
-                    format!("Rust panic occurred: {}", msg)
+                    format!("gmab core raised an exception: {}", msg)
                 } else {
-                    "Rust panic occurred (unknown cause)".to_string()
+                    "gmab core raised an exception (unknown cause)".to_string()
                 };
                 Err(PyRuntimeError::new_err(err_message))
             }
