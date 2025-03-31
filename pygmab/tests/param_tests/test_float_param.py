@@ -3,7 +3,7 @@ from contextlib import nullcontext
 import pytest
 from gmab.params import FloatParam
 
-test_float_param_init_data = [
+test_float_param_new_data = [
     pytest.param(0, 1, {}, [(0, 100)], id="base"),
     pytest.param(0, 1, {"size": 2}, [(0, 100), (0, 100)], id="vector"),
     pytest.param(0, 1, {"nsteps": 10}, [(0, 10)], id="nsteps"),
@@ -15,8 +15,8 @@ test_float_param_init_data = [
 ]
 
 
-@pytest.mark.parametrize("low, high, kwargs, exp_bounds", test_float_param_init_data)
-def test_float_param_init(low, high, kwargs, exp_bounds):
+@pytest.mark.parametrize("low, high, kwargs, exp_bounds", test_float_param_new_data)
+def test_float_param_new(low, high, kwargs, exp_bounds):
     expectation = kwargs.pop("exp", nullcontext())
     with expectation:
         param = FloatParam(low, high, **kwargs)
@@ -33,8 +33,18 @@ def test_float_param_init(low, high, kwargs, exp_bounds):
         assert largest_value == high
 
 
-#         # Check if the expected values can be generated from the bounds
-#         values = []
-#         for x in range(bounds[0][0], bounds[0][1] + 1):
-#             values.append(param.map_to_value([x]))
-#         assert values == exp_values
+test_float_paran_mapping_data = [
+    pytest.param(FloatParam(0, 1), 5, 0.05, id="base"),
+    pytest.param(FloatParam(0.001, 0.002, nsteps=10), 3, 0.0013, id="modify_range"),
+    pytest.param(FloatParam(0, 1, nsteps=10), 5, 0.5, id="modify_steps"),
+    pytest.param(FloatParam(1, 2, log=True), 100, 2, id="log_transform"),
+]
+
+
+@pytest.mark.parametrize("param, action, exp_value", test_float_paran_mapping_data)
+def test_float_param_mapping(param, action, exp_value):
+    # Try multiple times to ensure precision (the exact same value should be mapped each time)
+    values = []
+    for _ in range(100):
+        values.append(param.map_to_value([action]))
+    assert all(exp_value == x for x in values)
