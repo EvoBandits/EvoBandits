@@ -21,9 +21,11 @@ def test_float_param_new(low, high, kwargs, exp_bounds):
     with expectation:
         param = FloatParam(low, high, **kwargs)
 
+        # Check gmab's internal bounds
         bounds = param.bounds
-        assert bounds == exp_bounds  # evaluate bounds
+        assert bounds == exp_bounds
 
+        # Check if parameter maps values in the specified range
         smallest_value = param.map_to_value([bounds[0][0]])
         assert isinstance(smallest_value, float)
         assert smallest_value == low
@@ -35,9 +37,9 @@ def test_float_param_new(low, high, kwargs, exp_bounds):
 
 test_float_paran_mapping_data = [
     pytest.param(FloatParam(0, 1), 5, 0.05, id="base"),
-    pytest.param(FloatParam(0.001, 0.002, nsteps=10), 3, 0.0013, id="modify_range"),
-    pytest.param(FloatParam(0, 1, nsteps=10), 5, 0.5, id="modify_steps"),
-    pytest.param(FloatParam(1, 2, log=True), 100, 2, id="log_transform"),
+    pytest.param(FloatParam(0.123, 4.567), 100, 4.567, id="modify_range"),
+    pytest.param(FloatParam(0, 1, nsteps=1000), 5, 0.005, id="modify_steps"),
+    pytest.param(FloatParam(1, 2, log=True), 100, 2.000, id="log_transform"),
 ]
 
 
