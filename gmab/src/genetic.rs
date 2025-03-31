@@ -1,6 +1,7 @@
 use std::collections::HashSet;
 
-use rand::Rng;
+use rand::rngs::StdRng;
+use rand::{Rng, SeedableRng};
 use rand_distr::{Distribution, Normal};
 
 use crate::arm::{Arm, OptimizationFn};
@@ -39,9 +40,9 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         }
     }
 
-    pub(crate) fn generate_new_population(&self) -> Vec<Arm> {
+    pub(crate) fn generate_new_population(&self, seed: u64) -> Vec<Arm> {
         let mut individuals: Vec<Arm> = Vec::new();
-        let mut rng = rand::rng();
+        let mut rng = StdRng::seed_from_u64(seed);
 
         while individuals.len() < self.population_size {
             let candidate_solution: Vec<i32> = (0..self.dimension)
@@ -57,10 +58,10 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         individuals
     }
 
-    pub(crate) fn crossover(&self, population: &[Arm]) -> Vec<Arm> {
+    pub(crate) fn crossover(&self, seed: u64, population: &[Arm]) -> Vec<Arm> {
         let mut crossover_pop: Vec<Arm> = Vec::new();
         let population_size = self.population_size;
-        let mut rng = rand::rng();
+        let mut rng = StdRng::seed_from_u64(seed);
 
         for i in (0..population_size).step_by(2) {
             if rand::random::<f64>() < self.crossover_rate {
@@ -99,10 +100,10 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         crossover_pop
     }
 
-    pub(crate) fn mutate(&self, population: &[Arm]) -> Vec<Arm> {
+    pub(crate) fn mutate(&self, seed: u64, population: &[Arm]) -> Vec<Arm> {
         let mut mutated_population = Vec::new();
         let mut seen = HashSet::new();
-        let mut rng = rand::rng();
+        let mut rng = StdRng::seed_from_u64(seed);
 
         for individual in population.iter() {
             // Clone the action vector
@@ -173,7 +174,7 @@ mod tests {
 
         let initial_population = vec![Arm::new(&vec![1, 1]), Arm::new(&vec![2, 2])];
 
-        let mutated_population = ga.mutate(&initial_population);
+        let mutated_population = ga.mutate(42, &initial_population);
 
         // Assuming the mutation is deterministic and in the expected bounds, you'd check like this:
         for (i, individual) in mutated_population.iter().enumerate() {
@@ -207,7 +208,7 @@ mod tests {
             Arm::new(&vec![9, 8, 7, 6, 5, 4, 3, 2, 1, 0]),
         ];
 
-        let crossover_population = ga.crossover(&initial_population);
+        let crossover_population = ga.crossover(42, &initial_population);
 
         // Since the crossover rate is 100%, the two individuals should not be identical to the original individuals
         assert_ne!(
