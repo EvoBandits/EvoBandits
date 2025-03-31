@@ -2,6 +2,7 @@ use crate::arm::{Arm, OptimizationFn};
 use crate::genetic::GeneticAlgorithm;
 use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
 use rand::prelude::SliceRandom;
+use rand::RngCore;
 use std::collections::HashMap;
 
 pub struct Gmab<F: OptimizationFn> {
@@ -22,7 +23,7 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>) -> Gmab<F> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
@@ -42,6 +43,7 @@ impl<F: OptimizationFn> Gmab<F> {
             dimension,
             lower_bound,
             upper_bound,
+            seed,
         )
     }
 
@@ -54,7 +56,11 @@ impl<F: OptimizationFn> Gmab<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
+        seed: Option<u64>,
     ) -> Gmab<F> {
+        // ToDo: propagate rng instead of seed to disable global seed propagation
+        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
+
         // Raise an Exception if population_size > solution space
         let mut solution_size: usize = 1;
         let mut not_enough_solutions = true;
@@ -73,6 +79,7 @@ impl<F: OptimizationFn> Gmab<F> {
         }
 
         let genetic_algorithm = GeneticAlgorithm::new(
+            seed,
             opti_function,
             population_size,
             mutation_rate,
@@ -87,8 +94,7 @@ impl<F: OptimizationFn> Gmab<F> {
         let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
-        // ToDo: Seeding
-        let mut initial_population = genetic_algorithm.generate_new_population(42);
+        let mut initial_population = genetic_algorithm.generate_new_population();
 
         for (index, individual) in initial_population.iter_mut().enumerate() {
             individual.pull(&genetic_algorithm.opti_function);
@@ -212,12 +218,10 @@ impl<F: OptimizationFn> Gmab<F> {
             // shuffle population
             population.shuffle(&mut rand::rng());
 
-            // ToDo: seeding
-            let crossover_pop = self.genetic_algorithm.crossover(42, &population);
+            let crossover_pop = self.genetic_algorithm.crossover(&population);
 
             // mutate automatically removes duplicates
-            // ToDo: seeding
-            let mutated_pop = self.genetic_algorithm.mutate(42, &crossover_pop);
+            let mutated_pop = self.genetic_algorithm.mutate(&crossover_pop);
 
             for individual in mutated_pop {
                 let arm_index = self.get_arm_index(&individual);
@@ -325,6 +329,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
         assert_eq!(gmab.genetic_algorithm.population_size, 10);
         assert_eq!(gmab.arm_memory.len(), 10);
@@ -350,6 +355,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![1, 1], // less possible solutions that population_size
+            None,
         );
     }
 
@@ -364,6 +370,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
         let arm = Arm::new(&vec![1, 2]);
         gmab.arm_memory.push(arm.clone());
@@ -383,6 +390,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
         assert_eq!(gmab.max_number_pulls(), 1);
     }
@@ -398,6 +406,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
         assert_eq!(gmab.find_best_ucb(100), 0);
     }
@@ -413,6 +422,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
 
         let arm = Arm::new(&vec![1, 2]);
@@ -442,6 +452,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
 
         let arm = Arm::new(&vec![1, 2]);
