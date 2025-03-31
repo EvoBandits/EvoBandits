@@ -42,6 +42,8 @@ class FloatParam(BaseParam):
             raise ValueError("high must be a float that is greater than low.")
         if nsteps <= 0:
             raise ValueError("steps must be positive integer.")
+        if log and low <= 0.0:
+            raise ValueError("low must be greater than 0 for a log-transformation.")
 
         super().__init__(size)
         self.log: bool = bool(log)
@@ -55,19 +57,14 @@ class FloatParam(BaseParam):
         return repr
 
     @cached_property
-    def _offset(self):
-        """Only relevant if self.log"""
-        return 1 - self.low
-
-    @cached_property
     def _low_trans(self):
         if self.log:
-            return math.log(self.low + self._offset)
+            return math.log(self.low)
         return self.low
 
     @cached_property
     def _stepsize(self):
-        high_trans = math.log(self.high + self._offset) if self.log else self.high
+        high_trans = math.log(self.high) if self.log else self.high
         return (high_trans - self._low_trans) / self.nsteps
 
     @cached_property
@@ -98,7 +95,7 @@ class FloatParam(BaseParam):
 
         # Optional log-transformation
         if self.log:
-            actions = [math.exp(x) - self._offset for x in actions]
+            actions = [math.exp(x) for x in actions]
 
         if len(actions) == 1:
             return actions[0]
