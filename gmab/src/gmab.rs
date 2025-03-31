@@ -2,7 +2,6 @@ use crate::arm::{Arm, OptimizationFn};
 use crate::genetic::GeneticAlgorithm;
 use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
 use rand::prelude::SliceRandom;
-use rand::RngCore;
 use std::collections::HashMap;
 
 pub struct Gmab<F: OptimizationFn> {
@@ -23,7 +22,7 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> Gmab<F> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, state: Option<u64>) -> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
@@ -43,7 +42,7 @@ impl<F: OptimizationFn> Gmab<F> {
             dimension,
             lower_bound,
             upper_bound,
-            seed,
+            state,
         )
     }
 
@@ -56,11 +55,8 @@ impl<F: OptimizationFn> Gmab<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
-        seed: Option<u64>,
+        state: Option<u64>,
     ) -> Gmab<F> {
-        // ToDo: propagate rng instead of seed to disable global seed propagation
-        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
-
         // Raise an Exception if population_size > solution space
         let mut solution_size: usize = 1;
         let mut not_enough_solutions = true;
@@ -78,8 +74,7 @@ impl<F: OptimizationFn> Gmab<F> {
             );
         }
 
-        let genetic_algorithm = GeneticAlgorithm::new(
-            seed,
+        let mut genetic_algorithm = GeneticAlgorithm::new(
             opti_function,
             population_size,
             mutation_rate,
@@ -88,6 +83,7 @@ impl<F: OptimizationFn> Gmab<F> {
             dimension,
             lower_bound,
             upper_bound,
+            state,
         );
 
         let mut arm_memory: Vec<Arm> = Vec::new();

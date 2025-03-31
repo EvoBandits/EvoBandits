@@ -1,13 +1,13 @@
 use std::collections::HashSet;
 
 use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
+use rand::{Rng, RngCore, SeedableRng};
 use rand_distr::{Distribution, Normal};
 
 use crate::arm::{Arm, OptimizationFn};
 
 pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
-    seed: u64,
+    rng: StdRng,
     mutation_rate: f64,
     crossover_rate: f64,
     mutation_span: f64,
@@ -20,7 +20,6 @@ pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
 
 impl<F: OptimizationFn> GeneticAlgorithm<F> {
     pub(crate) fn new(
-        seed: u64,
         opti_function: F,
         population_size: usize,
         mutation_rate: f64,
@@ -29,9 +28,14 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
+        state: Option<u64>,
     ) -> Self {
+        // Try to set a state for rng, or fall back to system entropy
+        let state = state.unwrap_or_else(|| rand::rng().next_u64());
+        let rng = SeedableRng::seed_from_u64(state);
+
         Self {
-            seed,
+            rng,
             mutation_rate,
             crossover_rate,
             mutation_span,
@@ -43,9 +47,9 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         }
     }
 
-    pub(crate) fn generate_new_population(&self) -> Vec<Arm> {
+    pub(crate) fn generate_new_population(&mut self) -> Vec<Arm> {
         let mut individuals: Vec<Arm> = Vec::new();
-        let mut rng = StdRng::seed_from_u64(self.seed);
+        let mut rng = StdRng::seed_from_u64(self.rng.next_u64());
 
         while individuals.len() < self.population_size {
             let candidate_solution: Vec<i32> = (0..self.dimension)
@@ -61,10 +65,10 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         individuals
     }
 
-    pub(crate) fn crossover(&self, population: &[Arm]) -> Vec<Arm> {
+    pub(crate) fn crossover(&mut self, population: &[Arm]) -> Vec<Arm> {
         let mut crossover_pop: Vec<Arm> = Vec::new();
         let population_size = self.population_size;
-        let mut rng = StdRng::seed_from_u64(self.seed);
+        let mut rng = StdRng::seed_from_u64(self.rng.next_u64());
 
         for i in (0..population_size).step_by(2) {
             if rand::random::<f64>() < self.crossover_rate {
@@ -103,10 +107,10 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         crossover_pop
     }
 
-    pub(crate) fn mutate(&self, population: &[Arm]) -> Vec<Arm> {
+    pub(crate) fn mutate(&mut self, population: &[Arm]) -> Vec<Arm> {
         let mut mutated_population = Vec::new();
         let mut seen = HashSet::new();
-        let mut rng = StdRng::seed_from_u64(self.seed);
+        let mut rng = StdRng::seed_from_u64(self.rng.next_u64());
 
         for individual in population.iter() {
             // Clone the action vector
@@ -150,7 +154,6 @@ mod tests {
     #[test]
     fn test_get_population_size() {
         let ga = GeneticAlgorithm::new(
-            42,
             mock_opti_function,
             10,
             0.1,
@@ -159,14 +162,14 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
         assert_eq!(ga.population_size, 10);
     }
 
     #[test]
     fn test_mutate() {
-        let ga = GeneticAlgorithm::new(
-            42,
+        let mut ga = GeneticAlgorithm::new(
             mock_opti_function,
             2,   // Two individuals in population
             1.0, // 100% mutation rate for demonstration
@@ -175,6 +178,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
 
         let initial_population = vec![Arm::new(&vec![1, 1]), Arm::new(&vec![2, 2])];
@@ -197,8 +201,7 @@ mod tests {
 
     #[test]
     fn test_crossover() {
-        let ga = GeneticAlgorithm::new(
-            42,
+        let mut ga = GeneticAlgorithm::new(
             mock_opti_function,
             2, // Two individuals for simplicity
             0.1,
@@ -207,6 +210,7 @@ mod tests {
             10, // higher dimension for demonstration so low probability of crossover leading to identical individuals
             vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             vec![10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+            None,
         );
 
         let initial_population = vec![
