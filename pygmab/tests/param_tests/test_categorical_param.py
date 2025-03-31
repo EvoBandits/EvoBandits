@@ -10,7 +10,8 @@ test_cat_param_data = [
     pytest.param([1.0, 2.0], [(0, 1)], nullcontext(), id="choice_float"),
     pytest.param(["a", False], [(0, 1)], nullcontext(), id="choice_mixed"),
     pytest.param(["a", None], [(0, 1)], nullcontext(), id="choice_mixed"),
-    # Addd err cases
+    pytest.param({"a", "b"}, None, pytest.raises(ValueError), id="fail_choices_type"),
+    pytest.param([["a", "b"], "c"], None, pytest.raises(ValueError), id="fail_choices_content"),
 ]
 
 
