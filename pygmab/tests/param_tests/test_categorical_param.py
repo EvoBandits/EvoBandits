@@ -4,8 +4,13 @@ import pytest
 from gmab.params import CategoricalParam
 
 test_cat_param_data = [
-    pytest.param(["a", "b"], [(0, 1)], nullcontext(), id="base"),
-    # For each type of choice and input errs.
+    pytest.param(["a", "b"], [(0, 1)], nullcontext(), id="choice_str"),
+    pytest.param([True, False], [(0, 1)], nullcontext(), id="choice_bool"),
+    pytest.param([1, 2], [(0, 1)], nullcontext(), id="choice_int"),
+    pytest.param([1.0, 2.0], [(0, 1)], nullcontext(), id="choice_float"),
+    pytest.param(["a", False], [(0, 1)], nullcontext(), id="choice_mixed"),
+    pytest.param(["a", None], [(0, 1)], nullcontext(), id="choice_mixed"),
+    # Addd err cases
 ]
 
 
@@ -17,8 +22,9 @@ def test_cat_param(choices, exp_bounds, expectation):
         bounds = param.bounds
         assert bounds == exp_bounds
 
-        # Check if the choices can be recreated using the mapping
-        mapped_choices = []
-        for x in range(bounds[0][0], bounds[0][1] + 1):
-            mapped_choices.append(param.map_to_value([x]))
-        assert mapped_choices == choices
+        # Check if the exact choices are recreated using the mapping
+        for idx in range(bounds[0][0], bounds[0][1] + 1):
+            value = param.map_to_value([idx])
+            exp_value = choices[idx]
+            assert value == exp_value
+            assert isinstance(value, type(exp_value))

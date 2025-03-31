@@ -3,13 +3,15 @@ from functools import cached_property
 
 from gmab.params.base_param import BaseParam
 
+ChoiceType = bool | int | float | str | None
+
 
 class CategoricalParam(BaseParam):
     """
     A class representing a categorical param.
     """
 
-    def __init__(self, choices: Sequence):
+    def __init__(self, choices: Sequence[ChoiceType]):
         """
         ToDo
         """
@@ -18,7 +20,7 @@ class CategoricalParam(BaseParam):
         # Raise value err if any object in choices is not Choiceype
 
         super().__init__(size=1)
-        self.choices: Sequence = choices
+        self.choices: Sequence[ChoiceType] = choices
 
     def __repr__(self):
         return f"CategoricalParam(choices={self.choices})"
@@ -30,7 +32,10 @@ class CategoricalParam(BaseParam):
         """
         return [(0, len(self.choices) - 1)]
 
-    def map_to_value(self, actions: list[int]):
+    def map_to_value(self, actions: list[int]) -> ChoiceType | Sequence[ChoiceType]:
+        """
+        ToDo
+        """
         actions = [self.choices[idx] for idx in actions]
 
         if len(actions) == 1:
