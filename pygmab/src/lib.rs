@@ -37,7 +37,7 @@ struct Gmab {
 #[pymethods]
 impl Gmab {
     #[new]
-    // ToDo: make seeding optional
+    #[pyo3(signature = (py_func, bounds, seed=None))]
     fn new(py_func: PyObject, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> PyResult<Self> {
         let python_opti_fn = PythonOptimizationFn::new(py_func);
 
