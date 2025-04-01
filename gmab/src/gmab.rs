@@ -1,9 +1,8 @@
 use crate::arm::{Arm, OptimizationFn};
 use crate::genetic::GeneticAlgorithm;
+use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
 use rand::prelude::SliceRandom;
 use std::collections::HashMap;
-
-use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
 
 pub struct Gmab<F: OptimizationFn> {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
@@ -27,6 +26,7 @@ impl<F: OptimizationFn> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
+
         // Default values for the Genetic Algorithm
         let population_size = 20; // Default population size
         let mutation_rate = 0.25; // Default mutation rate
@@ -55,6 +55,23 @@ impl<F: OptimizationFn> Gmab<F> {
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
     ) -> Gmab<F> {
+        // Raise an Exception if population_size > solution space
+        let mut solution_size: usize = 1;
+        let mut not_enough_solutions = true;
+        for i in 0..dimension {
+            solution_size *= (upper_bound[i] - lower_bound[i] + 1) as usize;
+            if solution_size >= population_size {
+                not_enough_solutions = false;
+                break;
+            }
+        }
+        if not_enough_solutions {
+            panic!(
+                "population_size ({}) is larger than the number of potential solutions ({}).",
+                population_size, solution_size
+            );
+        }
+
         let genetic_algorithm = GeneticAlgorithm::new(
             opti_function,
             population_size,
@@ -316,6 +333,21 @@ mod tests {
             count += 1;
         }
         assert_eq!(count, 10);
+    }
+
+    #[test]
+    #[should_panic(expected = "population_size")]
+    fn test_gmab_new_panic() {
+        Gmab::new_with_parameter(
+            mock_opti_function,
+            10,
+            0.1,
+            0.9,
+            0.5,
+            2,
+            vec![0, 0],
+            vec![1, 1], // less possible solutions that population_size
+        );
     }
 
     #[test]
