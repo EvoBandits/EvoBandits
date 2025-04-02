@@ -6,7 +6,7 @@ use gmab::gmab::Gmab;
 
 fn random_poisson(lambda: f64) -> i32 {
     let poi = Poisson::new(lambda).unwrap();
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     poi.sample(&mut rng) as i32
 }
 
