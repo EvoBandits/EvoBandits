@@ -230,4 +230,66 @@ mod tests {
             initial_population[1].get_action_vector()
         );
     }
+
+    #[test]
+    fn test_reproduction_with_seeding() {
+        let seed = 42;
+
+        let mut ga = GeneticAlgorithm::new(
+            mock_opti_function,
+            10,
+            0.1,
+            0.9,
+            0.5,
+            2,
+            vec![0, 0],
+            vec![10, 10],
+            Some(seed),
+        );
+
+        let mut same_ga = GeneticAlgorithm::new(
+            mock_opti_function,
+            10,
+            0.1,
+            0.9,
+            0.5,
+            2,
+            vec![0, 0],
+            vec![10, 10],
+            Some(seed),
+        );
+
+        let mut diff_ga = GeneticAlgorithm::new(
+            mock_opti_function,
+            10,
+            0.1,
+            0.9,
+            0.5,
+            2,
+            vec![0, 0],
+            vec![10, 10],
+            Some(seed + 1),
+        );
+
+        // Verify generation of new populations with seeding
+        let mut ga_population = ga.generate_new_population();
+        let mut same_ga_population = same_ga.generate_new_population();
+        let mut diff_ga_population = diff_ga.generate_new_population();
+        assert_eq!(ga_population, same_ga_population);
+        assert_ne!(ga_population, diff_ga_population);
+
+        // Verify crossover with seeding
+        ga_population = ga.crossover(&ga_population);
+        same_ga_population = same_ga.crossover(&same_ga_population);
+        diff_ga_population = diff_ga.crossover(&diff_ga_population);
+        assert_eq!(ga_population, same_ga_population);
+        assert_ne!(ga_population, diff_ga_population);
+
+        // Verify mutation with seeding
+        ga_population = ga.mutate(&ga_population);
+        same_ga_population = same_ga.mutate(&same_ga_population);
+        diff_ga_population = diff_ga.mutate(&diff_ga_population);
+        assert_eq!(ga_population, same_ga_population);
+        assert_ne!(ga_population, diff_ga_population);
+    }
 }
