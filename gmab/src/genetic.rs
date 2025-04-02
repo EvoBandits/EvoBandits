@@ -49,7 +49,7 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
 
     pub(crate) fn generate_new_population(&mut self) -> Vec<Arm> {
         let mut individuals: Vec<Arm> = Vec::new();
-        let mut rng = StdRng::seed_from_u64(self.rng.next_u64());
+        let mut rng: StdRng = SeedableRng::seed_from_u64(self.rng.next_u64());
 
         while individuals.len() < self.population_size {
             let candidate_solution: Vec<i32> = (0..self.dimension)
@@ -68,10 +68,10 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
     pub(crate) fn crossover(&mut self, population: &[Arm]) -> Vec<Arm> {
         let mut crossover_pop: Vec<Arm> = Vec::new();
         let population_size = self.population_size;
-        let mut rng = StdRng::seed_from_u64(self.rng.next_u64());
+        let mut rng: StdRng = SeedableRng::seed_from_u64(self.rng.next_u64());
 
         for i in (0..population_size).step_by(2) {
-            if rand::random::<f64>() < self.crossover_rate {
+            if rng.random::<f64>() < self.crossover_rate {
                 // Crossover
                 let max_dim_index = self.dimension - 1;
                 let swap_rv = rng.random_range(1..=max_dim_index);
@@ -233,8 +233,10 @@ mod tests {
 
     #[test]
     fn test_reproduction_with_seeding() {
-        let seed = 42;
+        // This test verifies the seeding in this module by testing if the same results are
+        // produced with the same seed, or different results are produced with another seed.
 
+        let seed = 42;
         let mut ga = GeneticAlgorithm::new(
             mock_opti_function,
             10,
