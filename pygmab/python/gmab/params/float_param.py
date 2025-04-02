@@ -23,7 +23,7 @@ class FloatParam(BaseParam):
             low (float): The lower bound of the suggested values.
             high (float): The upper bound of the suggested values.
             size (int): The size if the parameter shall be a list of floats. Default is 1.
-            steps (int): The number of steps between low and high. Default is 100.
+            nsteps (int): The number of steps between low and high. Default is 100.
             log (bool): A flag to indicate log-transformation. Default is False.
 
         Returns:
@@ -53,7 +53,7 @@ class FloatParam(BaseParam):
 
     def __repr__(self):
         repr = f"FloatParam(low={self.low}, high={self.high}, size={self.size}, "
-        repr += f"steps={self.nsteps}, log={self.log})"
+        repr += f"nsteps={self.nsteps}, log={self.log})"
         return repr
 
     @cached_property
