@@ -28,11 +28,11 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
-        state: Option<u64>,
+        seed: Option<u64>,
     ) -> Self {
-        // Try to set a state for rng, or fall back to system entropy
-        let state = state.unwrap_or_else(|| rand::rng().next_u64());
-        let rng = SeedableRng::seed_from_u64(state);
+        // Try to set a seed for rng, or fall back to system entropy
+        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
+        let rng = SeedableRng::seed_from_u64(seed);
 
         Self {
             rng,

@@ -22,7 +22,7 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, state: Option<u64>) -> Gmab<F> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
@@ -42,7 +42,7 @@ impl<F: OptimizationFn> Gmab<F> {
             dimension,
             lower_bound,
             upper_bound,
-            state,
+            seed,
         )
     }
 
@@ -55,7 +55,7 @@ impl<F: OptimizationFn> Gmab<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
-        state: Option<u64>,
+        seed: Option<u64>,
     ) -> Gmab<F> {
         // Raise an Exception if population_size > solution space
         let mut solution_size: usize = 1;
@@ -83,7 +83,7 @@ impl<F: OptimizationFn> Gmab<F> {
             dimension,
             lower_bound,
             upper_bound,
-            state,
+            seed,
         );
 
         let mut arm_memory: Vec<Arm> = Vec::new();
