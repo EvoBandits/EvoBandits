@@ -24,7 +24,9 @@ class Study:
             algorithm: The optimization algorithm to use. Defaults to Gmab.
         """
         if seed is None:
-            _logger.warning("Seed not provided. Results will not be reproducible.")
+            _logger.warning("No seed provided. Results will not be reproducible.")
+        elif not isinstance(seed, int):
+            raise TypeError(f"Seed must be integer: {seed}")
 
         self.seed: int | None = seed
         self.func: Callable | None = None
