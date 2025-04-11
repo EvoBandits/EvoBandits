@@ -77,7 +77,7 @@ impl<F: OptimizationFn> Gmab<F> {
             );
         }
 
-        let mut genetic_algorithm = GeneticAlgorithm::new(
+        let genetic_algorithm = GeneticAlgorithm::new(
             opti_function,
             population_size,
             mutation_rate,
@@ -86,7 +86,6 @@ impl<F: OptimizationFn> Gmab<F> {
             dimension,
             lower_bound,
             upper_bound,
-            seed,
         );
 
         // Try to set a seed for rng, or fall back to system entropy
@@ -97,7 +96,8 @@ impl<F: OptimizationFn> Gmab<F> {
         let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
-        let mut initial_population = genetic_algorithm.generate_new_population();
+        let next_seed = rng.next_u64();
+        let mut initial_population = genetic_algorithm.generate_new_population(next_seed);
 
         for (index, individual) in initial_population.iter_mut().enumerate() {
             individual.pull(&genetic_algorithm.opti_function);
@@ -222,10 +222,12 @@ impl<F: OptimizationFn> Gmab<F> {
             // shuffle population
             population.shuffle(&mut self.rng);
 
-            let crossover_pop = self.genetic_algorithm.crossover(&population);
+            let next_seed = self.rng.next_u64();
+            let crossover_pop = self.genetic_algorithm.crossover(next_seed, &population);
 
             // mutate automatically removes duplicates
-            let mutated_pop = self.genetic_algorithm.mutate(&crossover_pop);
+            let next_seed = self.rng.next_u64();
+            let mutated_pop = self.genetic_algorithm.mutate(next_seed, &crossover_pop);
 
             for individual in mutated_pop {
                 let arm_index = self.get_arm_index(&individual);
