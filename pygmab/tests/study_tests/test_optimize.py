@@ -29,5 +29,5 @@ def test_optimize(func, params, trials, exp_bounds):
     study = Study(algorithm=mock_gmab)
     study.optimize(func, params, trials)
 
-    mock_gmab.assert_called_once_with(study._run_trial, exp_bounds)  # Use of Gmab(...)
+    mock_gmab.assert_called_once_with(study._run_trial, exp_bounds, None)  # Use of Gmab(...)
     mock_gmab.return_value.optimize.assert_called_once_with(trials)  # Use of gmab.optimize(...)

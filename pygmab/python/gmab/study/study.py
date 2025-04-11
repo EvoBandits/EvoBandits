@@ -15,13 +15,18 @@ class Study:
     and to manage user-defined attributes related to the study.
     """
 
-    def __init__(self, algorithm=Gmab) -> None:
+    def __init__(self, seed: int | None = None, algorithm=Gmab) -> None:
         """
         Initialize a Study instance.
 
         Args:
+            seed: The seed for the Study. Defaults to None (use system entropy).
             algorithm: The optimization algorithm to use. Defaults to Gmab.
         """
+        if seed is None:
+            _logger.warning("Seed not provided. Results will not be reproducible.")
+
+        self.seed: int | None = seed
         self.func: Callable | None = None
         self.params: dict[str, BaseParam] | None = None
 
@@ -89,7 +94,7 @@ class Study:
         self.params = params  # ToDo: Add input validation
 
         bounds = next(param.bounds for param in self.params.values())
-        gmab = self._algorithm(self._run_trial, bounds)
+        gmab = self._algorithm(self._run_trial, bounds, self.seed)
         best_action_vector = gmab.optimize(trials)
 
         self._best_trial = self._map_to_solution(best_action_vector)
