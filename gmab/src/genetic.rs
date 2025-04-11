@@ -110,7 +110,7 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
     pub(crate) fn mutate(&mut self, population: &[Arm]) -> Vec<Arm> {
         let mut mutated_population = Vec::new();
         let mut seen = HashSet::new();
-        let mut rng = StdRng::seed_from_u64(self.rng.next_u64());
+        let mut rng: StdRng = SeedableRng::seed_from_u64(self.rng.next_u64());
 
         for individual in population.iter() {
             // Clone the action vector
