@@ -2,6 +2,8 @@ use crate::arm::{Arm, OptimizationFn};
 use crate::genetic::GeneticAlgorithm;
 use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
 use rand::prelude::SliceRandom;
+use rand::rngs::StdRng;
+use rand::{RngCore, SeedableRng};
 use std::collections::HashMap;
 
 pub struct Gmab<F: OptimizationFn> {
@@ -9,6 +11,7 @@ pub struct Gmab<F: OptimizationFn> {
     arm_memory: Vec<Arm>,
     lookup_table: HashMap<Vec<i32>, i32>,
     genetic_algorithm: GeneticAlgorithm<F>,
+    rng: StdRng,
 }
 
 impl<F: OptimizationFn> Gmab<F> {
@@ -86,6 +89,10 @@ impl<F: OptimizationFn> Gmab<F> {
             seed,
         );
 
+        // Try to set a seed for rng, or fall back to system entropy
+        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
+        let mut rng: StdRng = SeedableRng::seed_from_u64(seed);
+
         let mut arm_memory: Vec<Arm> = Vec::new();
         let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
@@ -104,6 +111,7 @@ impl<F: OptimizationFn> Gmab<F> {
             arm_memory,
             lookup_table,
             genetic_algorithm,
+            rng,
         }
     }
 
@@ -212,7 +220,7 @@ impl<F: OptimizationFn> Gmab<F> {
                 });
 
             // shuffle population
-            population.shuffle(&mut rand::rng());
+            population.shuffle(&mut self.rng);
 
             let crossover_pop = self.genetic_algorithm.crossover(&population);
 
