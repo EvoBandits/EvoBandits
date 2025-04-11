@@ -224,9 +224,7 @@ mod tests {
 
     #[test]
     fn test_reproduction_with_seeding() {
-        // This test verifies the seeding in this module by testing if the same results are
-        // produced with the same seed, or different results are produced with another seed.
-
+        // Helper function that generates and modifies a population using a seed.
         fn generate_population(seed: u64) -> Vec<Arm> {
             let ga = GeneticAlgorithm::new(
                 mock_opti_function,

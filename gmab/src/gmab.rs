@@ -475,4 +475,27 @@ mod tests {
             Some(&0)
         );
     }
+
+    #[test]
+    fn test_reproduction_with_seeding() {
+        // Mock optimization function for testing
+        fn mock_opti_function(_vec: &[i32]) -> f64 {
+            0.0
+        }
+
+        // Helper function that generates and modifies a gmab result using a seed.
+        fn generate_result(seed: Option<u64>) -> Vec<i32> {
+            let bounds = vec![(1, 100), (1, 100)];
+            let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, seed);
+            let result = genetic_multi_armed_bandit.optimize(100);
+            return result;
+        }
+
+        // The same seed should lead to the same result
+        let seed = 42;
+        assert_eq!(generate_result(Some(seed)), generate_result(Some(seed)));
+
+        // A different seed should not lead to the same population
+        assert_ne!(generate_result(Some(seed)), generate_result(Some(seed + 1)));
+    }
 }
