@@ -4,19 +4,11 @@ import pytest
 from gmab.params import IntParam
 from gmab.study import Study
 
-
-def rb_func(number: list):
-    return sum(
-        [
-            100 * (number[i + 1] - number[i] ** 2) ** 2 + (1 - number[i]) ** 2
-            for i in range(len(number) - 1)
-        ]
-    )
-
+from tests._functions.rosenbrock import rb_function
 
 test_data = [
-    pytest.param(rb_func, {"x": IntParam(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
-    pytest.param(rb_func, {"x": IntParam(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
+    pytest.param(rb_function, {"x": IntParam(-5, 10, 2)}, 1, [(-5, 10), (-5, 10)], id="base"),
+    pytest.param(rb_function, {"x": IntParam(-5, 10, 2, 2)}, 1, [(-5, 3), (-5, 3)], id="step"),
     # ToDo: Implement the input validaton for study.optimize
 ]
 

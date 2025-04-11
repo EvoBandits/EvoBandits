@@ -3,16 +3,9 @@ from contextlib import nullcontext
 import pytest
 from gmab import Gmab
 
+from tests._functions.rosenbrock import rb_function
+
 SEED = 42
-
-
-def rb_function(number: list):
-    return sum(
-        [
-            100 * (number[i + 1] - number[i] ** 2) ** 2 + (1 - number[i]) ** 2
-            for i in range(len(number) - 1)
-        ]
-    )
 
 
 @pytest.mark.parametrize(
