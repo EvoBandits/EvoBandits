@@ -227,36 +227,29 @@ mod tests {
         // This test verifies the seeding in this module by testing if the same results are
         // produced with the same seed, or different results are produced with another seed.
 
-        let ga = GeneticAlgorithm::new(
-            mock_opti_function,
-            10,
-            0.1,
-            0.9,
-            0.5,
-            2,
-            vec![0, 0],
-            vec![10, 10],
-        );
+        fn generate_population(seed: u64) -> Vec<Arm> {
+            let ga = GeneticAlgorithm::new(
+                mock_opti_function,
+                10,
+                0.1,
+                0.9,
+                0.5,
+                2,
+                vec![0, 0],
+                vec![10, 10],
+            );
 
-        // Verify generation of new populations with seeding
-        let mut ga_population = ga.generate_new_population(SEED);
-        let mut same_ga_population = ga.generate_new_population(SEED);
-        let mut diff_ga_population = ga.generate_new_population(SEED + 1);
-        assert_eq!(ga_population, same_ga_population);
-        assert_ne!(ga_population, diff_ga_population);
+            let mut population = ga.generate_new_population(seed);
+            population = ga.crossover(seed, &population);
+            population = ga.mutate(seed, &population);
 
-        // Verify crossover with seeding
-        ga_population = ga.crossover(SEED, &ga_population);
-        same_ga_population = ga.crossover(SEED, &same_ga_population);
-        diff_ga_population = ga.crossover(SEED + 1, &diff_ga_population);
-        assert_eq!(ga_population, same_ga_population);
-        assert_ne!(ga_population, diff_ga_population);
+            return population;
+        }
 
-        // Verify mutation with seeding
-        ga_population = ga.mutate(SEED, &ga_population);
-        same_ga_population = ga.mutate(SEED, &same_ga_population);
-        diff_ga_population = ga.mutate(SEED + 1, &diff_ga_population);
-        assert_eq!(ga_population, same_ga_population);
-        assert_ne!(ga_population, diff_ga_population);
+        // The same seed should lead to the same population
+        assert_eq!(generate_population(SEED), generate_population(SEED));
+
+        // A different seed should not lead to the same population
+        assert_ne!(generate_population(SEED), generate_population(SEED + 1));
     }
 }
