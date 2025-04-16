@@ -26,5 +26,5 @@ SEED = 42
 def test_gmab(bounds, budget, kwargs):
     expectation = kwargs.pop("exp", nullcontext())
     with expectation:
-        gmab = Gmab(rosenbrock.function, bounds, **kwargs)
+        gmab = Gmab(rb_function, bounds, **kwargs)
         _ = gmab.optimize(budget)
