@@ -3,7 +3,7 @@ from contextlib import nullcontext
 import pytest
 from gmab import Gmab
 
-from tests._functions import rosenbrock
+from tests._functions import rosenbrock as rb
 
 SEED = 42
 
@@ -26,5 +26,5 @@ SEED = 42
 def test_gmab(bounds, budget, kwargs):
     expectation = kwargs.pop("exp", nullcontext())
     with expectation:
-        gmab = Gmab(rb_function, bounds, **kwargs)
+        gmab = Gmab(rb.function, bounds, **kwargs)
         _ = gmab.optimize(budget)

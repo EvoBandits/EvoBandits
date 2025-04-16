@@ -483,7 +483,7 @@ mod tests {
             0.0
         }
 
-        // Helper function that generates and modifies a gmab result using a seed.
+        // Helper function that generates a gmab result based on a specific seed.
         fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
             let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, seed);
