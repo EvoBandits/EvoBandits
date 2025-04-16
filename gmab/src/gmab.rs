@@ -1,15 +1,17 @@
 use crate::arm::{Arm, OptimizationFn};
 use crate::genetic::GeneticAlgorithm;
-use rand::prelude::SliceRandom;
-use std::collections::HashMap;
-
 use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
+use rand::prelude::SliceRandom;
+use rand::rngs::StdRng;
+use rand::{RngCore, SeedableRng};
+use std::collections::HashMap;
 
 pub struct Gmab<F: OptimizationFn> {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
     arm_memory: Vec<Arm>,
     lookup_table: HashMap<Vec<i32>, i32>,
     genetic_algorithm: GeneticAlgorithm<F>,
+    rng: StdRng,
 }
 
 impl<F: OptimizationFn> Gmab<F> {
@@ -23,10 +25,11 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>) -> Gmab<F> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
+
         // Default values for the Genetic Algorithm
         let population_size = 20; // Default population size
         let mutation_rate = 0.25; // Default mutation rate
@@ -42,6 +45,7 @@ impl<F: OptimizationFn> Gmab<F> {
             dimension,
             lower_bound,
             upper_bound,
+            seed,
         )
     }
 
@@ -54,7 +58,25 @@ impl<F: OptimizationFn> Gmab<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
+        seed: Option<u64>,
     ) -> Gmab<F> {
+        // Raise an Exception if population_size > solution space
+        let mut solution_size: usize = 1;
+        let mut not_enough_solutions = true;
+        for i in 0..dimension {
+            solution_size *= (upper_bound[i] - lower_bound[i] + 1) as usize;
+            if solution_size >= population_size {
+                not_enough_solutions = false;
+                break;
+            }
+        }
+        if not_enough_solutions {
+            panic!(
+                "population_size ({}) is larger than the number of potential solutions ({}).",
+                population_size, solution_size
+            );
+        }
+
         let genetic_algorithm = GeneticAlgorithm::new(
             opti_function,
             population_size,
@@ -66,11 +88,16 @@ impl<F: OptimizationFn> Gmab<F> {
             upper_bound,
         );
 
+        // Try to set a seed for rng, or fall back to system entropy
+        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
+        let mut rng: StdRng = SeedableRng::seed_from_u64(seed);
+
         let mut arm_memory: Vec<Arm> = Vec::new();
         let mut lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let mut sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
-        let mut initial_population = genetic_algorithm.generate_new_population();
+        let next_seed = rng.next_u64();
+        let mut initial_population = genetic_algorithm.generate_new_population(next_seed);
 
         for (index, individual) in initial_population.iter_mut().enumerate() {
             individual.pull(&genetic_algorithm.opti_function);
@@ -84,6 +111,7 @@ impl<F: OptimizationFn> Gmab<F> {
             arm_memory,
             lookup_table,
             genetic_algorithm,
+            rng,
         }
     }
 
@@ -192,12 +220,14 @@ impl<F: OptimizationFn> Gmab<F> {
                 });
 
             // shuffle population
-            population.shuffle(&mut rand::rng());
+            population.shuffle(&mut self.rng);
 
-            let crossover_pop = self.genetic_algorithm.crossover(&population);
+            let next_seed = self.rng.next_u64();
+            let crossover_pop = self.genetic_algorithm.crossover(next_seed, &population);
 
             // mutate automatically removes duplicates
-            let mutated_pop = self.genetic_algorithm.mutate(&crossover_pop);
+            let next_seed = self.rng.next_u64();
+            let mutated_pop = self.genetic_algorithm.mutate(next_seed, &crossover_pop);
 
             for individual in mutated_pop {
                 let arm_index = self.get_arm_index(&individual);
@@ -305,6 +335,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
         assert_eq!(gmab.genetic_algorithm.population_size, 10);
         assert_eq!(gmab.arm_memory.len(), 10);
@@ -319,6 +350,22 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "population_size")]
+    fn test_gmab_new_panic() {
+        Gmab::new_with_parameter(
+            mock_opti_function,
+            10,
+            0.1,
+            0.9,
+            0.5,
+            2,
+            vec![0, 0],
+            vec![1, 1], // less possible solutions that population_size
+            None,
+        );
+    }
+
+    #[test]
     fn test_gmab_get_arm_index_with_existing() {
         let mut gmab = Gmab::new_with_parameter(
             mock_opti_function,
@@ -329,6 +376,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
         let arm = Arm::new(&vec![1, 2]);
         gmab.arm_memory.push(arm.clone());
@@ -348,6 +396,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
         assert_eq!(gmab.max_number_pulls(), 1);
     }
@@ -363,6 +412,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
         assert_eq!(gmab.find_best_ucb(100), 0);
     }
@@ -378,6 +428,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
 
         let arm = Arm::new(&vec![1, 2]);
@@ -407,6 +458,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
+            None,
         );
 
         let arm = Arm::new(&vec![1, 2]);
@@ -422,5 +474,28 @@ mod tests {
             gmab.lookup_table.get(&arm.get_action_vector().to_vec()),
             Some(&0)
         );
+    }
+
+    #[test]
+    fn test_reproduction_with_seeding() {
+        // Mock optimization function for testing
+        fn mock_opti_function(_vec: &[i32]) -> f64 {
+            0.0
+        }
+
+        // Helper function that generates a gmab result based on a specific seed.
+        fn generate_result(seed: Option<u64>) -> Vec<i32> {
+            let bounds = vec![(1, 100), (1, 100)];
+            let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, seed);
+            let result = genetic_multi_armed_bandit.optimize(100);
+            return result;
+        }
+
+        // The same seed should lead to the same result
+        let seed = 42;
+        assert_eq!(generate_result(Some(seed)), generate_result(Some(seed)));
+
+        // A different seed should not lead to the same population
+        assert_ne!(generate_result(Some(seed)), generate_result(Some(seed + 1)));
     }
 }

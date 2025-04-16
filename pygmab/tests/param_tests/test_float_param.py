@@ -35,15 +35,14 @@ def test_float_param_new(low, high, kwargs, exp_bounds):
         assert largest_value == high
 
 
-test_float_paran_mapping_data = [
+test_float_param_mapping_data = [
     pytest.param(FloatParam(0, 1), 5, 0.05, id="base"),
     pytest.param(FloatParam(0.123, 4.567), 100, 4.567, id="modify_range"),
     pytest.param(FloatParam(0, 1, nsteps=1000), 5, 0.005, id="modify_steps"),
     pytest.param(FloatParam(1, 2, log=True), 100, 2.000, id="log_transform"),
 ]
 
-
-@pytest.mark.parametrize("param, action, exp_value", test_float_paran_mapping_data)
+@pytest.mark.parametrize("param, action, exp_value", test_float_param_mapping_data)
 def test_float_param_mapping(param, action, exp_value):
     # Try multiple times to ensure precision (the exact same value should be mapped each time)
     values = []
