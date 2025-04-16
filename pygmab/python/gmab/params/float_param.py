@@ -34,9 +34,9 @@ class FloatParam(BaseParam):
             low, or if size is not a positive integer, or if step is not a positive float.
 
         Example:
-        >>> param = FloatParam(low=1.0, high=10.0, size=3, step=0.1)
+        >>> param = FloatParam(low=1.0, high=10.0, size=3, nsteps=100)
         >>> print(param)
-        FloatParam(low=1.0, high=10.0, size=3, step=0.1)
+        FloatParam(low=1.0, high=10.0, size=3, nsteps=100)
         """
         if high <= low:
             raise ValueError("high must be a float that is greater than low.")
