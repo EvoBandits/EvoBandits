@@ -42,6 +42,7 @@ test_float_param_mapping_data = [
     pytest.param(FloatParam(1, 2, log=True), 100, 2.000, id="log_transform"),
 ]
 
+
 @pytest.mark.parametrize("param, action, exp_value", test_float_param_mapping_data)
 def test_float_param_mapping(param, action, exp_value):
     # Try multiple times to ensure precision (the exact same value should be mapped each time)

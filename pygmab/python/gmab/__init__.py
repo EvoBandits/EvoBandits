@@ -12,5 +12,4 @@ __all__ = [
     "CategoricalParam",
     "FloatParam",
     "IntParam",
-    "FloatParam",
 ]
