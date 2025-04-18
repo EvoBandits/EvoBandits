@@ -95,8 +95,11 @@ class Study:
         self.func = func  # ToDo: Add input validation
         self.params = params  # ToDo: Add input validation
 
-        # ToDo: Fix the bug with bounds
-        bounds = next(param.bounds for param in self.params.values())
+        # Retrieve the bounds for the parameters
+        bounds = []
+        for param in self.params.values():
+            bounds.extend(param.bounds)
+
         gmab = self._algorithm(self._run_trial, bounds, self.seed)
         best_action_vector = gmab.optimize(trials)
 

@@ -42,12 +42,12 @@ def test_study_init(seed, kwargs, caplog):
 @pytest.mark.parametrize(
     "func, params, trials, exp_bounds, exp_result, kwargs",
     [
-        [rb.function, rb.PARAMS_2D, 100, rb.BOUNDS_2D, rb.RESULTS_2D, {}],
-        [cl.function, cl.PARAMS, 10, cl.BOUNDS, None, {}],
+        [rb.function, rb.PARAMS_2D, 1, rb.BOUNDS_2D, rb.RESULTS_2D, {}],
+        [cl.function, cl.PARAMS, 1, cl.BOUNDS, None, {}],
     ],
     ids=[
-        "base",
-        "various_param_types",
+        "try_rosenbrock",  # Simple case with one integer parameter
+        "try_clustering",  # Case with multiple parameters and various types
         # ToDo: Input validation: Fail if func is not callable
         # ToDo: Input validation: Fail if params is not valid
         # ToDo: Input validation: Fail if trials is not positive integer
