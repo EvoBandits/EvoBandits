@@ -40,10 +40,10 @@ def test_study_init(seed, kwargs, caplog):
 
 
 @pytest.mark.parametrize(
-    "func, params, trials, exp_bounds, exp_result, kwargs",
+    "func, params, trials, exp_bounds, kwargs",
     [
-        [rb.function, rb.PARAMS_2D, 1, rb.BOUNDS_2D, rb.RESULTS_2D, {}],
-        [cl.function, cl.PARAMS, 1, cl.BOUNDS, None, {}],
+        [rb.function, rb.PARAMS_2D, 1, rb.BOUNDS_2D, {}],
+        [cl.function, cl.PARAMS, 1, cl.BOUNDS, {}],
     ],
     ids=[
         "try_rosenbrock",  # Simple case with one integer parameter
@@ -53,10 +53,9 @@ def test_study_init(seed, kwargs, caplog):
         # ToDo: Input validation: Fail if trials is not positive integer
     ],
 )
-def test_study_optimize(func, params, trials, exp_bounds, exp_result, kwargs):
+def test_study_optimize(func, params, trials, exp_bounds, kwargs):
     # Mock GMAB Algorithm
     mock = MagicMock()
-    mock.optimize.return_value = exp_result
 
     expectation = kwargs.pop("exp", nullcontext())
     with expectation:

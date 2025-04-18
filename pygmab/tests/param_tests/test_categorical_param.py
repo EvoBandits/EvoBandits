@@ -13,11 +13,7 @@ def dummy_func():
     [
         [["a", "b"], [(0, 1)], nullcontext()],
         [[True, False], [(0, 1)], nullcontext()],
-        [
-            [1, 2],
-            [(0, 1)],
-            nullcontext(),
-        ],
+        [[1, 2], [(0, 1)], nullcontext()],
         [[1.0, 2.0], [(0, 1)], nullcontext()],
         [[dummy_func, dummy_func], [(0, 1)], nullcontext()],
         [["a", False], [(0, 1)], nullcontext()],

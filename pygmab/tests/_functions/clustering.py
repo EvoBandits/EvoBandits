@@ -22,7 +22,6 @@ PARAMS = {
     "tol": FloatParam(1e-4, 1e-2),
 }
 BOUNDS = [(0, 1), (0, 1), (1, 10), (0, 100)]
-# RESULTS_2D = ToDo
 
 
 # Generate sample data
