@@ -64,7 +64,7 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         let mut rng: StdRng = SeedableRng::seed_from_u64(seed);
 
         for i in (0..population_size).step_by(2) {
-            if rng.random::<f64>() < self.crossover_rate {
+            if rng.random::<f64>() < self.crossover_rate && self.dimension > 1 {
                 // Crossover
                 let max_dim_index = self.dimension - 1;
                 let swap_rv = rng.random_range(1..=max_dim_index);
@@ -217,6 +217,38 @@ mod tests {
             initial_population[0].get_action_vector()
         );
         assert_ne!(
+            crossover_population[1].get_action_vector(),
+            initial_population[1].get_action_vector()
+        );
+    }
+
+    #[test]
+    fn test_crossover_dimension_1() {
+        let ga = GeneticAlgorithm::new(
+            mock_opti_function,
+            2, // Two individuals for simplicity
+            0.1,
+            1.0, // 100% crossover rate
+            0.5,
+            1, // Using dimension 1
+            vec![0],
+            vec![10],
+        );
+
+        let initial_population = vec![Arm::new(&vec![3]), Arm::new(&vec![7])];
+
+        // This should not panic
+        let crossover_population = ga.crossover(SEED, &initial_population);
+
+        // Verify we have the expected number of individuals
+        assert_eq!(crossover_population.len(), 2);
+
+        // With dimension 1, crossover should just clone the individuals
+        assert_eq!(
+            crossover_population[0].get_action_vector(),
+            initial_population[0].get_action_vector()
+        );
+        assert_eq!(
             crossover_population[1].get_action_vector(),
             initial_population[1].get_action_vector()
         );
