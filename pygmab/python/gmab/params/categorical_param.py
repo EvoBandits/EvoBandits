@@ -1,8 +1,9 @@
+from collections.abc import Callable
 from functools import cached_property
 
 from gmab.params.base_param import BaseParam
 
-ChoiceType = bool | int | float | str | None
+ChoiceType = bool | int | float | str | Callable | None
 
 
 class CategoricalParam(BaseParam):
@@ -22,7 +23,8 @@ class CategoricalParam(BaseParam):
 
         Raises:
             ValueError: Raises a ValueError if choices is not a list, or if the objects in the list
-            are not of an immutable type (bool, int, float, str, or None).
+            are not of an immutable or callable type (bool, int, float, str, Callable, or None).
+            For example, a list of dictionaries or lists would raise an error.
 
         Example:
         >>> param = CategoricalParam(choices=["a", "b", "c"])
@@ -35,7 +37,7 @@ class CategoricalParam(BaseParam):
         if not isinstance(choices, list):
             raise ValueError("choices must be a list")
         if not all(isinstance(c, ChoiceType) for c in choices):
-            raise ValueError("All elements in choices must be of an immutable type")
+            raise ValueError("All elements in choices must be of an immutable or callable type")
 
         super().__init__(size=1)
         self.choices: list[ChoiceType] = choices

@@ -3,19 +3,40 @@ from contextlib import nullcontext
 import pytest
 from gmab.params import CategoricalParam
 
-test_cat_param_data = [
-    pytest.param(["a", "b"], [(0, 1)], nullcontext(), id="choice_str"),
-    pytest.param([True, False], [(0, 1)], nullcontext(), id="choice_bool"),
-    pytest.param([1, 2], [(0, 1)], nullcontext(), id="choice_int"),
-    pytest.param([1.0, 2.0], [(0, 1)], nullcontext(), id="choice_float"),
-    pytest.param(["a", False], [(0, 1)], nullcontext(), id="choice_mixed"),
-    pytest.param(["a", "b", None], [(0, 2)], nullcontext(), id="choice_mixed2"),
-    pytest.param({"a", "b"}, None, pytest.raises(ValueError), id="fail_choices_type"),
-    pytest.param([["a", "b"], "c"], None, pytest.raises(ValueError), id="fail_choices_content"),
-]
+
+def dummy_func():
+    pass
 
 
-@pytest.mark.parametrize("choices, exp_bounds, expectation", test_cat_param_data)
+@pytest.mark.parametrize(
+    "choices, exp_bounds, expectation",
+    [
+        [["a", "b"], [(0, 1)], nullcontext()],
+        [[True, False], [(0, 1)], nullcontext()],
+        [
+            [1, 2],
+            [(0, 1)],
+            nullcontext(),
+        ],
+        [[1.0, 2.0], [(0, 1)], nullcontext()],
+        [[dummy_func, dummy_func], [(0, 1)], nullcontext()],
+        [["a", False], [(0, 1)], nullcontext()],
+        [["a", "b", None], [(0, 2)], nullcontext()],
+        [{"a", "b"}, None, pytest.raises(ValueError)],
+        [[["a", "b"], "c"], None, pytest.raises(ValueError)],
+    ],
+    ids=[
+        "choice_str",
+        "choice_bool",
+        "choice_int",
+        "choice_float",
+        "choice_Callable",
+        "choice_mixed",
+        "choice_mixed2",
+        "fail_choices_type",
+        "fail_choices_content",
+    ],
+)
 def test_cat_param(choices, exp_bounds, expectation):
     with expectation:
         param = CategoricalParam(choices)

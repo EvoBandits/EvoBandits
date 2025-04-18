@@ -11,17 +11,17 @@ Version: 1.6.1
 
 import numpy as np
 from gmab import CategoricalParam, FloatParam, IntParam
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.datasets import make_blobs
 
 # Useful parameters
 PARAMS = {
-    # ToDo: Incorprate switch for Algorithm (Callable / Pointer)
+    "algorithm": CategoricalParam([KMeans, MiniBatchKMeans]),
     "init": CategoricalParam(["k-means++", "random"]),
     "n_clusters": IntParam(1, 10),
     "tol": FloatParam(1e-4, 1e-2),
 }
-BOUNDS = [(0, 1), (1, 10), (0, 100)]
+BOUNDS = [(0, 1), (0, 1), (1, 10), (0, 100)]
 # RESULTS_2D = ToDo
 
 
@@ -33,14 +33,14 @@ _n_clusters = len(_centers)
 _X, labels_true = make_blobs(n_samples=10000, centers=_centers, cluster_std=0.7)
 
 
-def function(init: str, n_clusters: int, tol: float) -> float:
+def function(algorithm, init, n_clusters, tol) -> float:
     """Evaluate the inertia of the clustering that results from the given parameters."""
-    clusterer = KMeans(init=init, n_clusters=n_clusters, tol=tol, n_init=10)
+    clusterer = algorithm(init=init, n_clusters=n_clusters, tol=tol, n_init=10)
     clusterer.fit(_X)
     return clusterer.inertia_
 
 
 if __name__ == "__main__":
     # Example usage
-    result = function("k-means++", 3, 0.001)
+    result = function(KMeans, "k-means++", 3, 0.001)
     print(f"Clustering inertia: {result}")
