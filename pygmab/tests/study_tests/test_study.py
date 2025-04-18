@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 from gmab.study import Study
 
+from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb
 
 # ToDo: Add tests for output formats and properties
@@ -42,9 +43,11 @@ def test_study_init(seed, kwargs, caplog):
     "func, params, trials, exp_bounds, exp_result, kwargs",
     [
         [rb.function, rb.PARAMS_2D, 100, rb.BOUNDS_2D, rb.RESULTS_2D, {}],
+        [cl.function, cl.PARAMS, 10, cl.BOUNDS, None, {}],
     ],
     ids=[
         "base",
+        "various_param_types",
         # ToDo: Input validation: Fail if func is not callable
         # ToDo: Input validation: Fail if params is not valid
         # ToDo: Input validation: Fail if trials is not positive integer

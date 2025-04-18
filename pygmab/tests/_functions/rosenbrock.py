@@ -17,3 +17,9 @@ def function(number: list):
             for i in range(len(number) - 1)
         ]
     )
+
+
+if __name__ == "__main__":
+    # Example usage
+    result = function([1, 1])
+    print(f"Value of the rosenbrock function: {result}")
