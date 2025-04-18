@@ -6,6 +6,27 @@ use rand::rngs::StdRng;
 use rand::{RngCore, SeedableRng};
 use std::collections::HashMap;
 
+pub struct GmabOptions {
+    pub population_size: Option<usize>,
+    pub mutation_rate: Option<f64>,
+    pub crossover_rate: Option<f64>,
+    pub mutation_span: Option<f64>,
+    pub seed: Option<u64>,
+}
+
+// Default values for the Genetic algorithm
+impl Default for GmabOptions {
+    fn default() -> Self {
+        GmabOptions {
+            population_size: Some(20),
+            mutation_rate: Some(0.25),
+            crossover_rate: Some(1.0),
+            mutation_span: Some(0.1),
+            seed: Some(rand::rng().next_u64()), // Fall back to system entropy
+        }
+    }
+}
+
 pub struct Gmab<F: OptimizationFn> {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
     arm_memory: Vec<Arm>,
@@ -25,16 +46,16 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> Gmab<F> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, options: GmabOptions) -> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
 
-        // Default values for the Genetic Algorithm
-        let population_size = 20; // Default population size
-        let mutation_rate = 0.25; // Default mutation rate
-        let crossover_rate = 1.0; // Default crossover rate
-        let mutation_span = 0.1; // Default mutation span
+        let population_size = options.population_size.unwrap();
+        let mutation_rate = options.mutation_rate.unwrap();
+        let crossover_rate = options.crossover_rate.unwrap();
+        let mutation_span = options.mutation_span.unwrap();
+        let seed = options.seed.unwrap();
 
         Gmab::new_with_parameter(
             opti_function,
@@ -58,7 +79,7 @@ impl<F: OptimizationFn> Gmab<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
-        seed: Option<u64>,
+        seed: u64,
     ) -> Gmab<F> {
         // Raise an Exception if population_size > solution space
         let mut solution_size: usize = 1;
@@ -88,8 +109,6 @@ impl<F: OptimizationFn> Gmab<F> {
             upper_bound,
         );
 
-        // Try to set a seed for rng, or fall back to system entropy
-        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
         let mut rng: StdRng = SeedableRng::seed_from_u64(seed);
 
         let mut arm_memory: Vec<Arm> = Vec::new();
@@ -335,7 +354,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            None,
+            0,
         );
         assert_eq!(gmab.genetic_algorithm.population_size, 10);
         assert_eq!(gmab.arm_memory.len(), 10);
@@ -361,7 +380,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![1, 1], // less possible solutions that population_size
-            None,
+            0,
         );
     }
 
@@ -376,7 +395,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            None,
+            0,
         );
         let arm = Arm::new(&vec![1, 2]);
         gmab.arm_memory.push(arm.clone());
@@ -396,7 +415,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            None,
+            0,
         );
         assert_eq!(gmab.max_number_pulls(), 1);
     }
@@ -412,7 +431,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            None,
+            0,
         );
         assert_eq!(gmab.find_best_ucb(100), 0);
     }
@@ -428,7 +447,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            None,
+            0,
         );
 
         let arm = Arm::new(&vec![1, 2]);
@@ -458,7 +477,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            None,
+            0,
         );
 
         let arm = Arm::new(&vec![1, 2]);
@@ -486,7 +505,11 @@ mod tests {
         // Helper function that generates a gmab result based on a specific seed.
         fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
-            let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, seed);
+            let options = GmabOptions {
+                seed: seed,
+                ..Default::default()
+            };
+            let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, options);
             let result = genetic_multi_armed_bandit.optimize(100);
             return result;
         }
