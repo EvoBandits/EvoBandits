@@ -4,7 +4,7 @@ use pyo3::types::PyList;
 use std::panic;
 
 use gmab_rust::arm::OptimizationFn;
-use gmab_rust::gmab::Gmab as RustGmab;
+use gmab_rust::gmab::{Gmab as RustGmab, GmabOptions};
 
 struct PythonOptimizationFn {
     py_func: PyObject,
@@ -41,7 +41,12 @@ impl Gmab {
     fn new(py_func: PyObject, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> PyResult<Self> {
         let python_opti_fn = PythonOptimizationFn::new(py_func);
 
-        match panic::catch_unwind(|| RustGmab::new(python_opti_fn, bounds, seed)) {
+        let options = GmabOptions {
+            seed: seed.unwrap_or_default(),
+            ..Default::default() // ToDo: add other options
+        };
+
+        match panic::catch_unwind(|| RustGmab::new(python_opti_fn, bounds, options)) {
             Ok(gmab) => Ok(Gmab { gmab }),
             Err(err) => {
                 let err_message = if let Some(msg) = err.downcast_ref::<&str>() {

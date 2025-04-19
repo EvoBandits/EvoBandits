@@ -7,22 +7,22 @@ use rand::{RngCore, SeedableRng};
 use std::collections::HashMap;
 
 pub struct GmabOptions {
-    pub population_size: Option<usize>,
-    pub mutation_rate: Option<f64>,
-    pub crossover_rate: Option<f64>,
-    pub mutation_span: Option<f64>,
-    pub seed: Option<u64>,
+    pub population_size: usize,
+    pub mutation_rate: f64,
+    pub crossover_rate: f64,
+    pub mutation_span: f64,
+    pub seed: u64,
 }
 
 // Default values for the Genetic algorithm
 impl Default for GmabOptions {
     fn default() -> Self {
         GmabOptions {
-            population_size: Some(20),
-            mutation_rate: Some(0.25),
-            crossover_rate: Some(1.0),
-            mutation_span: Some(0.1),
-            seed: Some(rand::rng().next_u64()), // Fall back to system entropy
+            population_size: 20,
+            mutation_rate: 0.25,
+            crossover_rate: 1.0,
+            mutation_span: 0.1,
+            seed: rand::rng().next_u64(), // Fall back to system entropy
         }
     }
 }
@@ -51,11 +51,11 @@ impl<F: OptimizationFn> Gmab<F> {
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
 
-        let population_size = options.population_size.unwrap();
-        let mutation_rate = options.mutation_rate.unwrap();
-        let crossover_rate = options.crossover_rate.unwrap();
-        let mutation_span = options.mutation_span.unwrap();
-        let seed = options.seed.unwrap();
+        let population_size = options.population_size;
+        let mutation_rate = options.mutation_rate;
+        let crossover_rate = options.crossover_rate;
+        let mutation_span = options.mutation_span;
+        let seed = options.seed;
 
         Gmab::new_with_parameter(
             opti_function,
@@ -503,7 +503,7 @@ mod tests {
         }
 
         // Helper function that generates a gmab result based on a specific seed.
-        fn generate_result(seed: Option<u64>) -> Vec<i32> {
+        fn generate_result(seed: u64) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
             let options = GmabOptions {
                 seed: seed,
@@ -516,9 +516,9 @@ mod tests {
 
         // The same seed should lead to the same result
         let seed = 42;
-        assert_eq!(generate_result(Some(seed)), generate_result(Some(seed)));
+        assert_eq!(generate_result(seed), generate_result(seed));
 
         // A different seed should not lead to the same population
-        assert_ne!(generate_result(Some(seed)), generate_result(Some(seed + 1)));
+        assert_ne!(generate_result(seed), generate_result(seed + 1));
     }
 }
