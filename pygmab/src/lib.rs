@@ -44,6 +44,7 @@ impl Gmab {
         population_size=GmabOptions::POPULATION_SIZE_DEFAULT,
         mutation_rate=GmabOptions::MUTATION_RATE_DEFAULT,
         crossover_rate=GmabOptions::CROSSOVER_RATE_DEFAULT,
+        mutation_span=GmabOptions::MUTATION_SPAN_DEFAULT,
     ))]
     fn new(
         py_func: PyObject,
@@ -52,6 +53,7 @@ impl Gmab {
         population_size: Option<usize>,
         mutation_rate: Option<f64>,
         crossover_rate: Option<f64>,
+        mutation_span: Option<f64>,
     ) -> PyResult<Self> {
         let python_opti_fn = PythonOptimizationFn::new(py_func);
 
@@ -60,7 +62,7 @@ impl Gmab {
             population_size: population_size.unwrap(),
             mutation_rate: mutation_rate.unwrap(),
             crossover_rate: crossover_rate.unwrap(),
-            ..Default::default() // ToDo: add other options
+            mutation_span: mutation_span.unwrap(),
         };
 
         match panic::catch_unwind(|| RustGmab::new(python_opti_fn, bounds, options)) {

@@ -31,6 +31,9 @@ impl GmabOptions {
         if self.crossover_rate < 0.0 || self.crossover_rate > 1.0 {
             panic!("crossover_rate must be between 0.0 and 1.0");
         }
+        if self.mutation_span < 0.0 {
+            panic!("mutation_span must be 0.0 or greater");
+        }
     }
 }
 
