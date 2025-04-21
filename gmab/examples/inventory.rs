@@ -1,4 +1,4 @@
-use std::time::Instant;
+use std::{default, time::Instant};
 
 use rand_distr::{Distribution, Poisson};
 
@@ -1061,11 +1061,7 @@ fn main() {
     for i in 0..num_runs {
         let start_time = Instant::now(); // Record the start time
         let bounds = vec![(1, 100), (1, 100)]; // Set the bounds for the problem
-        let options = GmabOptions {
-            population_size: 30,
-            ..Default::default()
-        };
-        let mut genetic_multi_armed_bandit = Gmab::new(inventory, bounds, options);
+        let mut genetic_multi_armed_bandit = Gmab::new(inventory, bounds, Default::default());
         let result = genetic_multi_armed_bandit.optimize(10000);
 
         let elapsed_time = start_time.elapsed().as_secs_f64(); // Record the elapsed time
