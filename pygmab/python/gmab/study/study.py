@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
+from gmab import gmab as rsgmab
 from gmab import logging
-from gmab.gmab import Gmab
 from gmab.params import BaseParam
 
 _logger = logging.get_logger(__name__)
@@ -15,7 +15,7 @@ class Study:
     and to manage user-defined attributes related to the study.
     """
 
-    def __init__(self, seed: int | None = None, algorithm=Gmab) -> None:
+    def __init__(self, seed: int | None = None, algorithm=rsgmab.Gmab) -> None:
         """
         Initialize a Study instance.
 
@@ -80,7 +80,16 @@ class Study:
         solution = self._map_to_solution(action_vector)
         return self.func(**solution)
 
-    def optimize(self, func: Callable, params: dict, trials: int) -> None:
+    def optimize(
+        self,
+        func: Callable,
+        params: dict,
+        trials: int,
+        population_size: int = rsgmab.POPULATION_SIZE_DEFAULT,
+        mutation_rate: float = rsgmab.MUTATION_RATE_DEFAULT,
+        crossover_rate: float = rsgmab.CROSSOVER_RATE_DEFAULT,
+        mutation_span: float = rsgmab.MUTATION_SPAN_DEFAULT,
+    ) -> None:
         """
         Optimize the objective function.
 
@@ -91,6 +100,10 @@ class Study:
             func (Callable): The objective function to optimize.
             params (dict): A dictionary of parameters with their bounds.
             trials (int): The number of trials to run.
+            population_size (int): The population size for the GMAB algorithm. Default is 20.
+            mutation_rate (float): The mutation rate for the GMAB algorithm. Default is 0.25.
+            crossover_rate (float): The crossover rate for the GMAB algorithm. Default is 1.0.
+            mutation_span (float): The mutation span for the GMAB algorithm. Default is 0.1
         """
         self.func = func  # ToDo: Add input validation
         self.params = params  # ToDo: Add input validation
@@ -100,7 +113,15 @@ class Study:
         for param in self.params.values():
             bounds.extend(param.bounds)
 
-        gmab = self._algorithm(self._run_trial, bounds, self.seed)
+        gmab = self._algorithm(
+            self._run_trial,
+            bounds,
+            seed=self.seed,
+            population_size=population_size,
+            mutation_rate=mutation_rate,
+            crossover_rate=crossover_rate,
+            mutation_span=mutation_span,
+        )
         best_action_vector = gmab.optimize(trials)
 
         self._best_trial = self._map_to_solution(best_action_vector)

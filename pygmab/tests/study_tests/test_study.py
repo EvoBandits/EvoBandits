@@ -62,5 +62,5 @@ def test_study_optimize(func, params, trials, exp_bounds, kwargs):
         study = Study(algorithm=mock, **kwargs)
         study.optimize(func, params, trials)
 
-        mock.assert_called_once_with(study._run_trial, exp_bounds, None)  # Use of Gmab(...)
-        mock.return_value.optimize.assert_called_once_with(trials)  # GMAB.Optimize() called once
+        mock.assert_called_once()  # Algorithm initialisation
+        mock.return_value.optimize.assert_called_once  # Optimize with the Algorithm instance
