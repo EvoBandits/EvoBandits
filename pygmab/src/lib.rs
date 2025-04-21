@@ -43,6 +43,7 @@ impl Gmab {
         seed=None,
         population_size=GmabOptions::POPULATION_SIZE_DEFAULT,
         mutation_rate=GmabOptions::MUTATION_RATE_DEFAULT,
+        crossover_rate=GmabOptions::CROSSOVER_RATE_DEFAULT,
     ))]
     fn new(
         py_func: PyObject,
@@ -50,6 +51,7 @@ impl Gmab {
         seed: Option<u64>,
         population_size: Option<usize>,
         mutation_rate: Option<f64>,
+        crossover_rate: Option<f64>,
     ) -> PyResult<Self> {
         let python_opti_fn = PythonOptimizationFn::new(py_func);
 
@@ -57,6 +59,7 @@ impl Gmab {
             seed: seed.unwrap_or_default(),
             population_size: population_size.unwrap(),
             mutation_rate: mutation_rate.unwrap(),
+            crossover_rate: crossover_rate.unwrap(),
             ..Default::default() // ToDo: add other options
         };
 
