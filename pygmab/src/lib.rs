@@ -41,18 +41,22 @@ impl Gmab {
         py_func,
         bounds,
         seed=None,
-        population_size=GmabOptions::POPULATION_SIZE_DEFAULT))]
+        population_size=GmabOptions::POPULATION_SIZE_DEFAULT,
+        mutation_rate=GmabOptions::MUTATION_RATE_DEFAULT,
+    ))]
     fn new(
         py_func: PyObject,
         bounds: Vec<(i32, i32)>,
         seed: Option<u64>,
         population_size: Option<usize>,
+        mutation_rate: Option<f64>,
     ) -> PyResult<Self> {
         let python_opti_fn = PythonOptimizationFn::new(py_func);
 
         let options = GmabOptions {
             seed: seed.unwrap_or_default(),
             population_size: population_size.unwrap(),
+            mutation_rate: mutation_rate.unwrap(),
             ..Default::default() // ToDo: add other options
         };
 

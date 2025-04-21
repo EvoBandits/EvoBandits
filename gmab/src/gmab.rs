@@ -25,6 +25,9 @@ impl GmabOptions {
         if self.population_size == 0 {
             panic!("population_size cannot be 0");
         }
+        if self.mutation_rate < 0.0 || self.mutation_rate > 1.0 {
+            panic!("mutation_rate must be between 0.0 and 1.0");
+        }
     }
 }
 

@@ -6,6 +6,8 @@ from gmab import Gmab
 from tests._functions import rosenbrock as rb
 
 SEED = 42
+POP = 10
+MR = 0.1
 
 
 @pytest.mark.parametrize(
@@ -13,19 +15,19 @@ SEED = 42
     [
         [[(0, 100), (0, 100)] * 5, 100, {}],
         [[(0, 100), (0, 100)] * 5, 100, {"seed": SEED}],
-        [[(0, 100), (0, 100)] * 5, 100, {"population_size": 10}],
-        [[(0, 100), (0, 100)] * 5, 100, {"seed": float(SEED), "exp": pytest.raises(TypeError)}],
-        [[(0, 10), (0, 10)], 100, {"population_size": float(10), "exp": pytest.raises(TypeError)}],
+        [[(0, 100), (0, 100)] * 5, 100, {"population_size": POP}],
+        [[(0, 100), (0, 100)] * 5, 100, {"mutation_rate": MR}],
         [[(0, 10), (0, 10)], 100, {"population_size": 0, "exp": pytest.raises(RuntimeError)}],
+        [[(0, 10), (0, 10)], 100, {"mutation_rate": -0.1, "exp": pytest.raises(RuntimeError)}],
         [[(0, 1), (0, 1)], None, {"exp": pytest.raises(RuntimeError)}],
     ],
     ids=[
         "success",
         "success_with_seed",
-        "success_with_popsize",
-        "fail_seed_type",
-        "fail_population_size_type",
+        "success_with_population_size",
+        "success_with_mutation_rate",
         "fail_population_size_value",
+        "fail_mutation_rate_value",
         "fail_population_size_solution_size",
     ],
 )
