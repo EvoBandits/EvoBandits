@@ -37,12 +37,22 @@ struct Gmab {
 #[pymethods]
 impl Gmab {
     #[new]
-    #[pyo3(signature = (py_func, bounds, seed=None))]
-    fn new(py_func: PyObject, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> PyResult<Self> {
+    #[pyo3(signature = (
+        py_func,
+        bounds,
+        seed=None,
+        population_size=GmabOptions::POPULATION_SIZE_DEFAULT))]
+    fn new(
+        py_func: PyObject,
+        bounds: Vec<(i32, i32)>,
+        seed: Option<u64>,
+        population_size: Option<usize>,
+    ) -> PyResult<Self> {
         let python_opti_fn = PythonOptimizationFn::new(py_func);
 
         let options = GmabOptions {
             seed: seed.unwrap_or_default(),
+            population_size: population_size.unwrap(),
             ..Default::default() // ToDo: add other options
         };
 

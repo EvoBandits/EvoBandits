@@ -15,14 +15,27 @@ pub struct GmabOptions {
 }
 
 // Default values for the Genetic algorithm
+impl GmabOptions {
+    pub const POPULATION_SIZE_DEFAULT: usize = 20;
+    pub const MUTATION_RATE_DEFAULT: f64 = 0.25;
+    pub const CROSSOVER_RATE_DEFAULT: f64 = 1.0;
+    pub const MUTATION_SPAN_DEFAULT: f64 = 0.1;
+
+    pub fn validate(&self) {
+        if self.population_size == 0 {
+            panic!("population_size cannot be 0");
+        }
+    }
+}
+
 impl Default for GmabOptions {
     fn default() -> Self {
         GmabOptions {
-            population_size: 20,
-            mutation_rate: 0.25,
-            crossover_rate: 1.0,
-            mutation_span: 0.1,
-            seed: rand::rng().next_u64(), // Fall back to system entropy
+            population_size: Self::POPULATION_SIZE_DEFAULT,
+            mutation_rate: Self::MUTATION_RATE_DEFAULT,
+            crossover_rate: Self::CROSSOVER_RATE_DEFAULT,
+            mutation_span: Self::MUTATION_SPAN_DEFAULT,
+            seed: rand::rng().next_u64(), // No default, fall back to system entropy instead
         }
     }
 }
@@ -51,6 +64,7 @@ impl<F: OptimizationFn> Gmab<F> {
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
 
+        options.validate(); // ToDo: add a unittest!
         let population_size = options.population_size;
         let mutation_rate = options.mutation_rate;
         let crossover_rate = options.crossover_rate;
