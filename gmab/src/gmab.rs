@@ -1,53 +1,11 @@
 use crate::arm::{Arm, OptimizationFn};
 use crate::genetic::GeneticAlgorithm;
+use crate::gmab_options::GmabOptions;
 use crate::sorted_multi_map::{FloatKey, SortedMultiMap};
 use rand::prelude::SliceRandom;
 use rand::rngs::StdRng;
 use rand::{RngCore, SeedableRng};
 use std::collections::HashMap;
-
-pub struct GmabOptions {
-    pub population_size: usize,
-    pub mutation_rate: f64,
-    pub crossover_rate: f64,
-    pub mutation_span: f64,
-    pub seed: u64,
-}
-
-// Default values for the Genetic algorithm
-impl GmabOptions {
-    pub const POPULATION_SIZE_DEFAULT: usize = 20;
-    pub const MUTATION_RATE_DEFAULT: f64 = 0.25;
-    pub const CROSSOVER_RATE_DEFAULT: f64 = 1.0;
-    pub const MUTATION_SPAN_DEFAULT: f64 = 0.1;
-
-    pub fn validate(&self) {
-        if self.population_size == 0 {
-            panic!("population_size cannot be 0");
-        }
-        if self.mutation_rate < 0.0 || self.mutation_rate > 1.0 {
-            panic!("mutation_rate must be between 0.0 and 1.0");
-        }
-        if self.crossover_rate < 0.0 || self.crossover_rate > 1.0 {
-            panic!("crossover_rate must be between 0.0 and 1.0");
-        }
-        if self.mutation_span < 0.0 {
-            panic!("mutation_span must be 0.0 or greater");
-        }
-    }
-}
-
-impl Default for GmabOptions {
-    fn default() -> Self {
-        GmabOptions {
-            population_size: Self::POPULATION_SIZE_DEFAULT,
-            mutation_rate: Self::MUTATION_RATE_DEFAULT,
-            crossover_rate: Self::CROSSOVER_RATE_DEFAULT,
-            mutation_span: Self::MUTATION_SPAN_DEFAULT,
-            seed: rand::rng().next_u64(), // No default, fall back to system entropy instead
-        }
-    }
-}
 
 pub struct Gmab<F: OptimizationFn> {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,

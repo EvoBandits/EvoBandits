@@ -1,8 +1,8 @@
-use std::{default, time::Instant};
+use std::time::Instant;
 
 use rand_distr::{Distribution, Poisson};
 
-use gmab::gmab::{Gmab, GmabOptions};
+use gmab::gmab::Gmab;
 
 fn random_poisson(lambda: f64) -> i32 {
     let poi = Poisson::new(lambda).unwrap();

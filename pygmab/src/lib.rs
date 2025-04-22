@@ -4,7 +4,8 @@ use pyo3::types::PyList;
 use std::panic;
 
 use gmab_rust::arm::OptimizationFn;
-use gmab_rust::gmab::{Gmab as RustGmab, GmabOptions};
+use gmab_rust::gmab::Gmab as RustGmab;
+use gmab_rust::gmab_options::GmabOptions;
 
 struct PythonOptimizationFn {
     py_func: PyObject,
