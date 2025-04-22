@@ -94,12 +94,16 @@ fn gmab(m: &Bound<'_, PyModule>) -> PyResult<()> {
         "POPULATION_SIZE_DEFAULT",
         GmabOptions::POPULATION_SIZE_DEFAULT,
     )?;
-    m.add("MUTATION_RATE_DEFAULT", GmabOptions::MUTATION_RATE_DEFAULT)?;
+    m.add(
+        "MUTATION_RATE_DEFAULT",
+        GmabOptions::MUTATION_RATE_DEFAULT)?;
     m.add(
         "CROSSOVER_RATE_DEFAULT",
         GmabOptions::CROSSOVER_RATE_DEFAULT,
     )?;
-    m.add("MUTATION_SPAN_DEFAULT", GmabOptions::MUTATION_SPAN_DEFAULT)?;
+    m.add(
+        "MUTATION_SPAN_DEFAULT",
+        GmabOptions::MUTATION_SPAN_DEFAULT)?;
 
     Ok(())
 }

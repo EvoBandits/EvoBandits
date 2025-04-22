@@ -32,22 +32,17 @@ impl<F: OptimizationFn> Gmab<F> {
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
 
         options.validate(); // ToDo: add a unittest!
-        let population_size = options.population_size;
-        let mutation_rate = options.mutation_rate;
-        let crossover_rate = options.crossover_rate;
-        let mutation_span = options.mutation_span;
-        let seed = options.seed;
 
         Gmab::new_with_parameter(
             opti_function,
-            population_size,
-            mutation_rate,
-            crossover_rate,
-            mutation_span,
+            options.population_size,
+            options.mutation_rate,
+            options.crossover_rate,
+            options.mutation_span,
             dimension,
             lower_bound,
             upper_bound,
-            seed,
+            options.seed,
         )
     }
 
