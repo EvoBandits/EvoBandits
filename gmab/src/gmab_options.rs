@@ -1,4 +1,8 @@
-
+// Default values for the GMAB Algortihm
+pub const POPULATION_SIZE_DEFAULT: usize = 20;
+pub const MUTATION_RATE_DEFAULT: f64 = 0.25;
+pub const CROSSOVER_RATE_DEFAULT: f64 = 1.0;
+pub const MUTATION_SPAN_DEFAULT: f64 = 0.1;
 
 pub struct GmabOptions {
     pub population_size: usize,
@@ -7,19 +11,13 @@ pub struct GmabOptions {
     pub mutation_span: f64,
 }
 
-
 impl GmabOptions {
-    pub const POPULATION_SIZE_DEFAULT: usize = 20;
-    pub const MUTATION_RATE_DEFAULT: f64 = 0.25;
-    pub const CROSSOVER_RATE_DEFAULT: f64 = 1.0;
-    pub const MUTATION_SPAN_DEFAULT: f64 = 0.1;
-
     pub fn new() -> GmabOptions {
         GmabOptions {
-            population_size: Self::POPULATION_SIZE_DEFAULT,
-            mutation_rate: Self::MUTATION_RATE_DEFAULT,
-            crossover_rate: Self::CROSSOVER_RATE_DEFAULT,
-            mutation_span: Self::MUTATION_SPAN_DEFAULT,
+            population_size: POPULATION_SIZE_DEFAULT,
+            mutation_rate: MUTATION_RATE_DEFAULT,
+            crossover_rate: CROSSOVER_RATE_DEFAULT,
+            mutation_span: MUTATION_SPAN_DEFAULT,
         }
     }
 
@@ -42,25 +40,24 @@ impl GmabOptions {
     pub fn with_population_size(mut self, population_size: usize) -> GmabOptions {
         self.population_size = population_size;
         // self.validate();
-        self 
+        self
     }
 
     pub fn with_mutation_rate(mut self, mutation_rate: f64) -> GmabOptions {
         self.mutation_rate = mutation_rate;
-        self 
+        self
     }
 
     pub fn with_crossover_rate(mut self, crossover_rate: f64) -> GmabOptions {
         self.crossover_rate = crossover_rate;
-        self 
+        self
     }
 
     pub fn with_mutation_span(mut self, mutation_span: f64) -> GmabOptions {
         self.mutation_span = mutation_span;
-        self 
+        self
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -87,9 +84,8 @@ mod tests {
             .with_population_size(population_size)
             .with_mutation_rate(mutation_rate)
             .with_crossover_rate(crossover_rate)
-            .with_mutation_span(mutation_span)
-        ;
-        
+            .with_mutation_span(mutation_span);
+
         assert_eq!(options.population_size, population_size);
         assert_eq!(options.mutation_rate, mutation_rate);
         assert_eq!(options.crossover_rate, crossover_rate);
@@ -111,5 +107,4 @@ mod tests {
     //    let mut options = GmabOptions::new();
     //    options.population_size = 0;
     // }
-
 }

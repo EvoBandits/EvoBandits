@@ -5,7 +5,10 @@ use std::panic;
 
 use gmab_rust::arm::OptimizationFn;
 use gmab_rust::gmab::Gmab as RustGmab;
-use gmab_rust::gmab_options::GmabOptions;
+use gmab_rust::gmab_options::{
+    GmabOptions, CROSSOVER_RATE_DEFAULT, MUTATION_RATE_DEFAULT, MUTATION_SPAN_DEFAULT,
+    POPULATION_SIZE_DEFAULT,
+};
 
 struct PythonOptimizationFn {
     py_func: PyObject,
@@ -42,10 +45,10 @@ impl Gmab {
         py_func,
         bounds,
         seed=None,
-        population_size=GmabOptions::POPULATION_SIZE_DEFAULT,
-        mutation_rate=GmabOptions::MUTATION_RATE_DEFAULT,
-        crossover_rate=GmabOptions::CROSSOVER_RATE_DEFAULT,
-        mutation_span=GmabOptions::MUTATION_SPAN_DEFAULT,
+        population_size=POPULATION_SIZE_DEFAULT,
+        mutation_rate=MUTATION_RATE_DEFAULT,
+        crossover_rate=CROSSOVER_RATE_DEFAULT,
+        mutation_span=MUTATION_SPAN_DEFAULT,
     ))]
     fn new(
         py_func: PyObject,
@@ -90,20 +93,10 @@ impl Gmab {
 fn gmab(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Gmab>()?;
 
-    m.add(
-        "POPULATION_SIZE_DEFAULT",
-        GmabOptions::POPULATION_SIZE_DEFAULT,
-    )?;
-    m.add(
-        "MUTATION_RATE_DEFAULT",
-        GmabOptions::MUTATION_RATE_DEFAULT)?;
-    m.add(
-        "CROSSOVER_RATE_DEFAULT",
-        GmabOptions::CROSSOVER_RATE_DEFAULT,
-    )?;
-    m.add(
-        "MUTATION_SPAN_DEFAULT",
-        GmabOptions::MUTATION_SPAN_DEFAULT)?;
+    m.add("POPULATION_SIZE_DEFAULT", POPULATION_SIZE_DEFAULT)?;
+    m.add("MUTATION_RATE_DEFAULT", MUTATION_RATE_DEFAULT)?;
+    m.add("CROSSOVER_RATE_DEFAULT", CROSSOVER_RATE_DEFAULT)?;
+    m.add("MUTATION_SPAN_DEFAULT", MUTATION_SPAN_DEFAULT)?;
 
     Ok(())
 }

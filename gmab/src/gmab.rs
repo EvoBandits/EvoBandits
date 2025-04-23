@@ -26,7 +26,12 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, seed: Option<u64>, options: GmabOptions) -> Gmab<F> {
+    pub fn new(
+        opti_function: F,
+        bounds: Vec<(i32, i32)>,
+        seed: Option<u64>,
+        options: GmabOptions,
+    ) -> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
@@ -65,6 +70,8 @@ impl<F: OptimizationFn> Gmab<F> {
         if !(0.0..=1.0).contains(&crossover_rate) {
             panic!("crossover_rate must be between 0.0 and 1.0");
         }
+        // ToDo: Check if this is allowed
+        // > 1.0 corresponds to mutation with expected_value > span between lower and upper bound
         if mutation_span < 0.0 {
             panic!("mutation_span must be 0.0 or greater");
         }
@@ -496,7 +503,8 @@ mod tests {
         // Helper function that generates a gmab result based on a specific seed.
         fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
-            let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, seed, GmabOptions::new());
+            let mut genetic_multi_armed_bandit =
+                Gmab::new(mock_opti_function, bounds, seed, GmabOptions::new());
             let result = genetic_multi_armed_bandit.optimize(100);
             return result;
         }
@@ -511,5 +519,4 @@ mod tests {
 
     // ToDo: Move validation to gmaboptions, to reduce boilerplate
     // ToDo: Add tests
-
 }
