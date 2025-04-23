@@ -26,11 +26,11 @@ def test_float_param_new(low, high, kwargs, exp_bounds):
         assert bounds == exp_bounds
 
         # Check if parameter maps values in the specified range
-        smallest_value = param.map_to_value([bounds[0][0]])
+        smallest_value = param.decode([bounds[0][0]])
         assert isinstance(smallest_value, float)
         assert smallest_value == low
 
-        largest_value = param.map_to_value([bounds[0][1]])
+        largest_value = param.decode([bounds[0][1]])
         assert isinstance(largest_value, float)
         assert largest_value == high
 
@@ -48,5 +48,5 @@ def test_float_param_mapping(param, action, exp_value):
     # Try multiple times to ensure precision (the exact same value should be mapped each time)
     values = []
     for _ in range(100):
-        values.append(param.map_to_value([action]))
+        values.append(param.decode([action]))
     assert all(exp_value == x for x in values)

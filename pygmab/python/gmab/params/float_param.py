@@ -80,9 +80,9 @@ class FloatParam(BaseParam):
         """
         return [(0, self.nsteps)] * self.size
 
-    def map_to_value(self, actions: list[int]) -> float | list[float]:
+    def decode(self, actions: list[int]) -> float | list[float]:
         """
-        Maps an action by the optimization problem to the value of the parameter.
+        Decodes an action by the optimization problem to the value of the parameter.
 
         Args:
             actions (list[int]): A list of integer to map.

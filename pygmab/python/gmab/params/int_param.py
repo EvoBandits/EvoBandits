@@ -57,9 +57,9 @@ class IntParam(BaseParam):
         """
         return [(self.low, self.high)] * self.size
 
-    def map_to_value(self, actions: list[int]) -> int | list[int]:
+    def decode(self, actions: list[int]) -> int | list[int]:
         """
-        Maps an action by the optimization problem to the value of the parameter.
+        Decode an action by the optimization problem to the value of the parameter.
 
         Args:
             actions (list[int]): A list of integers to map.
