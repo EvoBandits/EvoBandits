@@ -9,6 +9,7 @@ pub struct GmabOptions {
     pub mutation_rate: f64,
     pub crossover_rate: f64,
     pub mutation_span: f64,
+    pub seed: Option<u64>,
 }
 
 impl GmabOptions {
@@ -35,6 +36,7 @@ impl Default for GmabOptions {
             mutation_rate: MUTATION_RATE_DEFAULT,
             crossover_rate: CROSSOVER_RATE_DEFAULT,
             mutation_span: MUTATION_SPAN_DEFAULT,
+            seed: None,
         }
     }
 }
@@ -48,6 +50,7 @@ mod tests {
     const MUTATION_RATE: f64 = 1.0;
     const CROSSOVER_RATE: f64 = 0.0;
     const MUTATION_SPAN: f64 = 1.1;
+    const SEED: Option<u64> = Some(42);
 
     #[test]
     fn test_default() {
@@ -58,6 +61,7 @@ mod tests {
         assert_eq!(options.mutation_rate, MUTATION_RATE_DEFAULT);
         assert_eq!(options.crossover_rate, CROSSOVER_RATE_DEFAULT);
         assert_eq!(options.mutation_span, MUTATION_SPAN_DEFAULT);
+        assert_eq!(options.seed, None)
     }
 
     #[test]
@@ -72,6 +76,7 @@ mod tests {
         assert_eq!(options.mutation_rate, MUTATION_RATE_DEFAULT);
         assert_eq!(options.crossover_rate, CROSSOVER_RATE_DEFAULT);
         assert_eq!(options.mutation_span, MUTATION_SPAN_DEFAULT);
+        assert_eq!(options.seed, None)
     }
 
     #[test]
@@ -81,6 +86,7 @@ mod tests {
             mutation_rate: MUTATION_RATE,
             crossover_rate: CROSSOVER_RATE,
             mutation_span: MUTATION_SPAN,
+            seed: SEED,
         };
         options.validate();
 
@@ -88,6 +94,7 @@ mod tests {
         assert_eq!(options.mutation_rate, MUTATION_RATE);
         assert_eq!(options.crossover_rate, CROSSOVER_RATE);
         assert_eq!(options.mutation_span, MUTATION_SPAN);
+        assert_eq!(options.seed, SEED)
     }
 
     #[test]

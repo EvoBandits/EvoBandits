@@ -26,12 +26,7 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(
-        opti_function: F,
-        bounds: Vec<(i32, i32)>,
-        seed: Option<u64>,
-        options: GmabOptions,
-    ) -> Gmab<F> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, options: GmabOptions) -> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
@@ -47,7 +42,7 @@ impl<F: OptimizationFn> Gmab<F> {
             dimension,
             lower_bound,
             upper_bound,
-            seed,
+            options.seed,
         )
     }
 
@@ -489,8 +484,11 @@ mod tests {
         // Helper function that generates a gmab result based on a specific seed.
         fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
-            let mut genetic_multi_armed_bandit =
-                Gmab::new(mock_opti_function, bounds, seed, GmabOptions::default());
+            let options = GmabOptions {
+                seed: seed,
+                ..Default::default()
+            };
+            let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, options);
             let result = genetic_multi_armed_bandit.optimize(100);
             return result;
         }
@@ -519,7 +517,7 @@ mod tests {
             ..Default::default()
         };
 
-        // Should panic
-        Gmab::new(mock_opti_function, bounds, None, options);
+        // Should panic because of invalid population_size
+        Gmab::new(mock_opti_function, bounds, options);
     }
 }

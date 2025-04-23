@@ -54,7 +54,7 @@ impl Gmab {
         py_func: PyObject,
         bounds: Vec<(i32, i32)>,
         seed: Option<u64>,
-        population_size: Option<usize>,
+        population_size: Option<usize>, // Check if option is needed!
         mutation_rate: Option<f64>,
         crossover_rate: Option<f64>,
         mutation_span: Option<f64>,
@@ -66,9 +66,10 @@ impl Gmab {
             mutation_rate: mutation_rate.unwrap(),
             crossover_rate: crossover_rate.unwrap(),
             mutation_span: mutation_span.unwrap(),
+            seed: seed,
         };
 
-        match panic::catch_unwind(|| RustGmab::new(python_opti_fn, bounds, seed, options)) {
+        match panic::catch_unwind(|| RustGmab::new(python_opti_fn, bounds, options)) {
             Ok(gmab) => Ok(Gmab { gmab }),
             Err(err) => {
                 let err_message = if let Some(msg) = err.downcast_ref::<&str>() {
