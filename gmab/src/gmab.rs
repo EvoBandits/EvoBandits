@@ -26,12 +26,10 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, options: GmabOptions) -> Gmab<F> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, seed: Option<u64>, options: GmabOptions) -> Gmab<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
-
-        options.validate(); // ToDo: add a unittest!
 
         Gmab::new_with_parameter(
             opti_function,
@@ -42,7 +40,7 @@ impl<F: OptimizationFn> Gmab<F> {
             dimension,
             lower_bound,
             upper_bound,
-            options.seed,
+            seed,
         )
     }
 
@@ -55,8 +53,25 @@ impl<F: OptimizationFn> Gmab<F> {
         dimension: usize,
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
-        seed: u64,
+        seed: Option<u64>,
     ) -> Gmab<F> {
+        // Input Validation Step
+        if population_size == 0 {
+            panic!("population_size cannot be 0");
+        }
+        if !(0.0..=1.0).contains(&mutation_rate) {
+            panic!("mutation_rate must be between 0.0 and 1.0");
+        }
+        if !(0.0..=1.0).contains(&crossover_rate) {
+            panic!("crossover_rate must be between 0.0 and 1.0");
+        }
+        if mutation_span < 0.0 {
+            panic!("mutation_span must be 0.0 or greater");
+        }
+
+        // Try to set a seed for rng, or fall back to system entropy
+        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
+
         // Raise an Exception if population_size > solution space
         let mut solution_size: usize = 1;
         let mut not_enough_solutions = true;
@@ -330,7 +345,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            0,
+            None,
         );
         assert_eq!(gmab.genetic_algorithm.population_size, 10);
         assert_eq!(gmab.arm_memory.len(), 10);
@@ -356,7 +371,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![1, 1], // less possible solutions that population_size
-            0,
+            None,
         );
     }
 
@@ -371,7 +386,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            0,
+            None,
         );
         let arm = Arm::new(&vec![1, 2]);
         gmab.arm_memory.push(arm.clone());
@@ -391,7 +406,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            0,
+            None,
         );
         assert_eq!(gmab.max_number_pulls(), 1);
     }
@@ -407,7 +422,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            0,
+            None,
         );
         assert_eq!(gmab.find_best_ucb(100), 0);
     }
@@ -423,7 +438,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            0,
+            None,
         );
 
         let arm = Arm::new(&vec![1, 2]);
@@ -453,7 +468,7 @@ mod tests {
             2,
             vec![0, 0],
             vec![10, 10],
-            0,
+            None,
         );
 
         let arm = Arm::new(&vec![1, 2]);
@@ -479,22 +494,22 @@ mod tests {
         }
 
         // Helper function that generates a gmab result based on a specific seed.
-        fn generate_result(seed: u64) -> Vec<i32> {
+        fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
-            let options = GmabOptions {
-                seed: seed,
-                ..Default::default()
-            };
-            let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, options);
+            let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, seed, GmabOptions::new());
             let result = genetic_multi_armed_bandit.optimize(100);
             return result;
         }
 
         // The same seed should lead to the same result
         let seed = 42;
-        assert_eq!(generate_result(seed), generate_result(seed));
+        assert_eq!(generate_result(Some(seed)), generate_result(Some(seed)));
 
         // A different seed should not lead to the same population
-        assert_ne!(generate_result(seed), generate_result(seed + 1));
+        assert_ne!(generate_result(Some(seed)), generate_result(Some(seed + 1)));
     }
+
+    // ToDo: Move validation to gmaboptions, to reduce boilerplate
+    // ToDo: Add tests
+
 }
