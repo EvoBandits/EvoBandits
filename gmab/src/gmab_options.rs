@@ -12,7 +12,24 @@ pub struct GmabOptions {
 }
 
 impl GmabOptions {
-    pub fn new() -> GmabOptions {
+    pub fn validate(&self) {
+        if self.population_size == 0 {
+            panic!("population_size cannot be 0");
+        }
+        if !(0.0..=1.0).contains(&self.mutation_rate) {
+            panic!("mutation_rate must be between 0.0 and 1.0");
+        }
+        if !(0.0..=1.0).contains(&self.crossover_rate) {
+            panic!("crossover_rate must be between 0.0 and 1.0");
+        }
+        if self.mutation_span < 0.0 {
+            panic!("mutation_span must be 0.0 or greater");
+        }
+    }
+}
+
+impl Default for GmabOptions {
+    fn default() -> Self {
         GmabOptions {
             population_size: POPULATION_SIZE_DEFAULT,
             mutation_rate: MUTATION_RATE_DEFAULT,
@@ -20,91 +37,127 @@ impl GmabOptions {
             mutation_span: MUTATION_SPAN_DEFAULT,
         }
     }
-
-    //
-    // pub fn validate(&self) {
-    //    if self.population_size == 0 {
-    //        panic!("population_size cannot be 0");
-    //    }
-    //    if !(0.0..=1.0).contains(&self.mutation_rate) {
-    //        panic!("mutation_rate must be between 0.0 and 1.0");
-    //    }
-    //    if !(0.0..=1.0).contains(&self.crossover_rate) {
-    //        panic!("crossover_rate must be between 0.0 and 1.0");
-    //    }
-    //    if self.mutation_span < 0.0 {
-    //        panic!("mutation_span must be 0.0 or greater");
-    //     }
-    // }
-
-    pub fn with_population_size(mut self, population_size: usize) -> GmabOptions {
-        self.population_size = population_size;
-        // self.validate();
-        self
-    }
-
-    pub fn with_mutation_rate(mut self, mutation_rate: f64) -> GmabOptions {
-        self.mutation_rate = mutation_rate;
-        self
-    }
-
-    pub fn with_crossover_rate(mut self, crossover_rate: f64) -> GmabOptions {
-        self.crossover_rate = crossover_rate;
-        self
-    }
-
-    pub fn with_mutation_span(mut self, mutation_span: f64) -> GmabOptions {
-        self.mutation_span = mutation_span;
-        self
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_defaults() {
-        let options = GmabOptions::new();
+    // Valid inputs that mark (some of) the edge cases for the paramters
+    const POPULATION_SIZE: usize = 1;
+    const MUTATION_RATE: f64 = 1.0;
+    const CROSSOVER_RATE: f64 = 0.0;
+    const MUTATION_SPAN: f64 = 1.1;
 
-        assert_eq!(options.population_size, 20);
-        assert_eq!(options.mutation_rate, 0.25);
-        assert_eq!(options.crossover_rate, 1.0);
-        assert_eq!(options.mutation_span, 0.1);
+    #[test]
+    fn test_default() {
+        let options = GmabOptions::default();
+        options.validate();
+
+        assert_eq!(options.population_size, POPULATION_SIZE_DEFAULT);
+        assert_eq!(options.mutation_rate, MUTATION_RATE_DEFAULT);
+        assert_eq!(options.crossover_rate, CROSSOVER_RATE_DEFAULT);
+        assert_eq!(options.mutation_span, MUTATION_SPAN_DEFAULT);
     }
 
     #[test]
-    fn test_with_modification() {
-        let population_size = 10;
-        let mutation_rate = 0.5;
-        let crossover_rate = 0.5;
-        let mutation_span = 1.1;
+    fn test_default_with_modification() {
+        let options = GmabOptions {
+            population_size: POPULATION_SIZE,
+            ..Default::default()
+        };
+        options.validate();
 
-        let options = GmabOptions::new()
-            .with_population_size(population_size)
-            .with_mutation_rate(mutation_rate)
-            .with_crossover_rate(crossover_rate)
-            .with_mutation_span(mutation_span);
-
-        assert_eq!(options.population_size, population_size);
-        assert_eq!(options.mutation_rate, mutation_rate);
-        assert_eq!(options.crossover_rate, crossover_rate);
-        assert_eq!(options.mutation_span, mutation_span);
+        assert_eq!(options.population_size, POPULATION_SIZE);
+        assert_eq!(options.mutation_rate, MUTATION_RATE_DEFAULT);
+        assert_eq!(options.crossover_rate, CROSSOVER_RATE_DEFAULT);
+        assert_eq!(options.mutation_span, MUTATION_SPAN_DEFAULT);
     }
 
-    //
-    //#[test]
-    // #[should_panic(expected = "population_size")]
-    // fn test_population_size_not_zero() {
-    //    GmabOptions::new().with_population_size(0);
-    // }
-    //
-    // ToDo: Find a fix and Do not merge before the bypass issue is fixed
-    // Or can this be accepted (Gmab uses one state of the options.)
-    // #[test]
-    // #[should_panic(expected = "population_size")]
-    // fn test_population_size_bypass() {
-    //    let mut options = GmabOptions::new();
-    //    options.population_size = 0;
-    // }
+    #[test]
+    fn test_only_modification() {
+        let options = GmabOptions {
+            population_size: POPULATION_SIZE,
+            mutation_rate: MUTATION_RATE,
+            crossover_rate: CROSSOVER_RATE,
+            mutation_span: MUTATION_SPAN,
+        };
+        options.validate();
+
+        assert_eq!(options.population_size, POPULATION_SIZE);
+        assert_eq!(options.mutation_rate, MUTATION_RATE);
+        assert_eq!(options.crossover_rate, CROSSOVER_RATE);
+        assert_eq!(options.mutation_span, MUTATION_SPAN);
+    }
+
+    #[test]
+    #[should_panic(expected = "population_size")]
+    fn test_invalid_population_size() {
+        let options = GmabOptions {
+            population_size: 0,
+            ..Default::default()
+        };
+        options.validate();
+    }
+
+    #[test]
+    #[should_panic(expected = "mutation_rate")]
+    fn test_invalid_large_mutation_rate() {
+        let options = GmabOptions {
+            mutation_rate: 1.01,
+            ..Default::default()
+        };
+        options.validate();
+    }
+
+    #[test]
+    #[should_panic(expected = "mutation_rate")]
+    fn test_invalid_small_mutation_rate() {
+        let options = GmabOptions {
+            mutation_rate: -0.01,
+            ..Default::default()
+        };
+        options.validate();
+    }
+
+    #[test]
+    #[should_panic(expected = "crossover_rate")]
+    fn test_invalid_large_crossover_rate() {
+        let options = GmabOptions {
+            crossover_rate: 1.01,
+            ..Default::default()
+        };
+        options.validate();
+    }
+
+    #[test]
+    #[should_panic(expected = "crossover_rate")]
+    fn test_invalid_small_crossover_rate() {
+        let options = GmabOptions {
+            crossover_rate: -0.01,
+            ..Default::default()
+        };
+        options.validate();
+    }
+
+    #[test]
+    // ToDo: Check if this should really be allowed.
+    // #[should_panic(expected = "mutation_span")]
+    fn test_invalid_large_mutation_span() {
+        let options = GmabOptions {
+            mutation_span: 1.01,
+            ..Default::default()
+        };
+        options.validate();
+    }
+
+    #[test]
+    #[should_panic(expected = "mutation_span")]
+    fn test_invalid_small_mutation_span() {
+        let options = GmabOptions {
+            mutation_span: -0.01,
+            ..Default::default()
+        };
+        options.validate();
+    }
 }

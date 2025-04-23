@@ -61,13 +61,12 @@ impl Gmab {
     ) -> PyResult<Self> {
         let python_opti_fn = PythonOptimizationFn::new(py_func);
 
-        // ToDo: Fix the issue where an error here would fail to raise a panic
-        let options = GmabOptions::new()
-            .with_population_size(population_size.unwrap())
-            .with_mutation_rate(mutation_rate.unwrap())
-            .with_mutation_span(mutation_span.unwrap())
-            .with_crossover_rate(crossover_rate.unwrap())
-            .with_mutation_span(mutation_span.unwrap());
+        let options = GmabOptions {
+            population_size: population_size.unwrap(),
+            mutation_rate: mutation_rate.unwrap(),
+            crossover_rate: crossover_rate.unwrap(),
+            mutation_span: mutation_span.unwrap(),
+        };
 
         match panic::catch_unwind(|| RustGmab::new(python_opti_fn, bounds, seed, options)) {
             Ok(gmab) => Ok(Gmab { gmab }),

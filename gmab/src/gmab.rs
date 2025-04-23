@@ -36,6 +36,8 @@ impl<F: OptimizationFn> Gmab<F> {
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
 
+        options.validate(); // Panics if user-defined options are invalid
+
         Gmab::new_with_parameter(
             opti_function,
             options.population_size,
@@ -60,22 +62,6 @@ impl<F: OptimizationFn> Gmab<F> {
         upper_bound: Vec<i32>,
         seed: Option<u64>,
     ) -> Gmab<F> {
-        // Input Validation Step
-        if population_size == 0 {
-            panic!("population_size cannot be 0");
-        }
-        if !(0.0..=1.0).contains(&mutation_rate) {
-            panic!("mutation_rate must be between 0.0 and 1.0");
-        }
-        if !(0.0..=1.0).contains(&crossover_rate) {
-            panic!("crossover_rate must be between 0.0 and 1.0");
-        }
-        // ToDo: Check if this is allowed
-        // > 1.0 corresponds to mutation with expected_value > span between lower and upper bound
-        if mutation_span < 0.0 {
-            panic!("mutation_span must be 0.0 or greater");
-        }
-
         // Try to set a seed for rng, or fall back to system entropy
         let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
 
@@ -504,7 +490,7 @@ mod tests {
         fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
             let mut genetic_multi_armed_bandit =
-                Gmab::new(mock_opti_function, bounds, seed, GmabOptions::new());
+                Gmab::new(mock_opti_function, bounds, seed, GmabOptions::default());
             let result = genetic_multi_armed_bandit.optimize(100);
             return result;
         }
@@ -517,6 +503,23 @@ mod tests {
         assert_ne!(generate_result(Some(seed)), generate_result(Some(seed + 1)));
     }
 
-    // ToDo: Move validation to gmaboptions, to reduce boilerplate
-    // ToDo: Add tests
+    #[test]
+    #[should_panic = "population_size"]
+    fn test_panic_on_invalid_options() {
+        // Mock optimization function for testing
+        fn mock_opti_function(_vec: &[i32]) -> f64 {
+            0.0
+        }
+        // Mock bounds for testing
+        let bounds = vec![(1, 100), (1, 100)];
+
+        // Construct invalid options
+        let options = GmabOptions {
+            population_size: 0,
+            ..Default::default()
+        };
+
+        // Should panic
+        Gmab::new(mock_opti_function, bounds, None, options);
+    }
 }
