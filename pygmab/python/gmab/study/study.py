@@ -1,7 +1,13 @@
 from collections.abc import Callable
 
-from gmab import gmab as rsgmab
 from gmab import logging
+from gmab.gmab import (
+    CROSSOVER_RATE_DEFAULT,
+    MUTATION_RATE_DEFAULT,
+    MUTATION_SPAN_DEFAULT,
+    POPULATION_SIZE_DEFAULT,
+    Gmab,
+)
 from gmab.params import BaseParam
 
 _logger = logging.get_logger(__name__)
@@ -15,7 +21,7 @@ class Study:
     and to manage user-defined attributes related to the study.
     """
 
-    def __init__(self, seed: int | None = None, algorithm=rsgmab.Gmab) -> None:
+    def __init__(self, seed: int | None = None, algorithm=Gmab) -> None:
         """
         Initialize a Study instance.
 
@@ -85,10 +91,10 @@ class Study:
         func: Callable,
         params: dict,
         trials: int,
-        population_size: int = rsgmab.POPULATION_SIZE_DEFAULT,
-        mutation_rate: float = rsgmab.MUTATION_RATE_DEFAULT,
-        crossover_rate: float = rsgmab.CROSSOVER_RATE_DEFAULT,
-        mutation_span: float = rsgmab.MUTATION_SPAN_DEFAULT,
+        population_size: int = POPULATION_SIZE_DEFAULT,
+        mutation_rate: float = MUTATION_RATE_DEFAULT,
+        crossover_rate: float = CROSSOVER_RATE_DEFAULT,
+        mutation_span: float = MUTATION_SPAN_DEFAULT,
     ) -> None:
         """
         Optimize the objective function.

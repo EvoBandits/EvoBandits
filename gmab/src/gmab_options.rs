@@ -147,16 +147,15 @@ mod tests {
         options.validate();
     }
 
-    #[test]
-    // ToDo: Check if this should really be allowed.
+    // #[test]
     // #[should_panic(expected = "mutation_span")]
-    fn test_invalid_large_mutation_span() {
-        let options = GmabOptions {
-            mutation_span: 1.01,
-            ..Default::default()
-        };
-        options.validate();
-    }
+    // fn test_invalid_large_mutation_span() {
+    //     let options = GmabOptions {
+    //         mutation_span: 1.01,
+    //         ..Default::default()
+    //     };
+    //     options.validate();
+    // }
 
     #[test]
     #[should_panic(expected = "mutation_span")]

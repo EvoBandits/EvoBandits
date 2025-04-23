@@ -27,11 +27,10 @@ impl<F: OptimizationFn> Gmab<F> {
     }
 
     pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, options: GmabOptions) -> Gmab<F> {
+        options.validate(); // Panics if user-defined options are invalid
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
-
-        options.validate(); // Panics if user-defined options are invalid
 
         Gmab::new_with_parameter(
             opti_function,
@@ -57,9 +56,6 @@ impl<F: OptimizationFn> Gmab<F> {
         upper_bound: Vec<i32>,
         seed: Option<u64>,
     ) -> Gmab<F> {
-        // Try to set a seed for rng, or fall back to system entropy
-        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
-
         // Raise an Exception if population_size > solution space
         let mut solution_size: usize = 1;
         let mut not_enough_solutions = true;
@@ -88,6 +84,8 @@ impl<F: OptimizationFn> Gmab<F> {
             upper_bound,
         );
 
+        // Try to set a seed for rng, or fall back to system entropy
+        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
         let mut rng: StdRng = SeedableRng::seed_from_u64(seed);
 
         let mut arm_memory: Vec<Arm> = Vec::new();
@@ -511,13 +509,13 @@ mod tests {
         // Mock bounds for testing
         let bounds = vec![(1, 100), (1, 100)];
 
-        // Construct invalid options
+        // Construct invalid options (with population size 0)
         let options = GmabOptions {
             population_size: 0,
             ..Default::default()
         };
 
-        // Should panic because of invalid population_size
+        // Panics only, if validation from GmabOptions is integrated
         Gmab::new(mock_opti_function, bounds, options);
     }
 }
