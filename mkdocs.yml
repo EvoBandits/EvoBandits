@@ -1,3 +1,4 @@
-site_name: EveBandit Docs
-
+site_name: EvoBandit Docs
 docs_dir: docs/source
+theme:
+  name: material
