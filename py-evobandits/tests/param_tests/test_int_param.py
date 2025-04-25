@@ -1,7 +1,7 @@
 from contextlib import nullcontext
 
 import pytest
-from gmab.params import IntParam
+from evobandits.params import IntParam
 
 test_int_param_data = [
     pytest.param(0, 1, {}, [(0, 1)], [0, 1], id="base"),

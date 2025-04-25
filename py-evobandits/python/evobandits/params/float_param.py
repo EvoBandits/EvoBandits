@@ -1,7 +1,7 @@
 import math
 from functools import cached_property
 
-from gmab.params.base_param import BaseParam
+from evobandits.params.base_param import BaseParam
 
 
 class FloatParam(BaseParam):

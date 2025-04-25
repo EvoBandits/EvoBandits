@@ -1,6 +1,6 @@
 ## Python Bindings
 
-We use Maturin to build the Python bindings for GMAB.
+We use Maturin to build the Python bindings for EvoBandits.
 
 ### Installation
 

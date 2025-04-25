@@ -1,8 +1,8 @@
 from collections.abc import Callable
 
-from gmab import logging
-from gmab.gmab import Gmab
-from gmab.params import BaseParam
+from evobandits import logging
+from evobandits.evobandits import EvoBandits
+from evobandits.params import BaseParam
 
 _logger = logging.get_logger(__name__)
 
@@ -15,13 +15,13 @@ class Study:
     and to manage user-defined attributes related to the study.
     """
 
-    def __init__(self, seed: int | None = None, algorithm=Gmab) -> None:
+    def __init__(self, seed: int | None = None, algorithm=EvoBandits) -> None:
         """
         Initialize a Study instance.
 
         Args:
             seed: The seed for the Study. Defaults to None (use system entropy).
-            algorithm: The optimization algorithm to use. Defaults to Gmab.
+            algorithm: The optimization algorithm to use. Defaults to EvoBandits.
         """
         if seed is None:
             _logger.warning("No seed provided. Results will not be reproducible.")
@@ -100,8 +100,8 @@ class Study:
         for param in self.params.values():
             bounds.extend(param.bounds)
 
-        gmab = self._algorithm(self._run_trial, bounds, self.seed)
-        best_action_vector = gmab.optimize(trials)
+        evobandits = self._algorithm(self._run_trial, bounds, self.seed)
+        best_action_vector = evobandits.optimize(trials)
 
         self._best_trial = self._map_to_solution(best_action_vector)
         _logger.info("completed")

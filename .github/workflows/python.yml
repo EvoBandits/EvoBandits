@@ -43,7 +43,7 @@ jobs:
           CARGO_TARGET_DIR: target
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
+          args: --release --out dist --find-interpreter --manifest-path py-evobandits/Cargo.toml
           sccache: "true"
           manylinux: auto
       - name: Upload wheels
@@ -58,7 +58,7 @@ jobs:
           set -e
           python3 -m venv .venv
           source .venv/bin/activate
-          pip install gmab --find-links dist --force-reinstall
+          pip install evobandits --find-links dist --force-reinstall
           pip install pytest
           pytest
       - name: pytest
@@ -74,7 +74,7 @@ jobs:
             pip3 install -U pip pytest
           run: |
             set -e
-            pip3 install gmab --find-links dist --force-reinstall
+            pip3 install evobandits --find-links dist --force-reinstall
             pytest
 
   #  musllinux:
@@ -99,7 +99,7 @@ jobs:
   #        uses: PyO3/maturin-action@v1
   #        with:
   #          target: ${{ matrix.platform.target }}
-  #          args: --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
+  #          args: --release --out dist --find-interpreter --manifest-path py-evobandits/Cargo.toml
   #          sccache: "true"
   #          manylinux: musllinux_1_2
   #      - name: Upload wheels
@@ -118,7 +118,7 @@ jobs:
   #            apk add py3-pip py3-virtualenv
   #            python3 -m virtualenv .venv
   #            source .venv/bin/activate
-  #            pip install gmab --no-index --find-links dist --force-reinstall
+  #            pip install evobandits --no-index --find-links dist --force-reinstall
   #            pip install pytest
   #            pytest
   #      - name: pytest
@@ -135,7 +135,7 @@ jobs:
   #            python3 -m virtualenv .venv
   #            source .venv/bin/activate
   #            pip install pytest
-  #            pip install gmab --find-links dist --force-reinstall
+  #            pip install evobandits --find-links dist --force-reinstall
   #            pytest
 
   windows:
@@ -157,7 +157,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
+          args: --release --out dist --find-interpreter --manifest-path py-evobandits/Cargo.toml
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -171,7 +171,7 @@ jobs:
           set -e
           python3 -m venv .venv
           source .venv/Scripts/activate
-          pip install gmab --find-links dist --force-reinstall
+          pip install evobandits --find-links dist --force-reinstall
           pip install pytest
           pytest
 
@@ -193,7 +193,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path pygmab/Cargo.toml
+          args: --release --out dist --find-interpreter --manifest-path py-evobandits/Cargo.toml
           sccache: "true"
       - name: Upload wheels
         uses: actions/upload-artifact@v4
@@ -205,7 +205,7 @@ jobs:
           set -e
           python3 -m venv .venv
           source .venv/bin/activate
-          pip install gmab --find-links dist --force-reinstall
+          pip install evobandits --find-links dist --force-reinstall
           pip install pytest
           pytest
 

@@ -10,7 +10,7 @@ Version: 1.6.1
 """
 
 import numpy as np
-from gmab import CategoricalParam, FloatParam, IntParam
+from evobandits import CategoricalParam, FloatParam, IntParam
 from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.datasets import make_blobs
 

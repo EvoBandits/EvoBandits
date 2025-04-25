@@ -2,7 +2,7 @@ from contextlib import nullcontext
 from unittest.mock import MagicMock
 
 import pytest
-from gmab.study import Study
+from evobandits.study import Study
 
 from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb
@@ -54,7 +54,7 @@ def test_study_init(seed, kwargs, caplog):
     ],
 )
 def test_study_optimize(func, params, trials, exp_bounds, kwargs):
-    # Mock GMAB Algorithm
+    # Mock EvoBandits Algorithm
     mock = MagicMock()
 
     expectation = kwargs.pop("exp", nullcontext())
@@ -62,5 +62,5 @@ def test_study_optimize(func, params, trials, exp_bounds, kwargs):
         study = Study(algorithm=mock, **kwargs)
         study.optimize(func, params, trials)
 
-        mock.assert_called_once_with(study._run_trial, exp_bounds, None)  # Use of Gmab(...)
-        mock.return_value.optimize.assert_called_once_with(trials)  # GMAB.Optimize() called once
+        mock.assert_called_once_with(study._run_trial, exp_bounds, None)  # Use of EvoBandits(...)
+        mock.return_value.optimize.assert_called_once_with(trials)  # EvoBandits.Optimize() called once

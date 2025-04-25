@@ -2,7 +2,7 @@
 Objective function and useful parameters for the multidimensional rosenbrock function
 """
 
-from gmab import IntParam
+from evobandits import IntParam
 
 PARAMS_2D = {"number": IntParam(-5, 10, 2)}
 

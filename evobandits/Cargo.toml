@@ -1,5 +1,5 @@
 [package]
-name = "gmab"
+name = "evobandits"
 version = "0.1.4"
 edition = "2021"
 

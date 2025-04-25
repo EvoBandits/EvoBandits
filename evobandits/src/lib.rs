@@ -1,4 +1,4 @@
 pub mod arm;
+pub mod evobandits;
 mod genetic;
-pub mod gmab;
 mod sorted_multi_map;

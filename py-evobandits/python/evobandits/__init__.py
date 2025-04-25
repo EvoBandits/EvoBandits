@@ -1,12 +1,12 @@
-from gmab import logging
-from gmab.gmab import Gmab
-from gmab.params import CategoricalParam, FloatParam, IntParam
-from gmab.search import GmabSearchCV
-from gmab.study import Study
+from evobandits import logging
+from evobandits.evobandits import EvoBandits
+from evobandits.params import CategoricalParam, FloatParam, IntParam
+from evobandits.search import EvoBanditsSearchCV
+from evobandits.study import Study
 
 __all__ = [
-    "Gmab",
-    "GmabSearchCV",
+    "EvoBandits",
+    "EvoBanditsSearchCV",
     "logging",
     "Study",
     "CategoricalParam",

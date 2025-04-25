@@ -1,28 +1,28 @@
-# Vision for pygmab interface
-Suggestions how a user interface for pygmab can be implemented. Feel free to comment!
+# Vision for py-evobandits interface
+Suggestions how a user interface for py-evobanits can be implemented. Feel free to comment!
 
 ## Vocabulary
 
 - **Value**: Corresponds to an actual value of a parameter of the user's objective function.
 The value is valid within the specified constraints (type, limits, size) of the parameter.
 - **Solution**: A set of values that can be used as (valid) input for the objective function.
-- **Action**: The internal, integer representation of a parameter's value that gmab uses for
+- **Action**: The internal, integer representation of a parameter's value that evobandits uses for
 optimization. An action always corresponds to one distint value for a parameter.
 - **Bounds**: The internal, integer representation of a parameter's constraints (limits, size) that
-is used by gmab. The bounds constrain the selection (=sampling, mutation) of actions.
+is used by evobandits. The bounds constrain the selection (=sampling, mutation) of actions.
 - **Action Vector**: A set of actions that serve as internal representation of one distinct solution.
 - **Mapping**: Translation of an action (action_vector) to it's value (solution), or reversed.
 
-## 1. Import Gmab and create a Study
+## 1. Import EvoBandits and create a Study
 
 Use `initialize()` to initialize instances of `Study`, which is a class that handles algorithm
 control. Additionally, procedures for defining parameters can be imported separately.
 
 ```python
-import gmab
-from gmab import IntParam, FloatParam, CategoricalParam
+import evobandits
+from evobandits import IntParam, FloatParam, CategoricalParam
 
-study = gmab.initialize(seed=42)
+study = evobandits.initialize(seed=42)
 ```
 
 ## 2. Define objective and bounds
@@ -31,10 +31,10 @@ The direct interface with rust uses a list of integers as action_vector, where a
 defines the bounds for each element of the action_vector. The action_vector is then used to
 simulate the objective.
 
-From [./examples/tester.py](https://github.com/E-MAB/GMAB/blob/add-pygmab-readme/examples/tester.py)
+From [./examples/tester.py](https://github.com/EvoBandits/EvoBandits/blob/add-py-bandits-readme/examples/tester.py)
 
 ```python
-from gmab import Gmab
+from evobandits import EvoBandits
 
 def rosenbrock_function(number: list):
     return sum(
@@ -46,7 +46,7 @@ def rosenbrock_function(number: list):
 
 if __name__ == "__main__":
     bounds = [(-5, 10), (-5, 10)]
-    gmab = Gmab(rosenbrock_function, bounds)
+    evobandits = EvoBandits(rosenbrock_function, bounds)
     ...
 ```
 
@@ -56,7 +56,7 @@ expect an interface that enables dynamically setting bounds for multiple paramet
 Internally, this will require:
 
 * Handling and checking the user's inputs to create the `bounds` tuple that is expected by
-rust-gmab when starting the optimization.
+rust-evobandits when starting the optimization.
 * For each simulation, mapping the action_vector generated in rust to the `kwargs` of the objective.
 * For example, the value `1` in the action_vector will be mapped to `10` if the parameter is
 configured with `IntParam(low=0, high=100, steps=10)`.
@@ -130,7 +130,7 @@ Names for settings are (somewhat) based on:
 | `...`             | Other parameters to set verbose, parallelization, name, ...             |
 
 
-Internally, the method will store and transform the user inputs for rust-gmab, and then create
+Internally, the method will store and transform the user inputs for rust-evobandits, and then create
 and execute the set number of algorithm instances. Finally, it will also collect the results.
 
 ```python

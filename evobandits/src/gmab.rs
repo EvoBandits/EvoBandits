@@ -6,7 +6,7 @@ use rand::rngs::StdRng;
 use rand::{RngCore, SeedableRng};
 use std::collections::HashMap;
 
-pub struct Gmab<F: OptimizationFn> {
+pub struct EvoBandits<F: OptimizationFn> {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
     arm_memory: Vec<Arm>,
     lookup_table: HashMap<Vec<i32>, i32>,
@@ -14,7 +14,7 @@ pub struct Gmab<F: OptimizationFn> {
     rng: StdRng,
 }
 
-impl<F: OptimizationFn> Gmab<F> {
+impl<F: OptimizationFn> EvoBandits<F> {
     fn get_arm_index(&self, individual: &Arm) -> i32 {
         match self
             .lookup_table
@@ -25,7 +25,7 @@ impl<F: OptimizationFn> Gmab<F> {
         }
     }
 
-    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> Gmab<F> {
+    pub fn new(opti_function: F, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> EvoBandits<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
@@ -36,7 +36,7 @@ impl<F: OptimizationFn> Gmab<F> {
         let crossover_rate = 1.0; // Default crossover rate
         let mutation_span = 0.1; // Default mutation span
 
-        Gmab::new_with_parameter(
+        EvoBandits::new_with_parameter(
             opti_function,
             population_size,
             mutation_rate,
@@ -59,7 +59,7 @@ impl<F: OptimizationFn> Gmab<F> {
         lower_bound: Vec<i32>,
         upper_bound: Vec<i32>,
         seed: Option<u64>,
-    ) -> Gmab<F> {
+    ) -> EvoBandits<F> {
         // Raise an Exception if population_size > solution space
         let mut solution_size: usize = 1;
         let mut not_enough_solutions = true;
@@ -106,7 +106,7 @@ impl<F: OptimizationFn> Gmab<F> {
             sample_average_tree.insert(FloatKey::new(individual.get_mean_reward()), index as i32);
         }
 
-        Gmab {
+        EvoBandits {
             sample_average_tree,
             arm_memory,
             lookup_table,
@@ -325,8 +325,8 @@ mod tests {
     }
 
     #[test]
-    fn test_gmab_new() {
-        let gmab = Gmab::new_with_parameter(
+    fn test_evobandits_new() {
+        let evobandits = EvoBandits::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -337,13 +337,13 @@ mod tests {
             vec![10, 10],
             None,
         );
-        assert_eq!(gmab.genetic_algorithm.population_size, 10);
-        assert_eq!(gmab.arm_memory.len(), 10);
-        assert_eq!(gmab.lookup_table.len(), 10);
+        assert_eq!(evobandits.genetic_algorithm.population_size, 10);
+        assert_eq!(evobandits.arm_memory.len(), 10);
+        assert_eq!(evobandits.lookup_table.len(), 10);
 
         // check if there are 10  elements in sample_average_tree
         let mut count = 0;
-        for _ in gmab.sample_average_tree.iter() {
+        for _ in evobandits.sample_average_tree.iter() {
             count += 1;
         }
         assert_eq!(count, 10);
@@ -351,8 +351,8 @@ mod tests {
 
     #[test]
     #[should_panic(expected = "population_size")]
-    fn test_gmab_new_panic() {
-        Gmab::new_with_parameter(
+    fn test_evobandits_new_panic() {
+        EvoBandits::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -366,8 +366,8 @@ mod tests {
     }
 
     #[test]
-    fn test_gmab_get_arm_index_with_existing() {
-        let mut gmab = Gmab::new_with_parameter(
+    fn test_evobandits_get_arm_index_with_existing() {
+        let mut evobandits = EvoBandits::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -379,15 +379,16 @@ mod tests {
             None,
         );
         let arm = Arm::new(&vec![1, 2]);
-        gmab.arm_memory.push(arm.clone());
-        gmab.lookup_table
+        evobandits.arm_memory.push(arm.clone());
+        evobandits
+            .lookup_table
             .insert(arm.get_action_vector().to_vec(), 0);
-        assert_eq!(gmab.get_arm_index(&arm), 0);
+        assert_eq!(evobandits.get_arm_index(&arm), 0);
     }
 
     #[test]
-    fn test_gmab_max_number_pulls() {
-        let gmab = Gmab::new_with_parameter(
+    fn test_evobandits_max_number_pulls() {
+        let evobandits = EvoBandits::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -398,12 +399,12 @@ mod tests {
             vec![10, 10],
             None,
         );
-        assert_eq!(gmab.max_number_pulls(), 1);
+        assert_eq!(evobandits.max_number_pulls(), 1);
     }
 
     #[test]
-    fn test_gmab_find_best_ucb() {
-        let gmab = Gmab::new_with_parameter(
+    fn test_evobandits_find_best_ucb() {
+        let evobandits = EvoBandits::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -414,12 +415,12 @@ mod tests {
             vec![10, 10],
             None,
         );
-        assert_eq!(gmab.find_best_ucb(100), 0);
+        assert_eq!(evobandits.find_best_ucb(100), 0);
     }
 
     #[test]
-    fn test_gmab_find_best_ucb_with_existing() {
-        let mut gmab = Gmab::new_with_parameter(
+    fn test_evobandits_find_best_ucb_with_existing() {
+        let mut evobandits = EvoBandits::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -432,24 +433,26 @@ mod tests {
         );
 
         let arm = Arm::new(&vec![1, 2]);
-        gmab.arm_memory.push(arm.clone());
-        gmab.lookup_table
+        evobandits.arm_memory.push(arm.clone());
+        evobandits
+            .lookup_table
             .insert(arm.get_action_vector().to_vec(), 0);
 
         let arm2 = Arm::new(&vec![1, 2]);
-        gmab.arm_memory.push(arm2.clone());
-        gmab.lookup_table
+        evobandits.arm_memory.push(arm2.clone());
+        evobandits
+            .lookup_table
             .insert(arm2.get_action_vector().to_vec(), 1);
 
-        gmab.sample_and_update(0, arm.clone());
-        gmab.sample_and_update(1, arm2.clone());
+        evobandits.sample_and_update(0, arm.clone());
+        evobandits.sample_and_update(1, arm2.clone());
 
-        assert_eq!(gmab.find_best_ucb(100), 0);
+        assert_eq!(evobandits.find_best_ucb(100), 0);
     }
 
     #[test]
-    fn test_gmab_sample_and_update_with_existing() {
-        let mut gmab = Gmab::new_with_parameter(
+    fn test_evobandits_sample_and_update_with_existing() {
+        let mut evobandits = EvoBandits::new_with_parameter(
             mock_opti_function,
             10,
             0.1,
@@ -462,16 +465,19 @@ mod tests {
         );
 
         let arm = Arm::new(&vec![1, 2]);
-        gmab.arm_memory.push(arm.clone());
-        gmab.lookup_table
+        evobandits.arm_memory.push(arm.clone());
+        evobandits
+            .lookup_table
             .insert(arm.get_action_vector().to_vec(), 0);
 
-        gmab.sample_and_update(0, arm.clone());
+        evobandits.sample_and_update(0, arm.clone());
 
-        assert_eq!(gmab.arm_memory[0].get_num_pulls(), 2);
-        assert_eq!(gmab.arm_memory[0].get_mean_reward(), 0.0);
+        assert_eq!(evobandits.arm_memory[0].get_num_pulls(), 2);
+        assert_eq!(evobandits.arm_memory[0].get_mean_reward(), 0.0);
         assert_eq!(
-            gmab.lookup_table.get(&arm.get_action_vector().to_vec()),
+            evobandits
+                .lookup_table
+                .get(&arm.get_action_vector().to_vec()),
             Some(&0)
         );
     }
@@ -483,10 +489,10 @@ mod tests {
             0.0
         }
 
-        // Helper function that generates a gmab result based on a specific seed.
+        // Helper function that generates a evobandits result based on a specific seed.
         fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
-            let mut genetic_multi_armed_bandit = Gmab::new(mock_opti_function, bounds, seed);
+            let mut genetic_multi_armed_bandit = EvoBandits::new(mock_opti_function, bounds, seed);
             let result = genetic_multi_armed_bandit.optimize(100);
             return result;
         }

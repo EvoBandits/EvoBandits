@@ -1,7 +1,7 @@
 from contextlib import nullcontext
 
 import pytest
-from gmab.params import CategoricalParam
+from evobandits.params import CategoricalParam
 
 
 def dummy_func():

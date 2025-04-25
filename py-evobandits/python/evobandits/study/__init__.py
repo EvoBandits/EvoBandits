@@ -1,3 +1,3 @@
-from gmab.study.study import Study
+from evobandits.study.study import Study
 
 __all__ = ["Study"]

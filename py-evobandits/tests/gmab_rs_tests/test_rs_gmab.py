@@ -1,7 +1,7 @@
 from contextlib import nullcontext
 
 import pytest
-from gmab import Gmab
+from evobandits import EvoBandits
 
 from tests._functions import rosenbrock as rb
 
@@ -23,8 +23,8 @@ SEED = 42
         "fail_population_size",
     ],
 )
-def test_gmab(bounds, budget, kwargs):
+def test_evobandits(bounds, budget, kwargs):
     expectation = kwargs.pop("exp", nullcontext())
     with expectation:
-        gmab = Gmab(rb.function, bounds, **kwargs)
-        _ = gmab.optimize(budget)
+        evobandits = EvoBandits(rb.function, bounds, **kwargs)
+        _ = evobandits.optimize(budget)

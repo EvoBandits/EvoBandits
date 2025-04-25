@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from functools import cached_property
 
-from gmab.params.base_param import BaseParam
+from evobandits.params.base_param import BaseParam
 
 ChoiceType = bool | int | float | str | Callable | None
 

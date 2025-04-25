@@ -1,7 +1,7 @@
 from contextlib import nullcontext
 
 import pytest
-from gmab.params import FloatParam
+from evobandits.params import FloatParam
 
 test_float_param_new_data = [
     pytest.param(0, 1, {}, [(0, 100)], id="base"),
@@ -21,7 +21,7 @@ def test_float_param_new(low, high, kwargs, exp_bounds):
     with expectation:
         param = FloatParam(low, high, **kwargs)
 
-        # Check gmab's internal bounds
+        # Check evobandits's internal bounds
         bounds = param.bounds
         assert bounds == exp_bounds
 

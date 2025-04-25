@@ -39,11 +39,11 @@ def get_logger(name: str) -> logging.Logger:
 
 
 def set_level(level: int) -> None:
-    """Set the level for gmab's root logger.
+    """Set the level for evobandits's root logger.
 
     Args:
         verbosity:
-            Logging level, e.g., ``gmab.logging.DEBUG`` or ``gmab.logging.INFO``.
+            Logging level, e.g., ``evobandits.logging.DEBUG`` or ``evobandits.logging.INFO``.
 
     """
     _configure_library_root_logger()
@@ -51,7 +51,7 @@ def set_level(level: int) -> None:
 
 
 def disable() -> None:
-    """Disable the default handler of gmab's root logger"""
+    """Disable the default handler of evobandits's root logger"""
     global _default_handler
     if _default_handler:
         library_root_logger: logging.Logger = _get_library_root_logger()
@@ -60,6 +60,6 @@ def disable() -> None:
 
 
 def enable() -> None:
-    """Enable the default handler of gmab's root logger"""
+    """Enable the default handler of evobandits's root logger"""
     _configure_library_root_logger()
     _get_library_root_logger()

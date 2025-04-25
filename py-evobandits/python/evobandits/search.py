@@ -1,10 +1,10 @@
-from gmab.gmab import Gmab
+from evobandits.evobandits import EvoBandits
 from sklearn.model_selection._search import BaseSearchCV
 import numpy as np
 
 
 # https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/model_selection/_search.py#L433
-class GmabSearchCV(BaseSearchCV):
+class EvoBanditsSearchCV(BaseSearchCV):
     def __init__(
         self,
         estimator,
@@ -18,17 +18,17 @@ class GmabSearchCV(BaseSearchCV):
         pre_dispatch="2*n_jobs",
         error_score=np.nan,
         return_train_score=True,
-        gmab_iterations=50,
+        evobandits_iterations=50,
     ):
         """
         param_distributions: dict
             Dictionary of parameter_name -> (lower_bound, upper_bound),
             all of which must be integer bounds.
-        gmab_iterations: int
-            How many iterations (simulation budget) Gmab should run internally.
+        evobandits_iterations: int
+            How many iterations (simulation budget) EvoBandits should run internally.
         """
         self.param_distributions = param_distributions
-        self.gmab_iterations = gmab_iterations
+        self.evobandits_iterations = evobandits_iterations
 
         super().__init__(
             estimator=estimator,
@@ -51,23 +51,23 @@ class GmabSearchCV(BaseSearchCV):
         1) Builds an integer-bounded search space from self.param_distributions.
         2) Defines a Python function that calls evaluate_candidates to retrieve
            cross-validation scores.
-        3) Invokes Gmab to search for the best hyperparameters.
+        3) Invokes EvoBandits to search for the best hyperparameters.
         4) Finally, calls evaluate_candidates one last time with the best found
            parameters so they are recorded by scikit-learn.
         """
 
         # 1) Collect parameter names and integer bounds
         #    Example: param_distributions = {"x": (-5, 10), "y": (0, 5)}
-        #    We will map these onto a list-like domain as Gmab expects.
+        #    We will map these onto a list-like domain as EvoBandits expects.
         param_names = list(self.param_distributions.keys())
         bounds = [self.param_distributions[name] for name in param_names]
 
-        # 2) Define the Python objective function for Gmab
+        # 2) Define the Python objective function for EvoBandits
         #    action_vector is a list of i32 from Rust's perspective
         #    We call scikit-learn's evaluate_candidates([param_dict]) to get scores,
-        #    and return that cross-validation mean_test_score so that Gmab can
+        #    and return that cross-validation mean_test_score so that EvoBandits can
         #    attempt to maximize it.
-        def gmab_objective(action_vector: list) -> float:
+        def evobandits_objective(action_vector: list) -> float:
             # Build param_dict from the action vector
             param_dict = {}
             for i, name in enumerate(param_names):
@@ -76,12 +76,12 @@ class GmabSearchCV(BaseSearchCV):
             results = evaluate_candidates([param_dict])
             mean_score = results.get("mean_test_score", np.nan)[0]
             self._latest_score = mean_score
-            # gmab minimizes the objective, so we negate the score
+            # evobandits minimizes the objective, so we negate the score
             return mean_score * -1
 
-        # 3) Create the Gmab optimizer and search for the best param configuration
-        gmab_opt = Gmab(gmab_objective, bounds)
-        best_action_vector = gmab_opt.optimize(self.gmab_iterations)
+        # 3) Create the EvoBandits optimizer and search for the best param configuration
+        evobandits_opt = EvoBandits(evobandits_objective, bounds)
+        best_action_vector = evobandits_opt.optimize(self.evobandits_iterations)
 
         # 4) Evaluate the best param set again (so scikit-learn knows about it)
         best_dict = {}

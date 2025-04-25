@@ -1,9 +1,9 @@
-from gmab import logging
+from evobandits import logging
 from pytest import CaptureFixture, LogCaptureFixture
 
 
 def test_get_logger(caplog: LogCaptureFixture) -> None:
-    logger = logging.get_logger("gmab.foo")
+    logger = logging.get_logger("evobandits.foo")
 
     logger.info("hello")
     assert "hello" in caplog.text  # Checks logging with a simple example
@@ -13,7 +13,7 @@ def test_get_logger(caplog: LogCaptureFixture) -> None:
 
 
 def test_set_level(caplog: LogCaptureFixture) -> None:
-    logger = logging.get_logger("gmab.foo")
+    logger = logging.get_logger("evobandits.foo")
 
     logging.set_level(logging.DEBUG)
     logger.debug("debug_msg")
@@ -25,7 +25,7 @@ def test_set_level(caplog: LogCaptureFixture) -> None:
 
 
 def test_disable(capsys: CaptureFixture) -> None:
-    logger = logging.get_logger("gmab.foo")
+    logger = logging.get_logger("evobandits.foo")
 
     logging.disable()
     logger.info("hello")

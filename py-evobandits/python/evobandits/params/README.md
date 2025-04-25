@@ -1,6 +1,6 @@
 # Params Module
 
-The `params` module provides a flexible and robust way to handle parameters for gmab.
+The `params` module provides a flexible and robust way to handle parameters for evobandits.
 
 ## Motivation
 
@@ -9,7 +9,7 @@ might not be an ideal solution.
 
 On the other hand, a lot of freedom over how parameters can be defined (like in the example below)
 will require more complex validation in the `Study` module. The validation, and especially the
-mapping from gmab's internal action_vector to the solution depends on how each individual
+mapping from evobandits's internal action_vector to the solution depends on how each individual
 parameter has been defined by the user.
 
 ```python
@@ -24,12 +24,12 @@ Therefore, a streamlined interface to define and handle parameters for the Study
 desirable, leading to the idea of this approach:
 
 * As each parameter is defined separately by the user depending on their specific requirements,
-pygmab should offer interfaces for each type of parameter.
+py-evobandits should offer interfaces for each type of parameter.
 * A "type" summarizes parameters have similar requirements, specifically: Similar steps to
-define their bounds and map their values from gmab's internal action_vector. For now, there will
+define their bounds and map their values from evobandits's internal action_vector. For now, there will
 be the types: Integer, Float, and Categorical.
 * Having a class for each type guarantess separation of concern and extensibility for how different
-parameters can be converted to integer representation that the gmab algorithm will handle. At the
+parameters can be converted to integer representation that the evobandits algorithm will handle. At the
 same time, the types need to implement an abstract interface that the Study is able to access.
 This will be implemented through inheritance.
 
