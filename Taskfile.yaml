@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+  install-docs:
+    desc: Install documentation dependencies into the virtual environment
+    cmds:
+      - python -m venv .venv
+      - .venv/bin/pip install -r docs/source/requirements.txt
+  
+  build-docs:
+    desc: Build the documentation
+    cmds:
+      - mkdocs build
