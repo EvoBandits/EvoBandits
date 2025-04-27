@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/EvoBandits/EvoBandits/refs/heads/symlink-readmes/Logo.webp" alt="EvoBandits" width="200"/>
+  <img src="https://raw.githubusercontent.com/EvoBandits/EvoBandits/refs/heads/main/Logo.webp" alt="EvoBandits" width="200"/>
 </p>
 
 <p align="center">
