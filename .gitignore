@@ -75,3 +75,5 @@ pip-selfcheck.json
 .python-version
 
 *.so
+
+site/
