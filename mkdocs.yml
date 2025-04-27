@@ -3,6 +3,16 @@ docs_dir: docs/source
 theme:
   name: material
 
+plugins:
+- search
+- mkdocstrings:
+    handlers: 
+      python:
+        options:
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: false
+
 nav:
   - Home: index.md
   - Installation: installation.md
@@ -10,4 +20,6 @@ nav:
       - Overview: tutorials/index.md
       - Getting Started: tutorials/getting_started.md
       - Advanced Usage: tutorials/advanced_usage.md
-  - Reference: docs/source/reference.md
+  - Reference: 
+      - Study: references/study.md
+      - Params: references/params.md
