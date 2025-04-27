@@ -1,7 +1,14 @@
 site_name: EvoBandit Docs
+
+repo_url: https://github.com/EvoBandits/EvoBandits
+repo_name: EvoBandits/EvoBandits
+
 docs_dir: docs/source
+
 theme:
   name: material
+  icon:
+    repo: fontawesome/brands/github
 
 plugins:
 - search
