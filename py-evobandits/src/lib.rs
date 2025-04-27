@@ -5,10 +5,10 @@ use std::panic;
 
 use evobandits_rust::arm::OptimizationFn;
 use evobandits_rust::evobandits::EvoBandits as RustEvoBandits;
-use evobandits_rust::gmab_options::{
-    GmabOptions, CROSSOVER_RATE_DEFAULT, MUTATION_RATE_DEFAULT, MUTATION_SPAN_DEFAULT,
-    POPULATION_SIZE_DEFAULT,
+use evobandits_rust::genetic::{
+    CROSSOVER_RATE_DEFAULT, MUTATION_RATE_DEFAULT, MUTATION_SPAN_DEFAULT, POPULATION_SIZE_DEFAULT,
 };
+use evobandits_rust::gmab_options::GmabOptions;
 
 struct PythonOptimizationFn {
     py_func: PyObject,

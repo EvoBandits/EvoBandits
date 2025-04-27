@@ -8,12 +8,12 @@ use rand::{RngCore, SeedableRng};
 use std::collections::HashMap;
 
 pub struct EvoBandits<F: OptimizationFn> {
+    opti_function: F,
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
     arm_memory: Vec<Arm>,
     lookup_table: HashMap<Vec<i32>, i32>,
     genetic_algorithm: GeneticAlgorithm,
     rng: StdRng,
-    opti_function: F,
 }
 
 impl<F: OptimizationFn> EvoBandits<F> {
@@ -31,8 +31,6 @@ impl<F: OptimizationFn> EvoBandits<F> {
         let dimension = bounds.len();
         let lower_bound = bounds.iter().map(|&(low, _)| low).collect::<Vec<i32>>();
         let upper_bound = bounds.iter().map(|&(_, high)| high).collect::<Vec<i32>>();
-
-        options.validate();
 
         EvoBandits::new_with_parameter(
             opti_function,
@@ -84,6 +82,7 @@ impl<F: OptimizationFn> EvoBandits<F> {
             lower_bound,
             upper_bound,
         );
+        genetic_algorithm.validate();
 
         // Try to set a seed for rng, or fall back to system entropy
         let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
@@ -104,12 +103,12 @@ impl<F: OptimizationFn> EvoBandits<F> {
         }
 
         EvoBandits {
+            opti_function,
             sample_average_tree,
             arm_memory,
             lookup_table,
             genetic_algorithm,
             rng,
-            opti_function,
         }
     }
 

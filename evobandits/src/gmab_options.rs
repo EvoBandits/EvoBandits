@@ -1,8 +1,6 @@
-// Default values for the GMAB Algortihm
-pub const POPULATION_SIZE_DEFAULT: usize = 20;
-pub const MUTATION_RATE_DEFAULT: f64 = 0.25;
-pub const CROSSOVER_RATE_DEFAULT: f64 = 1.0;
-pub const MUTATION_SPAN_DEFAULT: f64 = 0.1;
+use crate::genetic::{
+    CROSSOVER_RATE_DEFAULT, MUTATION_RATE_DEFAULT, MUTATION_SPAN_DEFAULT, POPULATION_SIZE_DEFAULT,
+};
 
 pub struct GmabOptions {
     pub population_size: usize,
