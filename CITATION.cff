@@ -9,7 +9,7 @@ authors:
   orcid: "https://orcid.org/0009-0001-3003-6747"
 title: "Genetic Multi-Armed Bandits: A Reinforcement Learning Inspired Approach for Simulation Optimization"
 version: 0.1
-url: "https://github.com/TeamMoos/GMAB"
+url: "https://github.com/EvoBandits/EvoBandits"
 preferred-citation:
   type: article
   authors:

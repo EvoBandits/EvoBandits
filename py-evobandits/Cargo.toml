@@ -1,0 +1,13 @@
+[package]
+name = "py-evobandits"
+version = "0.0.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "evobandits"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.24.0"
+evobandits_rust = { package = "evobandits", path = "../evobandits" }

@@ -1,1 +1,1 @@
-Pure Rust example can be found in `gmab/examples` directory.
+Pure Rust example can be found in `evobandits/examples` directory.
