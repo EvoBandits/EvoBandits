@@ -48,9 +48,9 @@ class BaseParam(ABC):
         raise NotImplementedError("Subclasses must implement the 'bounds' property.")
 
     @abstractmethod
-    def map_to_value(self, actions: list[int]) -> bool | int | str | float | list:
+    def decode(self, actions: list[int]) -> bool | int | str | float | list:
         """
-        Abstract method to map optimization actions to parameter values.
+        Abstract method to decode optimization actions as parameter values.
 
         This method converts a list of integers (actions) into the corresponding
         parameter value(s). Subclasses must implement this method to define the
