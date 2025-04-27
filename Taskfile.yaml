@@ -11,3 +11,8 @@ tasks:
     desc: Build the documentation
     cmds:
       - mkdocs build
+
+  serve-docs:
+    desc: Serve the documentation locally
+    cmds:
+      - mkdocs serve

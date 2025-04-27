@@ -2,3 +2,12 @@ site_name: EvoBandit Docs
 docs_dir: docs/source
 theme:
   name: material
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Tutorials:
+      - Overview: tutorials/index.md
+      - Getting Started: tutorials/getting_started.md
+      - Advanced Usage: tutorials/advanced_usage.md
+  - Reference: docs/source/reference.md
