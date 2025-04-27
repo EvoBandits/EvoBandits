@@ -11,8 +11,9 @@ pub struct EvoBandits<F: OptimizationFn> {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
     arm_memory: Vec<Arm>,
     lookup_table: HashMap<Vec<i32>, i32>,
-    genetic_algorithm: GeneticAlgorithm<F>,
+    genetic_algorithm: GeneticAlgorithm,
     rng: StdRng,
+    opti_function: F,
 }
 
 impl<F: OptimizationFn> EvoBandits<F> {
@@ -33,7 +34,7 @@ impl<F: OptimizationFn> EvoBandits<F> {
 
         options.validate();
 
-    	EvoBandits::new_with_parameter(
+        EvoBandits::new_with_parameter(
             opti_function,
             options.population_size,
             options.mutation_rate,
@@ -75,7 +76,6 @@ impl<F: OptimizationFn> EvoBandits<F> {
         }
 
         let genetic_algorithm = GeneticAlgorithm::new(
-            opti_function,
             population_size,
             mutation_rate,
             crossover_rate,
@@ -97,7 +97,7 @@ impl<F: OptimizationFn> EvoBandits<F> {
         let mut initial_population = genetic_algorithm.generate_new_population(next_seed);
 
         for (index, individual) in initial_population.iter_mut().enumerate() {
-            individual.pull(&genetic_algorithm.opti_function);
+            individual.pull(&opti_function);
             arm_memory.push(individual.clone());
             lookup_table.insert(individual.get_action_vector().to_vec(), index as i32);
             sample_average_tree.insert(FloatKey::new(individual.get_mean_reward()), index as i32);
@@ -109,6 +109,7 @@ impl<F: OptimizationFn> EvoBandits<F> {
             lookup_table,
             genetic_algorithm,
             rng,
+            opti_function,
         }
     }
 
@@ -181,13 +182,13 @@ impl<F: OptimizationFn> EvoBandits<F> {
                 &FloatKey::new(self.arm_memory[arm_index as usize].get_mean_reward()),
                 &arm_index,
             );
-            self.arm_memory[arm_index as usize].pull(&self.genetic_algorithm.opti_function);
+            self.arm_memory[arm_index as usize].pull(&self.opti_function);
             self.sample_average_tree.insert(
                 FloatKey::new(self.arm_memory[arm_index as usize].get_mean_reward()),
                 arm_index,
             );
         } else {
-            individual.pull(&self.genetic_algorithm.opti_function);
+            individual.pull(&self.opti_function);
             self.arm_memory.push(individual.clone());
             self.lookup_table.insert(
                 individual.get_action_vector().to_vec(),
@@ -266,7 +267,7 @@ impl<F: OptimizationFn> EvoBandits<F> {
                 let mut sum = 0.0;
                 for _ in 0..50 {
                     sum += self.arm_memory[best_arm_index as usize]
-                        .get_function_value(&self.genetic_algorithm.opti_function);
+                        .get_function_value(&self.opti_function);
                 }
                 print!(" f(x): {:.3}", sum / 50.0);
 
@@ -493,7 +494,8 @@ mod tests {
                 seed: seed,
                 ..Default::default()
             };
-            let mut genetic_multi_armed_bandit = EvoBandits::new(mock_opti_function, bounds, options);
+            let mut genetic_multi_armed_bandit =
+                EvoBandits::new(mock_opti_function, bounds, options);
             let result = genetic_multi_armed_bandit.optimize(100);
             return result;
         }

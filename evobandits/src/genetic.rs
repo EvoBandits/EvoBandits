@@ -4,22 +4,22 @@ use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use rand_distr::{Distribution, Normal};
 
-use crate::arm::{Arm, OptimizationFn};
+use crate::arm::Arm;
 
-pub(crate) struct GeneticAlgorithm<F: OptimizationFn> {
+pub(crate) struct GeneticAlgorithm {
     mutation_rate: f64,
     crossover_rate: f64,
     mutation_span: f64,
     pub(crate) population_size: usize,
-    pub(crate) opti_function: F,
+    // pub(crate) opti_function: F,
     dimension: usize,
     lower_bound: Vec<i32>,
     upper_bound: Vec<i32>,
 }
 
-impl<F: OptimizationFn> GeneticAlgorithm<F> {
+impl GeneticAlgorithm {
     pub(crate) fn new(
-        opti_function: F,
+        // opti_function: F,
         population_size: usize,
         mutation_rate: f64,
         crossover_rate: f64,
@@ -33,7 +33,7 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
             crossover_rate,
             mutation_span,
             population_size,
-            opti_function,
+            // opti_function,
             dimension,
             lower_bound,
             upper_bound,
@@ -140,30 +140,15 @@ mod tests {
     use super::*;
     const SEED: u64 = 42;
 
-    // Mock optimization function for testing
-    fn mock_opti_function(_vec: &[i32]) -> f64 {
-        0.0
-    }
-
     #[test]
     fn test_get_population_size() {
-        let ga = GeneticAlgorithm::new(
-            mock_opti_function,
-            10,
-            0.1,
-            0.9,
-            0.5,
-            2,
-            vec![0, 0],
-            vec![10, 10],
-        );
+        let ga = GeneticAlgorithm::new(10, 0.1, 0.9, 0.5, 2, vec![0, 0], vec![10, 10]);
         assert_eq!(ga.population_size, 10);
     }
 
     #[test]
     fn test_mutate() {
         let ga = GeneticAlgorithm::new(
-            mock_opti_function,
             2,   // Two individuals in population
             1.0, // 100% mutation rate for demonstration
             0.9,
@@ -194,7 +179,6 @@ mod tests {
     #[test]
     fn test_crossover() {
         let ga = GeneticAlgorithm::new(
-            mock_opti_function,
             2, // Two individuals for simplicity
             0.1,
             1.0, // 100% crossover rate for demonstration
@@ -225,7 +209,6 @@ mod tests {
     #[test]
     fn test_crossover_dimension_1() {
         let ga = GeneticAlgorithm::new(
-            mock_opti_function,
             2, // Two individuals for simplicity
             0.1,
             1.0, // 100% crossover rate
@@ -258,16 +241,7 @@ mod tests {
     fn test_reproduction_with_seeding() {
         // Helper function that generates and modifies a population using a seed.
         fn generate_population(seed: u64) -> Vec<Arm> {
-            let ga = GeneticAlgorithm::new(
-                mock_opti_function,
-                10,
-                0.1,
-                0.9,
-                0.5,
-                2,
-                vec![0, 0],
-                vec![10, 10],
-            );
+            let ga = GeneticAlgorithm::new(10, 0.1, 0.9, 0.5, 2, vec![0, 0], vec![10, 10]);
 
             let mut population = ga.generate_new_population(seed);
             population = ga.crossover(seed, &population);
