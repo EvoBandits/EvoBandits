@@ -42,7 +42,7 @@ In addition, an interest rate is also needed to calculate the NPV. With an `obje
 type of function, the user would need to explicitly handle this in the objective function.
 
 ```python
-from gmab import IntParam, FloatParam
+from evobandits import IntParam, FloatParam
 
 def objective(cash_flows: list, interest: float) -> float:
     return sum([cf / (1 + interest) ** t for t, cf in enumerate(cash_flows)])
@@ -62,7 +62,7 @@ ML models requires a variety of inputs, like in the example below.
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import silhouette_score
 
-from gmab import IntParam, FloatParam, CategoricalParam
+from evobandits import IntParam, FloatParam, CategoricalParam
 
 # Assume data is defined as x_train
 
@@ -83,16 +83,16 @@ params = {
 The Study class handles optimization and provides an interface to store parameters and results.
 
 ```python
-from gmab import Study
+from evobandits import Study
 
-study = gmab.Study(seed=42)
+study = evobandits.Study(seed=42)
 ```
 
 ## 3. Optimization
 
 Use `study.optimize()` to start optimization with given settings.
 
-Internally, the method will store and transform the user inputs for rust-gmab, and then create
+Internally, the method will store and transform the user inputs for rust-evobandits, and then create
 and execute the set number of algorithm instances. Finally, it will also collect the results.
 
 ```python

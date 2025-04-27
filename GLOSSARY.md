@@ -1,6 +1,6 @@
 # 📘 Glossary
 
-This glossary provides definitions of key terms related to the GMAB repository.
+This glossary provides definitions of key terms related to the EvoBandits repository.
 It is intended as a quick reference for contributors and users.
 
 ---
@@ -13,13 +13,13 @@ A discrete, integer decision vector that represents a distinct solution of the o
 
 #### Bounds
 
-A list of tuples that define the lower and upper bounds for each value of the action vector, and therefore, constrain the solution space for the optimization with GMAB. For problems that are modeled using the Python API, the bounds are derived from the specifications for the individual decision parameters that build the action vector.
+A list of tuples that define the lower and upper bounds for each value of the action vector, and therefore, constrain the solution space for the optimization with EvoBandits. For problems that are modeled using the Python API, the bounds are derived from the specifications for the individual decision parameters that build the action vector.
 
 #### Encoding / Decoding
 
-If the user defines a solution space using the Python API, an encoding step is necessary to convert the solution to an action vector that is usable for optimization with GMAB. This step is trivial for integer parameters; however, a discretization step for float parameters and label encoding for categorical parameters is required.
+If the user defines a solution space using the Python API, an encoding step is necessary to convert the solution to an action vector that is usable for optimization with EvoBandits. This step is trivial for integer parameters; however, a discretization step for float parameters and label encoding for categorical parameters is required.
 
-#### GMAB Algorithm Options
+#### EvoBandits Algorithm Options
 
 The user can modify the conditions for the optimization using the following keywords:
 - `population_size`: The number of starting solutions, and the number of individual solutions in a generation.
@@ -29,7 +29,7 @@ The user can modify the conditions for the optimization using the following keyw
 
 #### Optimization Function
 
-The optimization function (also: 'objective', or 'func') is defined by the user and **evaluated** multiple times during optimization with GMAB. The user also specifies constraints for the solution space (as decision parameters using the Python API or directly as bounds), as well as the conditions (for example, the simulation budget) for the optimization.
+The optimization function (also: 'objective', or 'func') is defined by the user and **evaluated** multiple times during optimization with EvoBandits. The user also specifies constraints for the solution space (as decision parameters using the Python API or directly as bounds), as well as the conditions (for example, the simulation budget) for the optimization.
 
 #### Trial
 
