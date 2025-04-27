@@ -1,4 +1,4 @@
-from gmab import Gmab, GmabSearchCV
+from evobandits import EvoBandits, EvoBanditsSearchCV
 
 
 def test_function(number: list) -> float:
@@ -16,9 +16,9 @@ def rosenbrock_function(number: list):
 
 if __name__ == "__main__":
     bounds = [(-5, 10), (-5, 10)]
-    gmab = Gmab(rosenbrock_function, bounds)
+    evobandits = EvoBandits(rosenbrock_function, bounds)
     evaluation_budget = 10000
-    result = gmab.optimize(evaluation_budget)
+    result = evobandits.optimize(evaluation_budget)
     print(result)
 
     from sklearn.datasets import load_iris
@@ -30,6 +30,6 @@ if __name__ == "__main__":
         "max_iter": (100, 200),
         "random_state": (0, 100),
     }
-    clf = GmabSearchCV(logistic, distributions)
+    clf = EvoBanditsSearchCV(logistic, distributions)
     search = clf.fit(iris.data, iris.target)
     print(search.best_params_)
