@@ -2,10 +2,6 @@ from collections.abc import Callable
 
 from evobandits import logging
 from evobandits.evobandits import (
-    CROSSOVER_RATE_DEFAULT,
-    MUTATION_RATE_DEFAULT,
-    MUTATION_SPAN_DEFAULT,
-    POPULATION_SIZE_DEFAULT,
     EvoBandits,
 )
 from evobandits.params import BaseParam
@@ -21,7 +17,9 @@ class Study:
     and to manage user-defined attributes related to the study.
     """
 
-    def __init__(self, seed: int | None = None, algorithm=EvoBandits) -> None:
+    ALGORITHM_DEFAULT = EvoBandits()
+
+    def __init__(self, seed: int | None = None, algorithm=ALGORITHM_DEFAULT) -> None:
         """
         Initialize a Study instance.
 
@@ -91,10 +89,6 @@ class Study:
         func: Callable,
         params: dict,
         trials: int,
-        population_size: int = POPULATION_SIZE_DEFAULT,
-        mutation_rate: float = MUTATION_RATE_DEFAULT,
-        crossover_rate: float = CROSSOVER_RATE_DEFAULT,
-        mutation_span: float = MUTATION_SPAN_DEFAULT,
     ) -> None:
         """
         Optimize the objective function.
@@ -119,16 +113,7 @@ class Study:
         for param in self.params.values():
             bounds.extend(param.bounds)
 
-        evobandit = self._algorithm(
-            self._run_trial,
-            bounds,
-            seed=self.seed,
-            population_size=population_size,
-            mutation_rate=mutation_rate,
-            crossover_rate=crossover_rate,
-            mutation_span=mutation_span,
-        )
-        best_action_vector = evobandit.optimize(trials)
+        best_action_vector = self._algorithm.optimize(self._run_trial, bounds, trials, self.seed)
 
         self._best_trial = self._map_to_solution(best_action_vector)
         _logger.info("completed")

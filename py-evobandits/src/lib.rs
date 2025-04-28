@@ -79,9 +79,6 @@ impl EvoBandits {
     ) -> PyResult<Vec<i32>> {
         let py_opti_function = PythonOptimizationFn::new(py_func);
 
-        // --- DO NOT WRAP WHOLE FUNCTION ---
-        // Only wrap the *call* to evobandits.optimize itself
-
         let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             self.evobandits
                 .optimize(py_opti_function, bounds, simulation_budget, seed)
