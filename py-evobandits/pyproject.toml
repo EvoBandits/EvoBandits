@@ -15,7 +15,6 @@ dependencies = []
 
 [project.optional-dependencies]
 sklearn = ["scikit-learn"]
-test = ["scikit-learn"]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
