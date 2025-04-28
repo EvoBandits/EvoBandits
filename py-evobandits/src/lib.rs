@@ -44,14 +44,12 @@ impl EvoBandits {
         mutation_rate=MUTATION_RATE_DEFAULT,
         crossover_rate=CROSSOVER_RATE_DEFAULT,
         mutation_span=MUTATION_SPAN_DEFAULT,
-        seed=None,
     ))]
     fn new(
         population_size: Option<usize>,
         mutation_rate: Option<f64>,
         crossover_rate: Option<f64>,
         mutation_span: Option<f64>,
-        seed: Option<u64>,
     ) -> PyResult<Self> {
         let genetic_algorithm = GeneticAlgorithm {
             population_size: population_size.unwrap(),
@@ -60,19 +58,26 @@ impl EvoBandits {
             mutation_span: mutation_span.unwrap(),
             ..Default::default()
         };
-        let evobandits = RustEvoBandits::new(genetic_algorithm, seed);
+        let evobandits = RustEvoBandits::new(genetic_algorithm);
         Ok(EvoBandits { evobandits })
     }
 
+    #[pyo3(signature = (
+        py_func,
+        bounds,
+        simulation_budget,
+        seed=None,
+    ))]
     fn optimize(
         &mut self,
         py_func: PyObject,
         bounds: Vec<(i32, i32)>,
         simulation_budget: usize,
+        seed: Option<u64>,
     ) -> Vec<i32> {
         let py_opti_function = PythonOptimizationFn::new(py_func);
         self.evobandits
-            .optimize(py_opti_function, bounds, simulation_budget)
+            .optimize(py_opti_function, bounds, simulation_budget, seed)
     }
 }
 

@@ -329,8 +329,8 @@ mod tests {
             crossover_rate: 0.9,
             mutation_span: 1.0,
             dimension: 2,
-            upper_bound: vec![0, 0],
-            lower_bound: vec![10, 10],
+            lower_bound: vec![0, 0],
+            upper_bound: vec![10, 10],
         };
 
         let initial_population = vec![Arm::new(&vec![1, 1]), Arm::new(&vec![2, 2])];
@@ -422,8 +422,8 @@ mod tests {
                 crossover_rate: 0.9,
                 mutation_span: 1.0,
                 dimension: 2,
-                upper_bound: vec![0, 0],
-                lower_bound: vec![10, 10],
+                lower_bound: vec![0, 0],
+                upper_bound: vec![10, 10],
             };
 
             let mut population = ga.generate_new_population(seed);

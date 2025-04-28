@@ -11,15 +11,10 @@ pub struct EvoBandits {
     arm_memory: Vec<Arm>,
     lookup_table: HashMap<Vec<i32>, i32>,
     genetic_algorithm: GeneticAlgorithm,
-    rng: StdRng,
 }
 
 impl EvoBandits {
-    pub fn new(genetic_algorithm: GeneticAlgorithm, seed: Option<u64>) -> EvoBandits {
-        // Unwrap seed or fall back to system entropy
-        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
-        let rng: StdRng = SeedableRng::seed_from_u64(seed);
-
+    pub fn new(genetic_algorithm: GeneticAlgorithm) -> EvoBandits {
         let arm_memory: Vec<Arm> = Vec::new();
         let lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
@@ -29,7 +24,6 @@ impl EvoBandits {
             arm_memory,
             lookup_table,
             genetic_algorithm,
-            rng,
         }
     }
 
@@ -136,9 +130,8 @@ impl EvoBandits {
         }
     }
 
-    fn initialize_population<F: OptimizationFn>(&mut self, opti_function: &F) {
-        let next_seed = self.rng.next_u64();
-        let mut initial_population = self.genetic_algorithm.generate_new_population(next_seed);
+    fn initialize_population<F: OptimizationFn>(&mut self, seed: u64, opti_function: &F) {
+        let mut initial_population = self.genetic_algorithm.generate_new_population(seed);
 
         for (index, individual) in initial_population.iter_mut().enumerate() {
             individual.pull(opti_function);
@@ -155,11 +148,19 @@ impl EvoBandits {
         opti_function: F,
         bounds: Vec<(i32, i32)>,
         simulation_budget: usize,
+        seed: Option<u64>,
     ) -> Vec<i32> {
-        // Set the bounds, initialize population and check the algorithm configuration
+        // Unwrap seed or fall back to system entropy
+        let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
+        let mut rng: StdRng = SeedableRng::seed_from_u64(seed);
+
+        // Set the bounds and check the algorithm configuration
         self.genetic_algorithm.set_bounds(bounds);
         self.genetic_algorithm.validate();
-        self.initialize_population(&opti_function);
+
+        // Initialize the Population for the Optimization
+        let next_seed = rng.next_u64();
+        self.initialize_population(next_seed, &opti_function);
 
         // Run Optimization
         let verbose = false;
@@ -178,13 +179,13 @@ impl EvoBandits {
                 });
 
             // shuffle population
-            population.shuffle(&mut self.rng);
+            population.shuffle(&mut rng);
 
-            let next_seed = self.rng.next_u64();
+            let next_seed = rng.next_u64();
             let crossover_pop = self.genetic_algorithm.crossover(next_seed, &population);
 
             // mutate automatically removes duplicates
-            let next_seed = self.rng.next_u64();
+            let next_seed = rng.next_u64();
             let mutated_pop = self.genetic_algorithm.mutate(next_seed, &crossover_pop);
 
             for individual in mutated_pop {
@@ -293,8 +294,8 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga, None);
-        evobandits.initialize_population(&mock_opti_function);
+        let mut evobandits = EvoBandits::new(ga);
+        evobandits.initialize_population(0, &mock_opti_function);
 
         assert_eq!(evobandits.genetic_algorithm.population_size, 10);
         assert_eq!(evobandits.arm_memory.len(), 10);
@@ -319,7 +320,7 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga, None);
+        let mut evobandits = EvoBandits::new(ga);
         let arm = Arm::new(&vec![1, 2]);
         evobandits.arm_memory.push(arm.clone());
         evobandits
@@ -339,8 +340,8 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga, None);
-        evobandits.initialize_population(&mock_opti_function);
+        let mut evobandits = EvoBandits::new(ga);
+        evobandits.initialize_population(0, &mock_opti_function);
         assert_eq!(evobandits.max_number_pulls(), 1);
     }
 
@@ -355,8 +356,8 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga, None);
-        evobandits.initialize_population(&mock_opti_function);
+        let mut evobandits = EvoBandits::new(ga);
+        evobandits.initialize_population(0, &mock_opti_function);
         assert_eq!(evobandits.find_best_ucb(100), 0);
     }
 
@@ -371,7 +372,7 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga, None);
+        let mut evobandits = EvoBandits::new(ga);
 
         let arm = Arm::new(&vec![1, 2]);
         evobandits.arm_memory.push(arm.clone());
@@ -402,8 +403,8 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga, None);
-        evobandits.initialize_population(&mock_opti_function);
+        let mut evobandits = EvoBandits::new(ga);
+        evobandits.initialize_population(0, &mock_opti_function);
 
         let arm = Arm::new(&vec![1, 2]);
         evobandits.arm_memory.push(arm.clone());
@@ -433,8 +434,8 @@ mod tests {
         // Helper function that generates a evobandits result based on a specific seed.
         fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
-            let mut evobandits = EvoBandits::new(Default::default(), seed);
-            let result = evobandits.optimize(mock_opti_function, bounds, 100);
+            let mut evobandits = EvoBandits::new(Default::default());
+            let result = evobandits.optimize(mock_opti_function, bounds, 100, seed);
             return result;
         }
 
@@ -463,7 +464,7 @@ mod tests {
         };
 
         // Panics only, if validation from GmabOptions is integrated
-        let mut evobandits = EvoBandits::new(ga, None);
-        evobandits.optimize(mock_opti_function, bounds, 1);
+        let mut evobandits = EvoBandits::new(ga);
+        evobandits.optimize(mock_opti_function, bounds, 1, None);
     }
 }
