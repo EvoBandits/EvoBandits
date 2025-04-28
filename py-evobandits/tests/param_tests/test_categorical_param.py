@@ -42,7 +42,7 @@ def test_cat_param(choices, exp_bounds, expectation):
 
         # Check if the exact choices are recreated using the mapping
         for idx in range(bounds[0][0], bounds[0][1] + 1):
-            value = param.map_to_value([idx])
+            value = param.decode([idx])
             exp_value = choices[idx]
             assert value == exp_value
             assert isinstance(value, type(exp_value))

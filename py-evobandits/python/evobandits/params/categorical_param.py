@@ -58,9 +58,9 @@ class CategoricalParam(BaseParam):
         """
         return [(0, len(self.choices) - 1)]
 
-    def map_to_value(self, actions: list[int]) -> ChoiceType | list[ChoiceType]:
+    def decode(self, actions: list[int]) -> ChoiceType | list[ChoiceType]:
         """
-        Maps an action from the optimization problem to the value of the parameter.
+        Decodes an action from the optimization problem to the value of the parameter.
 
         Args:
             actions (list[int]): A list of integers to map.

@@ -63,7 +63,8 @@ impl<F: OptimizationFn> GeneticAlgorithm<F> {
         let population_size = self.population_size;
         let mut rng: StdRng = SeedableRng::seed_from_u64(seed);
 
-        for i in (0..population_size).step_by(2) {
+        let step = 2;
+        for i in (0..population_size - (population_size % step)).step_by(step) {
             if rng.random::<f64>() < self.crossover_rate && self.dimension > 1 {
                 // Crossover
                 let max_dim_index = self.dimension - 1;

@@ -1,31 +1,7 @@
 # Vision for py-evobandits interface
 Suggestions how a user interface for py-evobanits can be implemented. Feel free to comment!
 
-## Vocabulary
-
-- **Value**: Corresponds to an actual value of a parameter of the user's objective function.
-The value is valid within the specified constraints (type, limits, size) of the parameter.
-- **Solution**: A set of values that can be used as (valid) input for the objective function.
-- **Action**: The internal, integer representation of a parameter's value that evobandits uses for
-optimization. An action always corresponds to one distint value for a parameter.
-- **Bounds**: The internal, integer representation of a parameter's constraints (limits, size) that
-is used by evobandits. The bounds constrain the selection (=sampling, mutation) of actions.
-- **Action Vector**: A set of actions that serve as internal representation of one distinct solution.
-- **Mapping**: Translation of an action (action_vector) to it's value (solution), or reversed.
-
-## 1. Import EvoBandits and create a Study
-
-Use `initialize()` to initialize instances of `Study`, which is a class that handles algorithm
-control. Additionally, procedures for defining parameters can be imported separately.
-
-```python
-import evobandits
-from evobandits import IntParam, FloatParam, CategoricalParam
-
-study = evobandits.initialize(seed=42)
-```
-
-## 2. Define objective and bounds
+## 1. Define objective and bounds
 
 The direct interface with rust uses a list of integers as action_vector, where a tuple `(low, high)`
 defines the bounds for each element of the action_vector. The action_vector is then used to
@@ -50,18 +26,9 @@ if __name__ == "__main__":
     ...
 ```
 
-While this works well for an objective function with one integer decision vector, users will
-expect an interface that enables dynamically setting bounds for multiple parameters and types.
-
-Internally, this will require:
-
-* Handling and checking the user's inputs to create the `bounds` tuple that is expected by
-rust-evobandits when starting the optimization.
-* For each simulation, mapping the action_vector generated in rust to the `kwargs` of the objective.
-* For example, the value `1` in the action_vector will be mapped to `10` if the parameter is
-configured with `IntParam(low=0, high=100, steps=10)`.
-* Alternatively, the value `1` in the action_vector will be mapped to `manhattan` if the
-parameter is configured with `CategoricalParam(["euclidean", "manhattan", "canberra"])`.
+To simplify the modeling of complex decision problems, with different types of parameters, a
+python interface is provided that verifies the user's input, creates bounds for the optimization,
+and handles the discretisation of floata parameters and label encoding of categorical parameters among other things.
 
 Below are two examples to illustrate how users will be able to define the objective and the
 params.
@@ -75,6 +42,8 @@ In addition, an interest rate is also needed to calculate the NPV. With an `obje
 type of function, the user would need to explicitly handle this in the objective function.
 
 ```python
+from evobandits import IntParam, FloatParam
+
 def objective(cash_flows: list, interest: float) -> float:
     return sum([cf / (1 + interest) ** t for t, cf in enumerate(cash_flows)])
 
@@ -93,6 +62,8 @@ ML models requires a variety of inputs, like in the example below.
 from sklearn.cluster import DBSCAN
 from sklearn.metrics import silhouette_score
 
+from evobandits import IntParam, FloatParam, CategoricalParam
+
 # Assume data is defined as x_train
 
 def objective(eps: float, min_samples:int, metric: str) -> float:
@@ -107,37 +78,28 @@ params = {
 }
 ```
 
+## 2. Create a Study
+
+The Study class handles optimization and provides an interface to store parameters and results.
+
+```python
+from evobandits import Study
+
+study = evobandits.Study(seed=42)
+```
+
 ## 3. Optimization
 
 Use `study.optimize()` to start optimization with given settings.
-
-Names for settings are (somewhat) based on:
-
-* [optuna.study.Study](https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study)
-* [optuna.samplers.NSGAIISampler](https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.NSGAIISampler.html)
-
-
-| Name              | Description                                                             |
-|-------------------|-------------------------------------------------------------------------|
-| implemented       |                                                                         |
-| `trials`          | Maximum number of simulations per algorithm instance                    |
-| tbd.              |                                                                         |
-| `max_time`        | Maximum execution time per algorithm instance                           |
-| `population_size` | Number of individuals (trials) in a generation                          |
-| `crossover_rate`  | Probability for a crossover (exchange of values between individuals)    |
-| `mutation_rate`   | Probability for a mutation (change to a value of an individual)         |
-| `mutation_span`   | Sets how much a value is altered during mutation                        |
-| `...`             | Other parameters to set verbose, parallelization, name, ...             |
-
 
 Internally, the method will store and transform the user inputs for rust-evobandits, and then create
 and execute the set number of algorithm instances. Finally, it will also collect the results.
 
 ```python
-study.optimize(objective, params, n_simulations=10000, popsize=100, ...)
+study.optimize(objective, params, trials=10000, population_size=100, ...)
 ```
 
-## 4. Access the results (additional features TBD.)
+## 4. Access the results (TBD.)
 
 Use `study.best_trial()` to output the best result that has been returned.
 

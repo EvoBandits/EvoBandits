@@ -50,9 +50,9 @@ class Study:
             raise RuntimeError("best_trial is not available yet. Run study.optimize().")
         return self._best_trial
 
-    def _map_to_solution(self, action_vector: list) -> dict:
+    def _decode(self, action_vector: list) -> dict:
         """
-        Map an action vector to a dictionary that contains the solution value for each parameter.
+        Decodes an action vector to a dictionary that contains the solution for each parameter.
 
         Args:
             action_vector (list): A list of actions to map.
@@ -63,7 +63,7 @@ class Study:
         result = {}
         idx = 0
         for key, param in self.params.items():
-            result[key] = param.map_to_value(action_vector[idx : idx + param.size])
+            result[key] = param.decode(action_vector[idx : idx + param.size])
             idx += param.size
         return result
 
@@ -103,5 +103,5 @@ class Study:
         evobandits = self._algorithm(self._run_trial, bounds, self.seed)
         best_action_vector = evobandits.optimize(trials)
 
-        self._best_trial = self._map_to_solution(best_action_vector)
+        self._best_trial = self._decode(best_action_vector)
         _logger.info("completed")
