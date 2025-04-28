@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Logo.webp" alt="EvoBandits" width="200"/>
+  <img src="https://raw.githubusercontent.com/EvoBandits/EvoBandits/refs/heads/main/Logo.webp" alt="EvoBandits" width="200"/>
 </p>
 
 <p align="center">
@@ -18,25 +18,8 @@ EvoBandits (Evolutionary Multi-Armed Bandits) is an innovative optimization algo
 ## Usage
 To install EvoBandits, add the following to your Cargo.toml file:
 
-```toml
-[dependencies]
-evobandits = { git = "https://github.com/E-MAB/G-MAB.git" }
-```
-
-```rust
-use evobandits::evobandits::EvoBandits;
-
-fn your_function(x: &[f64]) -> f64 {
-    // your function here
-}
-
-fn main() {
-    let bounds = vec![(1, 100), (1, 100)];
-    let mut evobandits = EvoBandits::new(your_function, bounds);
-    let evaluation_budget = 10000;
-    let result = evobandits.optimize(eval_budget);
-    println!("Result: {:?}", result);
-}
+```bash
+pip install evobandits
 ```
 
 ```python

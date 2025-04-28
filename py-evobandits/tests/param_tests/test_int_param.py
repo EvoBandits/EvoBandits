@@ -23,5 +23,5 @@ def test_int_param(low, high, kwargs, exp_bounds, exp_values):
         # Check if the expected values can be generated from the bounds
         values = []
         for x in range(bounds[0][0], bounds[0][1] + 1):
-            values.append(param.map_to_value([x]))
+            values.append(param.decode([x]))
         assert values == exp_values
