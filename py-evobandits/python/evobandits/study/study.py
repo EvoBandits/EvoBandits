@@ -84,12 +84,7 @@ class Study:
         solution = self._map_to_solution(action_vector)
         return self.func(**solution)
 
-    def optimize(
-        self,
-        func: Callable,
-        params: dict,
-        trials: int,
-    ) -> None:
+    def optimize(self, func: Callable, params: dict, trials: int) -> None:
         """
         Optimize the objective function.
 
@@ -100,10 +95,6 @@ class Study:
             func (Callable): The objective function to optimize.
             params (dict): A dictionary of parameters with their bounds.
             trials (int): The number of trials to run.
-            population_size (int): The population size for the GMAB algorithm. Default is 20.
-            mutation_rate (float): The mutation rate for the GMAB algorithm. Default is 0.25.
-            crossover_rate (float): The crossover rate for the GMAB algorithm. Default is 1.0.
-            mutation_span (float): The mutation span for the GMAB algorithm. Default is 0.1
         """
         self.func = func  # ToDo: Add input validation
         self.params = params  # ToDo: Add input validation
