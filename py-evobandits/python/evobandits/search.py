@@ -1,6 +1,7 @@
-from evobandits.evobandits import EvoBandits
-from sklearn.model_selection._search import BaseSearchCV
 import numpy as np
+from sklearn.model_selection._search import BaseSearchCV
+
+from evobandits.evobandits import EvoBandits
 
 
 # https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/model_selection/_search.py#L433
@@ -80,8 +81,10 @@ class EvoBanditsSearchCV(BaseSearchCV):
             return mean_score * -1
 
         # 3) Create the EvoBandits optimizer and search for the best param configuration
-        evobandits_opt = EvoBandits(evobandits_objective, bounds)
-        best_action_vector = evobandits_opt.optimize(self.evobandits_iterations)
+        evobandits_opt = EvoBandits()
+        best_action_vector = evobandits_opt.optimize(
+            evobandits_objective, bounds, self.evobandits_iterations
+        )
 
         # 4) Evaluate the best param set again (so scikit-learn knows about it)
         best_dict = {}

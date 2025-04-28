@@ -9,7 +9,7 @@ SEED = 42
 POPULATION_SIZE = 10
 MUTATION_RATE = 0.1
 CROSSOVER_RATE = 0.9
-MUTATION_SPAN = 1.1
+MUTATION_SPAN = 1.0
 
 
 @pytest.mark.parametrize(
@@ -25,7 +25,7 @@ MUTATION_SPAN = 1.1
         [[(0, 10), (0, 10)], 100, {"mutation_rate": -0.1, "exp": pytest.raises(RuntimeError)}],
         [[(0, 10), (0, 10)], 100, {"crossover_rate": 1.1, "exp": pytest.raises(RuntimeError)}],
         [[(0, 10), (0, 10)], 100, {"mutation_span": -0.1, "exp": pytest.raises(RuntimeError)}],
-        [[(0, 1), (0, 1)], None, {"exp": pytest.raises(RuntimeError)}],
+        [[(0, 1), (0, 1)], 100, {"exp": pytest.raises(RuntimeError)}],
     ],
     ids=[
         "success",
@@ -43,6 +43,7 @@ MUTATION_SPAN = 1.1
 )
 def test_evobandits(bounds, budget, kwargs):
     expectation = kwargs.pop("exp", nullcontext())
+    seed = kwargs.pop("seed", None)
     with expectation:
-        evobandits = EvoBandits(rb.function, bounds, **kwargs)
-        _ = evobandits.optimize(budget)
+        evobandits = EvoBandits(**kwargs)
+        _ = evobandits.optimize(rb.function, bounds, budget, seed)
