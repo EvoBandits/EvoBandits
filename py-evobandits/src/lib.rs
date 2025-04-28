@@ -1,5 +1,7 @@
+use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use pyo3::types::PyList;
+use std::panic;
 
 use evobandits_rust::arm::OptimizationFn;
 use evobandits_rust::evobandits::EvoBandits as RustEvoBandits;
@@ -74,10 +76,31 @@ impl EvoBandits {
         bounds: Vec<(i32, i32)>,
         simulation_budget: usize,
         seed: Option<u64>,
-    ) -> Vec<i32> {
+    ) -> PyResult<Vec<i32>> {
         let py_opti_function = PythonOptimizationFn::new(py_func);
-        self.evobandits
-            .optimize(py_opti_function, bounds, simulation_budget, seed)
+
+        // --- DO NOT WRAP WHOLE FUNCTION ---
+        // Only wrap the *call* to evobandits.optimize itself
+
+        let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            self.evobandits
+                .optimize(py_opti_function, bounds, simulation_budget, seed)
+        }));
+
+        match result {
+            Ok(v) => Ok(v),
+            Err(err) => {
+                if let Some(s) = err.downcast_ref::<&str>() {
+                    Err(PyRuntimeError::new_err(format!("{}", s)))
+                } else if let Some(s) = err.downcast_ref::<String>() {
+                    Err(PyRuntimeError::new_err(format!("{}", s)))
+                } else {
+                    Err(PyRuntimeError::new_err(
+                        "EvoBandits Core raised an Error with unknown cause.",
+                    ))
+                }
+            }
+        }
     }
 }
 

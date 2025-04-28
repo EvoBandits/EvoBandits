@@ -162,9 +162,9 @@ impl Default for GeneticAlgorithm {
             crossover_rate: CROSSOVER_RATE_DEFAULT,
             mutation_span: MUTATION_SPAN_DEFAULT,
             population_size: POPULATION_SIZE_DEFAULT,
-            dimension: 1,         // Dummy value for dimension
-            lower_bound: vec![0], // Dummy lower bound
-            upper_bound: vec![1], // Dummy upper bound
+            dimension: 1,
+            lower_bound: vec![0],
+            upper_bound: vec![1],
         }
     }
 }
