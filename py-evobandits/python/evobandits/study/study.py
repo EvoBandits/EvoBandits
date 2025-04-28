@@ -81,7 +81,7 @@ class Study:
         Returns:
             float: The result of the objective function.
         """
-        solution = self._map_to_solution(action_vector)
+        solution = self._decode(action_vector)
         return self.func(**solution)
 
     def optimize(self, func: Callable, params: dict, trials: int) -> None:
