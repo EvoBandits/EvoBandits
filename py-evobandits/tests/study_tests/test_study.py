@@ -5,11 +5,11 @@ from unittest.mock import MagicMock
 import pytest
 from evobandits.study import Study
 
-from tests._functions import clustering as cl
-from tests._functions import rosenbrock as rb
-
 if importlib.util.find_spec("sklearn") is None:
     pytest.skip("sklearn not installed", allow_module_level=True)
+
+from tests._functions import clustering as cl
+from tests._functions import rosenbrock as rb
 
 # ToDo: Add tests for output formats and properties
 
