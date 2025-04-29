@@ -7,6 +7,8 @@ from evobandits.study import Study
 
 if importlib.util.find_spec("sklearn") is None:
     pytest.skip("sklearn not installed", allow_module_level=True)
+    # This functions as a feature flag for musllinux, as sklearn is not available for musllinux
+    # because of the glibc dependency
 
 from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb

@@ -29,7 +29,7 @@ dependencies = []
 
 [project.optional-dependencies]
 sklearn = ["scikit-learn"]
-test = ["pytest", "scikit-learn"]
+test = ["pytest", "scikit-learn"] # see weird behavior with musllinux
 
 [project.urls]
 Documentation = "https://evobandits.github.io/EvoBandits/"

@@ -1,6 +1,7 @@
 # differences to the original file:
 # - added manifest path to the maturin-action
 # - commented out not so popular platforms (could be added if someone needs them)
+# - we install ourPackage[test] only on platforms that support sklearn at the moment
 
 name: Test & Build Python
 
