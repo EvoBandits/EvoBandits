@@ -1,7 +1,9 @@
 from collections.abc import Callable
 
 from evobandits import logging
-from evobandits.evobandits import EvoBandits
+from evobandits.evobandits import (
+    EvoBandits,
+)
 from evobandits.params import BaseParam
 
 _logger = logging.get_logger(__name__)
@@ -15,7 +17,9 @@ class Study:
     and to manage user-defined attributes related to the study.
     """
 
-    def __init__(self, seed: int | None = None, algorithm=EvoBandits) -> None:
+    ALGORITHM_DEFAULT = EvoBandits()
+
+    def __init__(self, seed: int | None = None, algorithm=ALGORITHM_DEFAULT) -> None:
         """
         Initialize a Study instance.
 
@@ -77,7 +81,7 @@ class Study:
         Returns:
             float: The result of the objective function.
         """
-        solution = self._map_to_solution(action_vector)
+        solution = self._decode(action_vector)
         return self.func(**solution)
 
     def optimize(self, func: Callable, params: dict, trials: int) -> None:
@@ -100,8 +104,7 @@ class Study:
         for param in self.params.values():
             bounds.extend(param.bounds)
 
-        evobandits = self._algorithm(self._run_trial, bounds, self.seed)
-        best_action_vector = evobandits.optimize(trials)
+        best_action_vector = self._algorithm.optimize(self._run_trial, bounds, trials, self.seed)
 
         self._best_trial = self._decode(best_action_vector)
         _logger.info("completed")

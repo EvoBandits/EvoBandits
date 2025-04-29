@@ -5,6 +5,10 @@ use std::panic;
 
 use evobandits_rust::arm::OptimizationFn;
 use evobandits_rust::evobandits::EvoBandits as RustEvoBandits;
+use evobandits_rust::genetic::{
+    GeneticAlgorithm, CROSSOVER_RATE_DEFAULT, MUTATION_RATE_DEFAULT, MUTATION_SPAN_DEFAULT,
+    POPULATION_SIZE_DEFAULT,
+};
 
 struct PythonOptimizationFn {
     py_func: PyObject,
@@ -31,38 +35,80 @@ impl OptimizationFn for PythonOptimizationFn {
 
 #[pyclass]
 struct EvoBandits {
-    evobandits: RustEvoBandits<PythonOptimizationFn>,
+    evobandits: RustEvoBandits,
 }
 
 #[pymethods]
 impl EvoBandits {
     #[new]
-    #[pyo3(signature = (py_func, bounds, seed=None))]
-    fn new(py_func: PyObject, bounds: Vec<(i32, i32)>, seed: Option<u64>) -> PyResult<Self> {
-        let python_opti_fn = PythonOptimizationFn::new(py_func);
-
-        match panic::catch_unwind(|| RustEvoBandits::new(python_opti_fn, bounds, seed)) {
-            Ok(evobandits) => Ok(EvoBandits { evobandits }),
-            Err(err) => {
-                let err_message = if let Some(msg) = err.downcast_ref::<&str>() {
-                    format!("evobandits core raised an exception: {}", msg)
-                } else if let Some(msg) = err.downcast_ref::<String>() {
-                    format!("evobandits core raised an exception: {}", msg)
-                } else {
-                    "evobandits core raised an exception (unknown cause)".to_string()
-                };
-                Err(PyRuntimeError::new_err(err_message))
-            }
-        }
+    #[pyo3(signature = (
+        population_size=POPULATION_SIZE_DEFAULT,
+        mutation_rate=MUTATION_RATE_DEFAULT,
+        crossover_rate=CROSSOVER_RATE_DEFAULT,
+        mutation_span=MUTATION_SPAN_DEFAULT,
+    ))]
+    fn new(
+        population_size: Option<usize>,
+        mutation_rate: Option<f64>,
+        crossover_rate: Option<f64>,
+        mutation_span: Option<f64>,
+    ) -> PyResult<Self> {
+        let genetic_algorithm = GeneticAlgorithm {
+            population_size: population_size.unwrap(),
+            mutation_rate: mutation_rate.unwrap(),
+            crossover_rate: crossover_rate.unwrap(),
+            mutation_span: mutation_span.unwrap(),
+            ..Default::default()
+        };
+        let evobandits = RustEvoBandits::new(genetic_algorithm);
+        Ok(EvoBandits { evobandits })
     }
 
-    fn optimize(&mut self, simulation_budget: usize) -> Vec<i32> {
-        self.evobandits.optimize(simulation_budget)
+    #[pyo3(signature = (
+        py_func,
+        bounds,
+        simulation_budget,
+        seed=None,
+    ))]
+    fn optimize(
+        &mut self,
+        py_func: PyObject,
+        bounds: Vec<(i32, i32)>,
+        simulation_budget: usize,
+        seed: Option<u64>,
+    ) -> PyResult<Vec<i32>> {
+        let py_opti_function = PythonOptimizationFn::new(py_func);
+
+        let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            self.evobandits
+                .optimize(py_opti_function, bounds, simulation_budget, seed)
+        }));
+
+        match result {
+            Ok(v) => Ok(v),
+            Err(err) => {
+                if let Some(s) = err.downcast_ref::<&str>() {
+                    Err(PyRuntimeError::new_err(format!("{}", s)))
+                } else if let Some(s) = err.downcast_ref::<String>() {
+                    Err(PyRuntimeError::new_err(format!("{}", s)))
+                } else {
+                    Err(PyRuntimeError::new_err(
+                        "EvoBandits Core raised an Error with unknown cause.",
+                    ))
+                }
+            }
+        }
     }
 }
 
 #[pymodule]
 fn evobandits(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<EvoBandits>()?;
+
+    m.add("POPULATION_SIZE_DEFAULT", POPULATION_SIZE_DEFAULT)?;
+    m.add("MUTATION_RATE_DEFAULT", MUTATION_RATE_DEFAULT)?;
+    m.add("CROSSOVER_RATE_DEFAULT", CROSSOVER_RATE_DEFAULT)?;
+    m.add("MUTATION_SPAN_DEFAULT", MUTATION_SPAN_DEFAULT)?;
+
     Ok(())
 }

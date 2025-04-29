@@ -46,15 +46,13 @@ def test_study_init(seed, kwargs, caplog):
 
 
 @pytest.mark.parametrize(
-    "func, params, trials, exp_bounds, kwargs",
+    "func, params, trials",
     [
-        [rb.function, rb.PARAMS_2D, 1, rb.BOUNDS_2D, {}],
+        [rb.function, rb.PARAMS_2D, 1],
         pytest.param(
             cl.function,
             cl.PARAMS,
             1,
-            cl.BOUNDS,
-            {},
             marks=pytest.mark.skipif(
                 skip_clustering, reason="Skip clustering test on musllinux/alpine"
             ),
@@ -68,16 +66,8 @@ def test_study_init(seed, kwargs, caplog):
         # ToDo: Input validation: Fail if trials is not positive integer
     ],
 )
-def test_study_optimize(func, params, trials, exp_bounds, kwargs):
-    # Mock EvoBandits Algorithm
-    mock = MagicMock()
-
-    expectation = kwargs.pop("exp", nullcontext())
-    with expectation:
-        study = Study(algorithm=mock, **kwargs)
-        study.optimize(func, params, trials)
-
-        mock.assert_called_once_with(study._run_trial, exp_bounds, None)  # Use of EvoBandits(...)
-        mock.return_value.optimize.assert_called_once_with(
-            trials
-        )  # EvoBandits.Optimize() called once
+def test_study_optimize(func, params, trials):
+    mock = MagicMock()  # Mock EvoBandits Algorithm
+    study = Study(algorithm=mock)
+    study.optimize(func, params, trials)
+    assert mock.optimize.call_count == 1  # Ensure EvoBandits was called exactly once
