@@ -9,6 +9,15 @@ Last accessed: 2025-04-18
 Version: 1.6.1
 """
 
+import sys
+
+import pytest
+
+pytest.mark.skipif(
+    "musllinux" in sys.platform or "alpine" in sys.platform,
+    reason="does not run on musllinux because sklearn not available due to musl libc",
+)
+
 import numpy as np
 from evobandits import CategoricalParam, FloatParam, IntParam
 from sklearn.cluster import KMeans, MiniBatchKMeans
