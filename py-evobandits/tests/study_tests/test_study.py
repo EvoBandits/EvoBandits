@@ -1,5 +1,4 @@
-import platform
-import sys
+import importlib.util
 from contextlib import nullcontext
 from unittest.mock import MagicMock
 
@@ -9,9 +8,8 @@ from evobandits.study import Study
 from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb
 
-is_musllinux = "musllinux" in sys.platform
-is_alpine = "alpine" in platform.platform().lower()
-skip_clustering = is_musllinux or is_alpine
+if importlib.util.find_spec("sklearn") is None:
+    pytest.skip("sklearn not installed", allow_module_level=True)
 
 # ToDo: Add tests for output formats and properties
 
@@ -49,14 +47,7 @@ def test_study_init(seed, kwargs, caplog):
     "func, params, trials",
     [
         [rb.function, rb.PARAMS_2D, 1],
-        pytest.param(
-            cl.function,
-            cl.PARAMS,
-            1,
-            marks=pytest.mark.skipif(
-                skip_clustering, reason="Skip clustering test on musllinux/alpine"
-            ),
-        ),
+        [cl.function, cl.PARAMS, 1],
     ],
     ids=[
         "try_rosenbrock",  # Simple case with one integer parameter
