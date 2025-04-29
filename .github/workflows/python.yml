@@ -72,7 +72,7 @@ jobs:
           githubToken: ${{ github.token }}
           install: |
             apt-get update
-            apt-get install -y --no-install-recommends python3 python3-pip
+            apt-get install -y --no-install-recommends python3 python3-pip python3-sklearn python3-sklearn-lib
             pip3 install -U pip pytest
           run: |
             set -e
@@ -118,6 +118,7 @@ jobs:
           run: |
             set -e
             apk add py3-pip py3-virtualenv
+            apk add py3-scikit-learn
             python3 -m virtualenv .venv
             source .venv/bin/activate
             pip install evobandits --no-index --find-links dist --force-reinstall
@@ -131,7 +132,7 @@ jobs:
           distro: alpine_latest
           githubToken: ${{ github.token }}
           install: |
-            apk add py3-virtualenv
+            apk add py3-virtualenv py3-scikit-learn
           run: |
             set -e
             python3 -m virtualenv .venv
