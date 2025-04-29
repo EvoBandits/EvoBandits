@@ -1,3 +1,5 @@
+import platform
+import sys
 from contextlib import nullcontext
 from unittest.mock import MagicMock
 
@@ -6,6 +8,10 @@ from evobandits.study import Study
 
 from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb
+
+is_musllinux = "musllinux" in sys.platform
+is_alpine = "alpine" in platform.platform().lower()
+skip_clustering = is_musllinux or is_alpine
 
 # ToDo: Add tests for output formats and properties
 
@@ -43,7 +49,16 @@ def test_study_init(seed, kwargs, caplog):
     "func, params, trials, exp_bounds, kwargs",
     [
         [rb.function, rb.PARAMS_2D, 1, rb.BOUNDS_2D, {}],
-        [cl.function, cl.PARAMS, 1, cl.BOUNDS, {}],
+        pytest.param(
+            cl.function,
+            cl.PARAMS,
+            1,
+            cl.BOUNDS,
+            {},
+            marks=pytest.mark.skipif(
+                skip_clustering, reason="Skip clustering test on musllinux/alpine"
+            ),
+        ),
     ],
     ids=[
         "try_rosenbrock",  # Simple case with one integer parameter
@@ -63,4 +78,6 @@ def test_study_optimize(func, params, trials, exp_bounds, kwargs):
         study.optimize(func, params, trials)
 
         mock.assert_called_once_with(study._run_trial, exp_bounds, None)  # Use of EvoBandits(...)
-        mock.return_value.optimize.assert_called_once_with(trials)  # EvoBandits.Optimize() called once
+        mock.return_value.optimize.assert_called_once_with(
+            trials
+        )  # EvoBandits.Optimize() called once
