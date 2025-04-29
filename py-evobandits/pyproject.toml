@@ -4,14 +4,32 @@ build-backend = "maturin"
 
 [project]
 name = "evobandits"
+description = "Optimization algorithm combining genetic algorithms and multi-armed bandits for stochastic problems"
+authors = [
+    { name = "Deniz Preil"},
+    { name = "Felix Würmseher"},
+    { name = "Jonathan Laib"},
+    { name = "Timo Kühne"},
+]
+keywords = ["optimization", "evolutionary computation", "genetic algorithms", "multi-armed bandits", "stochastic problems", "machine learning", "reinforcement learning"]
+readme = "README.md"
 requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
+    "Operating System :: Unix",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
 ]
 dynamic = ["version"]
 dependencies = ["numba>=0.61.2", "scikit-learn"]
+
+[project.urls]
+Documentation = "https://evobandits.github.io/EvoBandits/"
+Repository = "https://github.com/EvoBandits/EvoBandits"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
