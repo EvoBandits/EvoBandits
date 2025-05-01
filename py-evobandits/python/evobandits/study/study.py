@@ -35,8 +35,10 @@ class Study:
 
         self.seed: int | None = seed
         self.algorithm = algorithm  # ToDo Issue #23: type and input validation
-        self.objective: Callable | None = None
-        self.params: dict[str, BaseParam] | None = None
+        self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
+        self.params: dict[str, BaseParam] | None = (
+            None  # ToDo Issue #23: type and input validation
+        )
 
         self._best_trial: dict | None = None
 
@@ -72,7 +74,7 @@ class Study:
             idx += param.size
         return result
 
-    def _run_trial(self, action_vector: list) -> float:
+    def _evaluate(self, action_vector: list) -> float:
         """
         Execute a trial with the given action vector.
 
@@ -85,7 +87,7 @@ class Study:
         solution = self._decode(action_vector)
         return self.objective(**solution)
 
-    def optimize(self, func: Callable, params: dict, trials: int) -> None:
+    def optimize(self, objective: Callable, params: dict, trials: int) -> None:
         """
         Optimize the objective function.
 
@@ -97,7 +99,7 @@ class Study:
             params (dict): A dictionary of parameters with their bounds.
             trials (int): The number of trials to run.
         """
-        self.objective = func  # ToDo: Add input validation
+        self.objective = objective  # ToDo: Add input validation
         self.params = params  # ToDo: Add input validation
 
         # Retrieve the bounds for the parameters
@@ -105,7 +107,7 @@ class Study:
         for param in self.params.values():
             bounds.extend(param.bounds)
 
-        best_action_vector = self.algorithm.optimize(self._run_trial, bounds, trials, self.seed)
+        best_action_vector = self.algorithm.optimize(self._evaluate, bounds, trials, self.seed)
 
         self._best_trial = self._decode(best_action_vector)
         _logger.info("completed")

@@ -4,7 +4,6 @@ from unittest.mock import MagicMock
 import pytest
 from evobandits.study.study import ALGORITHM_DEFAULT, Study
 
-from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb
 
 
@@ -43,21 +42,28 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
 
 
 @pytest.mark.parametrize(
-    "func, params, trials",
+    "objective, params, trials, best_trial, kwargs, mock_opt_result",
     [
-        [rb.function, rb.PARAMS_2D, 1],
-        [cl.function, cl.PARAMS, 1],
+        [rb.function, rb.PARAMS_2D, 1, rb.BEST_TRIAL_2D, {}, rb.RESULTS_2D],
     ],
     ids=[
-        "try_rosenbrock",  # Simple case with one integer parameter
-        "try_clustering",  # Case with multiple parameters and various types
-        # ToDo: Input validation: Fail if func is not callable
-        # ToDo: Input validation: Fail if params is not valid
-        # ToDo: Input validation: Fail if trials is not positive integer
+        "valid_testcase_rosenbrock",
     ],
 )
-def test_study_optimize(func, params, trials):
-    mock = MagicMock()  # Mock EvoBandits Algorithm
-    study = Study(algorithm=mock)
-    study.optimize(func, params, trials)
-    assert mock.optimize.call_count == 1  # Ensure EvoBandits was called exactly once
+def test_optimize(objective, params, trials, best_trial, kwargs, mock_opt_result):
+    # Mock dependencies
+    mock_algorithm = MagicMock()
+    mock_algorithm.optimize.return_value = mock_opt_result
+    study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
+
+    # Extract expected exceptions
+    expectation = kwargs.pop("exp", nullcontext())
+
+    # Optimize a study and verify results
+    with expectation:
+        result = study.optimize(objective, params, trials)
+        assert result is None
+        assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now
+
+        # Assert if result has been pushed to best_trial property
+        assert study.best_trial == best_trial

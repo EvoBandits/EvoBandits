@@ -1,3 +1,5 @@
+# ToDo: Should be removed in other PR (fix workflow to avoid issues?)
+
 """
 Objective function and useful parameters for a clustering problem,
 which serves as an example to demonstrate the use of various parameters types.
