@@ -92,9 +92,6 @@ class Study:
         self.objective = objective
         self.params = params
 
-        # ToDo Issue #72: Vital bugs are not caught here. Solve:
-        # Case where self._evaluate is broken
-
         bounds = self._collect_bounds()
         best_action_vector = self.algorithm.optimize(self._evaluate, bounds, trials, self.seed)
 
