@@ -40,6 +40,13 @@ class Study:
             None  # ToDo Issue #23: type and input validation
         )
 
+    def _collect_bounds(self) -> list[tuple[int, int]]:
+        """ToDo"""
+        bounds = []
+        for param in self.params.values():
+            bounds.extend(param.bounds)
+        return bounds
+
     def _decode(self, action_vector: list) -> dict:
         """
         Decodes an action vector to a dictionary that contains the solution for each parameter.
@@ -86,14 +93,9 @@ class Study:
         self.params = params
 
         # ToDo Issue #72: Vital bugs are not caught here. Solve:
-        # Case where bounds collection procedure could be broken
         # Case where self._evaluate is broken
 
-        # Retrieve the bounds for the parameters
-        bounds = []
-        for param in self.params.values():
-            bounds.extend(param.bounds)
-
+        bounds = self._collect_bounds()
         best_action_vector = self.algorithm.optimize(self._evaluate, bounds, trials, self.seed)
 
         return self._decode(best_action_vector)
