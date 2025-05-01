@@ -54,17 +54,19 @@ def test_decode(params, action_vector, exp_solution):
 
 
 @pytest.mark.parametrize(
-    "params, action_vector, exp_result",
+    "params, action_vector, exp_result, kwargs",
     [
-        [{"a": IntParam(0, 1, 2)}, [0, 1], -0.5],
-        [{"a": IntParam(0, 1, 2), "b": CategoricalParam([False, True])}, [0, 1, 1], 0.5],
+        [{"a": IntParam(0, 1, 2)}, [0, 1], -0.5, {}],
+        [{"a": IntParam(0, 1, 2), "b": CategoricalParam([False, True])}, [0, 1, 1], 0.5, {}],
+        [{"a": IntParam(0, 1, 2)}, [0, 1], +0.5, {"_direction": -1}],  # maximize objective
     ],
     ids=[
         "one_param",
         "multiple_params",
+        "one_param_switch_direction",
     ],
 )
-def test_evaluate(params, action_vector, exp_result):
+def test_evaluate(params, action_vector, exp_result, kwargs):
     # Mock or patch dependencies
     def dummy_objective(a: list, b: bool = False):
         return sum(a) * 0.5 if b else -sum(a) * 0.5
@@ -72,6 +74,7 @@ def test_evaluate(params, action_vector, exp_result):
     study = Study(seed=42)  # with seed to avoid warning logs
     study.params = params
     study.objective = dummy_objective
+    study._direction = kwargs.get("_direction", 1)
 
     # Verify if study evaluates the objective
     result = study._evaluate(action_vector)

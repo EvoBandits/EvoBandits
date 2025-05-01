@@ -48,8 +48,16 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
 
 @pytest.mark.parametrize(
     "objective, params, trials, kwargs",
-    [[rb.function, rb.PARAMS_2D, 1, {}]],
-    ids=["valid_default_testcase"],
+    [
+        [rb.function, rb.PARAMS_2D, 1, {}],
+        [rb.function, rb.PARAMS_2D, 1, {"maximize": True}],
+        [rb.function, rb.PARAMS_2D, 1, {"maximize": "False", "exp": pytest.raises(TypeError)}],
+    ],
+    ids=[
+        "valid_default_testcase",
+        "default_maximize",
+        "invalid_maximize_type",
+    ],
 )
 def test_optimize(objective, params, trials, kwargs):
     # Mock dependencies
@@ -63,6 +71,6 @@ def test_optimize(objective, params, trials, kwargs):
 
     # Optimize a study and verify results
     with expectation:
-        best_trial = study.optimize(objective, params, trials)
+        best_trial = study.optimize(objective, params, trials, **kwargs)
         assert best_trial == kwargs.get("mock_opt_return", rb.BEST_TRIAL_2D)
         assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now

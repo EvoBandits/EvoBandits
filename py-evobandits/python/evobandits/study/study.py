@@ -42,6 +42,9 @@ class Study:
         self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
         self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
 
+        # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
+        self._direction: int = 1
+
     def _collect_bounds(self) -> list[tuple[int, int]]:
         """
         Collects the bounds of all parameters in the study.
@@ -82,9 +85,16 @@ class Study:
             float: The result of the objective function.
         """
         solution = self._decode(action_vector)
-        return self.objective(**solution)
+        evaluation = self._direction * self.objective(**solution)
+        return evaluation
 
-    def optimize(self, objective: Callable, params: ParamsType, trials: int) -> None:
+    def optimize(
+        self,
+        objective: Callable,
+        params: ParamsType,
+        trials: int,
+        maximize: bool = False,
+    ) -> None:
         """
         Optimize the objective function.
 
@@ -92,10 +102,15 @@ class Study:
         specified bounds and running the objective function for a given number of trials.
 
         Args:
-            func (Callable): The objective function to optimize.
+            objective (Callable): The objective function to optimize.
             params (dict): A dictionary of parameters with their bounds.
             trials (int): The number of trials to run.
+            maximize (bool): Indicates if objective is maximized. Default is False.
         """
+        if not isinstance(maximize, bool):
+            raise TypeError(f"maximize must be a bool, got {type(maximize)}.")
+        self._direction = -1 if maximize else 1
+
         self.objective = objective
         self.params = params
 
