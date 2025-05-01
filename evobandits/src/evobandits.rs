@@ -440,14 +440,14 @@ mod tests {
             return evobandits;
         }
 
-        // An equal seed should lead to equal EvoBandits
+        // The same seed should lead to the same evobandits
         let seed = 42;
         assert_eq!(
             generate_evobandits(Some(seed)),
             generate_evobandits(Some(seed))
         );
 
-        // A dffierent seed should not lead to equal EvoBandits
+        // A different seed should not lead to the same evobandits
         assert_ne!(
             generate_evobandits(Some(seed)),
             generate_evobandits(Some(seed + 1))

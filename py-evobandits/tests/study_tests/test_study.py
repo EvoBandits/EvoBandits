@@ -47,18 +47,15 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
 
 
 @pytest.mark.parametrize(
-    "objective, params, trials, best_trial, kwargs, mock_opt_result",
-    [
-        [rb.function, rb.PARAMS_2D, 1, rb.BEST_TRIAL_2D, {}, rb.RESULTS_2D],
-    ],
-    ids=[
-        "valid_testcase_rosenbrock",
-    ],
+    "objective, params, trials, kwargs",
+    [[rb.function, rb.PARAMS_2D, 1, {}]],
+    ids=["valid_default_testcase"],
 )
-def test_optimize(objective, params, trials, best_trial, kwargs, mock_opt_result):
+def test_optimize(objective, params, trials, kwargs):
     # Mock dependencies
+    # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
     mock_algorithm = MagicMock()
-    mock_algorithm.optimize.return_value = mock_opt_result
+    mock_algorithm.optimize.return_value = kwargs.get("mock_opt_return", rb.RESULTS_2D)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
 
     # Extract expected exceptions
@@ -66,6 +63,6 @@ def test_optimize(objective, params, trials, best_trial, kwargs, mock_opt_result
 
     # Optimize a study and verify results
     with expectation:
-        result = study.optimize(objective, params, trials)
-        assert result == best_trial
+        best_trial = study.optimize(objective, params, trials)
+        assert best_trial == kwargs.get("mock_opt_return", rb.BEST_TRIAL_2D)
         assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now

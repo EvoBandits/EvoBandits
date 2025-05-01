@@ -1,4 +1,5 @@
 from collections.abc import Callable
+from typing import TypeAlias
 
 from evobandits import logging
 from evobandits.evobandits import (
@@ -7,6 +8,9 @@ from evobandits.evobandits import (
 from evobandits.params import BaseParam
 
 _logger = logging.get_logger(__name__)
+
+
+ParamsType: TypeAlias = dict[str, BaseParam]
 
 
 ALGORITHM_DEFAULT = EvoBandits()
@@ -36,9 +40,7 @@ class Study:
         self.seed: int | None = seed
         self.algorithm = algorithm  # ToDo Issue #23: type and input validation
         self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
-        self.params: dict[str, BaseParam] | None = (
-            None  # ToDo Issue #23: type and input validation
-        )
+        self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
 
     def _collect_bounds(self) -> list[tuple[int, int]]:
         """ToDo"""
@@ -77,7 +79,7 @@ class Study:
         solution = self._decode(action_vector)
         return self.objective(**solution)
 
-    def optimize(self, objective: Callable, params: dict, trials: int) -> None:
+    def optimize(self, objective: Callable, params: ParamsType, trials: int) -> None:
         """
         Optimize the objective function.
 
