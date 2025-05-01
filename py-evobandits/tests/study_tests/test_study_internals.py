@@ -30,7 +30,7 @@ def test_collect_bounds(params, exp_bounds):
     "params, action_vector, exp_solution",
     [
         [{"a": IntParam(0, 1)}, [1], {"a": 1}],
-        [{"a": IntParam(0, 1, 3)}, [0, 1, 0], {"a": [0, 1, 0]}],
+        [{"a": IntParam(0, 1, 2)}, [0, 1, 0], {"a": [0, 1]}],
         [
             {"a": IntParam(0, 1, 2), "b": CategoricalParam([False, True])},
             [0, 1, 1],
@@ -54,24 +54,20 @@ def test_decode(params, action_vector, exp_solution):
 
 
 @pytest.mark.parametrize(
-    "params, action_vector, exp_solution",
+    "params, action_vector, exp_result",
     [
-        [{"a": IntParam(0, 1, 3)}, [0, 1, 0], {"a": [0, 1, 0]}],
-        [
-            {"a": IntParam(0, 1, 2), "b": CategoricalParam([False, True])},
-            [0, 1, 1],
-            {"a": [0, 1], "b": True},
-        ],
+        [{"a": IntParam(0, 1, 2)}, [0, 1], -0.5],
+        [{"a": IntParam(0, 1, 2), "b": CategoricalParam([False, True])}, [0, 1, 1], 0.5],
     ],
     ids=[
         "one_param",
         "multiple_params",
     ],
 )
-def test_evaluate(params, action_vector, exp_solution):
+def test_evaluate(params, action_vector, exp_result):
     # Mock or patch dependencies
     def dummy_objective(a: list, b: bool = False):
-        return sum(a) if b else -sum(a)
+        return sum(a) * 0.5 if b else -sum(a) * 0.5
 
     study = Study(seed=42)  # with seed to avoid warning logs
     study.params = params
@@ -79,4 +75,4 @@ def test_evaluate(params, action_vector, exp_solution):
 
     # Verify if study evaluates the objective
     result = study._evaluate(action_vector)
-    assert result == dummy_objective(**exp_solution)
+    assert result == exp_result
