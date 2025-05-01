@@ -9,6 +9,9 @@ from evobandits.params import BaseParam
 _logger = logging.get_logger(__name__)
 
 
+ALGORITHM_DEFAULT = EvoBandits()
+
+
 class Study:
     """
     A Study represents an optimization task consisting of a set of trials.
@@ -16,8 +19,6 @@ class Study:
     This class provides interfaces to optimize an objective function within specified bounds
     and to manage user-defined attributes related to the study.
     """
-
-    ALGORITHM_DEFAULT = EvoBandits()
 
     def __init__(self, seed: int | None = None, algorithm=ALGORITHM_DEFAULT) -> None:
         """
@@ -33,10 +34,10 @@ class Study:
             raise TypeError(f"Seed must be integer: {seed}")
 
         self.seed: int | None = seed
+        self.algorithm = algorithm  # ToDo Issue #23: type and input validation
         self.func: Callable | None = None
         self.params: dict[str, BaseParam] | None = None
 
-        self._algorithm = algorithm
         self._best_trial: dict | None = None
 
     @property
@@ -104,7 +105,7 @@ class Study:
         for param in self.params.values():
             bounds.extend(param.bounds)
 
-        best_action_vector = self._algorithm.optimize(self._run_trial, bounds, trials, self.seed)
+        best_action_vector = self.algorithm.optimize(self._run_trial, bounds, trials, self.seed)
 
         self._best_trial = self._decode(best_action_vector)
         _logger.info("completed")
