@@ -35,7 +35,7 @@ class Study:
 
         self.seed: int | None = seed
         self.algorithm = algorithm  # ToDo Issue #23: type and input validation
-        self.func: Callable | None = None
+        self.objective: Callable | None = None
         self.params: dict[str, BaseParam] | None = None
 
         self._best_trial: dict | None = None
@@ -83,7 +83,7 @@ class Study:
             float: The result of the objective function.
         """
         solution = self._decode(action_vector)
-        return self.func(**solution)
+        return self.objective(**solution)
 
     def optimize(self, func: Callable, params: dict, trials: int) -> None:
         """
@@ -97,7 +97,7 @@ class Study:
             params (dict): A dictionary of parameters with their bounds.
             trials (int): The number of trials to run.
         """
-        self.func = func  # ToDo: Add input validation
+        self.objective = func  # ToDo: Add input validation
         self.params = params  # ToDo: Add input validation
 
         # Retrieve the bounds for the parameters

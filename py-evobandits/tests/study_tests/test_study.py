@@ -2,34 +2,37 @@ from contextlib import nullcontext
 from unittest.mock import MagicMock
 
 import pytest
-from evobandits.study import Study
+from evobandits.study.study import ALGORITHM_DEFAULT, Study
 
 from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb
 
-# ToDo: Add tests for output formats and properties
-
 
 @pytest.mark.parametrize(
-    "seed, kwargs",
+    "seed, kwargs, exp_algorithm",
     [
-        [42, {}],
-        [None, {"log": ("WARNING", "No seed provided")}],
-        [42.0, {"exp": pytest.raises(TypeError)}],
+        [None, {"log": ("WARNING", "No seed provided")}, ALGORITHM_DEFAULT],
+        [42, {}, ALGORITHM_DEFAULT],
+        [42.0, {"exp": pytest.raises(TypeError)}, ALGORITHM_DEFAULT],
     ],
     ids=[
-        "base",
-        "log_warning_no_seed",
+        "default",
+        "default_with_seed",
         "fail_seed_type",
-        # ToDo: Add input validation / Typecheck for Algorithm
     ],
 )
-def test_study_init(seed, kwargs, caplog):
+def test_study_init(seed, kwargs, exp_algorithm, caplog):
+    # Extract expected exceptions and logs
     expectation = kwargs.pop("exp", nullcontext())
     log = kwargs.pop("log", None)
+
+    # Initialize a Study and verify its properties
     with expectation:
         study = Study(seed, **kwargs)
         assert study.seed == seed
+        assert study.algorithm == exp_algorithm
+        assert study.objective is None
+        assert study.params is None
 
         if log:
             level, msg = log
