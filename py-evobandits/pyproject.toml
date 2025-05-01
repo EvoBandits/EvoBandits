@@ -25,7 +25,11 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 dynamic = ["version"]
-dependencies = ["numba>=0.61.2", "scikit-learn"]
+dependencies = []
+
+[project.optional-dependencies]
+sklearn = ["scikit-learn"]
+test = ["pytest", "scikit-learn"] # see weird behavior with musllinux
 
 [project.urls]
 Documentation = "https://evobandits.github.io/EvoBandits/"

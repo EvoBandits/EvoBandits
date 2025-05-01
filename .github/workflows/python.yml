@@ -1,6 +1,7 @@
 # differences to the original file:
 # - added manifest path to the maturin-action
 # - commented out not so popular platforms (could be added if someone needs them)
+# - we install ourPackage[test] only on platforms that support sklearn at the moment
 
 name: Test & Build Python
 
@@ -27,8 +28,8 @@ jobs:
           #  target: x86
           - runner: ubuntu-22.04
             target: aarch64
-          #- runner: ubuntu-22.04
-          #  target: armv7
+          - runner: ubuntu-22.04
+            target: armv7
           #- runner: ubuntu-22.04
           #  target: s390x
           #- runner: ubuntu-22.04
@@ -59,7 +60,7 @@ jobs:
           set -e
           python3 -m venv .venv
           source .venv/bin/activate
-          pip install evobandits --find-links dist --force-reinstall
+          pip install evobandits[test] --find-links dist --force-reinstall
           pip install pytest
           pytest
       - name: pytest
@@ -71,73 +72,73 @@ jobs:
           githubToken: ${{ github.token }}
           install: |
             apt-get update
-            apt-get install -y --no-install-recommends python3 python3-pip
+            apt-get install -y --no-install-recommends python3 python3-pip python3-sklearn python3-sklearn-lib
             pip3 install -U pip pytest
           run: |
             set -e
             pip3 install evobandits --find-links dist --force-reinstall
             pytest
 
-  #  musllinux:
-  #    runs-on: ${{ matrix.platform.runner }}
-  #    strategy:
-  #      matrix:
-  #        platform:
-  #          - runner: ubuntu-22.04
-  #            target: x86_64
-  #          #- runner: ubuntu-22.04
-  #          #  target: x86
-  #          - runner: ubuntu-22.04
-  #            target: aarch64
-  #          #- runner: ubuntu-22.04
-  #          #  target: armv7
-  #    steps:
-  #      - uses: actions/checkout@v4
-  #      - uses: actions/setup-python@v5
-  #        with:
-  #          python-version: 3.x
-  #      - name: Build wheels
-  #        uses: PyO3/maturin-action@v1
-  #        with:
-  #          target: ${{ matrix.platform.target }}
-  #          args: --release --out dist --find-interpreter --manifest-path py-evobandits/Cargo.toml
-  #          sccache: "true"
-  #          manylinux: musllinux_1_2
-  #      - name: Upload wheels
-  #        uses: actions/upload-artifact@v4
-  #        with:
-  #          name: wheels-musllinux-${{ matrix.platform.target }}
-  #          path: dist
-  #      - name: pytest
-  #       if: ${{ startsWith(matrix.platform.target, 'x86_64') }}
-  #        uses: addnab/docker-run-action@v3
-  #        with:
-  #          image: alpine:latest
-  #          options: -v ${{ github.workspace }}:/io -w /io
-  #          run: |
-  #            set -e
-  #            apk add py3-pip py3-virtualenv
-  #            python3 -m virtualenv .venv
-  #            source .venv/bin/activate
-  #            pip install evobandits --no-index --find-links dist --force-reinstall
-  #            pip install pytest
-  #            pytest
-  #      - name: pytest
-  #        if: ${{ !startsWith(matrix.platform.target, 'x86') }}
-  #        uses: uraimo/run-on-arch-action@v2
-  #        with:
-  #          arch: ${{ matrix.platform.target }}
-  #          distro: alpine_latest
-  #          githubToken: ${{ github.token }}
-  #          install: |
-  #            apk add py3-virtualenv
-  #          run: |
-  #            set -e
-  #            python3 -m virtualenv .venv
-  #            source .venv/bin/activate
-  #            pip install pytest
-  #            pip install evobandits --find-links dist --force-reinstall
-  #            pytest
+  musllinux:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-22.04
+            target: x86_64
+          #- runner: ubuntu-22.04
+          #  target: x86
+          - runner: ubuntu-22.04
+            target: aarch64
+          - runner: ubuntu-22.04
+            target: armv7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path py-evobandits/Cargo.toml
+          sccache: "true"
+          manylinux: musllinux_1_2
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-musllinux-${{ matrix.platform.target }}
+          path: dist
+      - name: pytest
+        if: ${{ startsWith(matrix.platform.target, 'x86_64') }}
+        uses: addnab/docker-run-action@v3
+        with:
+          image: alpine:latest
+          options: -v ${{ github.workspace }}:/io -w /io
+          run: |
+            set -e
+            apk add py3-pip py3-virtualenv py3-scikit-learn py3-numpy
+            python3 -m virtualenv .venv --system-site-packages
+            source .venv/bin/activate
+            pip install evobandits --no-index --find-links dist --force-reinstall
+            pip install pytest
+            pytest
+      - name: pytest
+        if: ${{ !startsWith(matrix.platform.target, 'x86') }}
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: ${{ matrix.platform.target }}
+          distro: alpine_latest
+          githubToken: ${{ github.token }}
+          install: |
+            apk add py3-virtualenv py3-scikit-learn py3-numpy
+          run: |
+            set -e
+            python3 -m virtualenv .venv --system-site-packages
+            source .venv/bin/activate
+            pip install pytest
+            pip install evobandits --find-links dist --force-reinstall
+            pytest
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
@@ -172,7 +173,7 @@ jobs:
           set -e
           python3 -m venv .venv
           source .venv/Scripts/activate
-          pip install evobandits --find-links dist --force-reinstall
+          pip install evobandits[test] --find-links dist --force-reinstall
           pip install pytest
           pytest
 
@@ -206,7 +207,7 @@ jobs:
           set -e
           python3 -m venv .venv
           source .venv/bin/activate
-          pip install evobandits --find-links dist --force-reinstall
+          pip install evobandits[test] --find-links dist --force-reinstall
           pip install pytest
           pytest
 
