@@ -6,7 +6,7 @@ use rand::rngs::StdRng;
 use rand::{RngCore, SeedableRng};
 use std::collections::HashMap;
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct EvoBandits {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
     arm_memory: Vec<Arm>,
@@ -432,20 +432,26 @@ mod tests {
             0.0
         }
 
-        // Helper function that generates a evobandits result based on a specific seed.
-        fn generate_result(seed: Option<u64>) -> Vec<i32> {
+        // Helper function to construct and optimize an evobandits instance
+        fn generate_evobandits(seed: Option<u64>) -> EvoBandits {
             let bounds = vec![(1, 100), (1, 100)];
             let mut evobandits = EvoBandits::new(Default::default());
-            let result = evobandits.optimize(mock_opti_function, bounds, 100, seed);
-            return result;
+            evobandits.optimize(mock_opti_function, bounds, 100, seed);
+            return evobandits;
         }
 
-        // The same seed should lead to the same result
+        // An equal seed should lead to equal EvoBandits
         let seed = 42;
-        assert_eq!(generate_result(Some(seed)), generate_result(Some(seed)));
+        assert_eq!(
+            generate_evobandits(Some(seed)),
+            generate_evobandits(Some(seed))
+        );
 
-        // A different seed should not lead to the same population
-        assert_ne!(generate_result(Some(seed)), generate_result(Some(seed + 1)));
+        // A dffierent seed should not lead to equal EvoBandits
+        assert_ne!(
+            generate_evobandits(Some(seed)),
+            generate_evobandits(Some(seed + 1))
+        );
     }
 
     #[test]
