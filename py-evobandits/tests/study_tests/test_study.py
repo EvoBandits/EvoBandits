@@ -2,9 +2,14 @@ from contextlib import nullcontext
 from unittest.mock import MagicMock
 
 import pytest
-from evobandits.study.study import ALGORITHM_DEFAULT, Study
+from evobandits import ALGORITHM_DEFAULT, EvoBandits, Study
 
 from tests._functions import rosenbrock as rb
+
+
+def test_algorithm_default():
+    # ToDo: Implement "eq" property for EvoBandits, cannot properly check default without
+    assert isinstance(ALGORITHM_DEFAULT, EvoBandits)
 
 
 @pytest.mark.parametrize(

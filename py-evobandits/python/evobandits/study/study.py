@@ -82,8 +82,12 @@ class Study:
             params (dict): A dictionary of parameters with their bounds.
             trials (int): The number of trials to run.
         """
-        self.objective = objective  # ToDo: Add input validation
-        self.params = params  # ToDo: Add input validation
+        self.objective = objective
+        self.params = params
+
+        # ToDo Issue #72: Vital bugs are not caught here. Solve:
+        # Case where bounds collection procedure could be broken
+        # Case where self._evaluate is broken
 
         # Retrieve the bounds for the parameters
         bounds = []
