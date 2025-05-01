@@ -43,7 +43,12 @@ class Study:
         self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
 
     def _collect_bounds(self) -> list[tuple[int, int]]:
-        """ToDo"""
+        """
+        Collects the bounds of all parameters in the study.
+
+        Returns:
+            list[tuple[int, int]]: A list of tuples representing the bounds for each parameter.
+        """
         bounds = []
         for param in self.params.values():
             bounds.extend(param.bounds)
