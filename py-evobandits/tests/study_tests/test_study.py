@@ -8,8 +8,8 @@ from tests._functions import rosenbrock as rb
 
 
 def test_algorithm_default():
-    # ToDo: Implement "eq" property for EvoBandits, cannot properly check default without
-    assert isinstance(ALGORITHM_DEFAULT, EvoBandits)
+    # the default algorithm should always be a new Evobandits instance without modifications
+    assert ALGORITHM_DEFAULT == EvoBandits()
 
 
 @pytest.mark.parametrize(

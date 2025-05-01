@@ -99,6 +99,10 @@ impl EvoBandits {
             }
         }
     }
+
+    fn __eq__(&self, other: &Self) -> PyResult<bool> {
+        Ok(self.evobandits == other.evobandits)
+    }
 }
 
 #[pymodule]
