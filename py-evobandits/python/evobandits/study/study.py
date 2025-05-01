@@ -40,23 +40,6 @@ class Study:
             None  # ToDo Issue #23: type and input validation
         )
 
-        self._best_trial: dict | None = None
-
-    @property
-    def best_trial(self) -> dict:
-        """
-        Retrieve the parameters of the best trial in the study.
-
-        Returns:
-            dict: A dictionary containing the parameters of the best trial.
-
-        Raises:
-            RuntimeError: If the best trial is not available yet.
-        """
-        if not self._best_trial:
-            raise RuntimeError("best_trial is not available yet. Run study.optimize().")
-        return self._best_trial
-
     def _decode(self, action_vector: list) -> dict:
         """
         Decodes an action vector to a dictionary that contains the solution for each parameter.
@@ -109,5 +92,4 @@ class Study:
 
         best_action_vector = self.algorithm.optimize(self._evaluate, bounds, trials, self.seed)
 
-        self._best_trial = self._decode(best_action_vector)
-        _logger.info("completed")
+        return self._decode(best_action_vector)

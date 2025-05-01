@@ -62,8 +62,5 @@ def test_optimize(objective, params, trials, best_trial, kwargs, mock_opt_result
     # Optimize a study and verify results
     with expectation:
         result = study.optimize(objective, params, trials)
-        assert result is None
+        assert result == best_trial
         assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now
-
-        # Assert if result has been pushed to best_trial property
-        assert study.best_trial == best_trial
