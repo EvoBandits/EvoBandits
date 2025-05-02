@@ -158,13 +158,20 @@ impl EvoBandits {
         self.genetic_algorithm.set_bounds(bounds);
         self.genetic_algorithm.validate();
 
+        if simulation_budget < self.genetic_algorithm.population_size {
+            panic!(
+                "simulation_budget must be at least population_size ({})",
+                self.genetic_algorithm.population_size
+            );
+        }
+
         // Initialize the Population for the Optimization
         let next_seed = rng.next_u64();
         self.initialize_population(next_seed, &opti_function);
 
         // Run Optimization
         let verbose = false;
-        let mut simulation_used: usize = 0;
+        let mut simulation_used: usize = self.genetic_algorithm.population_size;
         loop {
             let mut current_indexes: Vec<i32> = Vec::new();
             let mut population: Vec<Arm> = Vec::new();
@@ -246,6 +253,7 @@ impl EvoBandits {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::cell::RefCell;
 
     #[test]
     fn test_sorted_multi_map_insert() {
@@ -426,11 +434,6 @@ mod tests {
 
     #[test]
     fn test_reproduction_with_seeding() {
-        // Mock optimization function for testing
-        fn mock_opti_function(_vec: &[i32]) -> f64 {
-            0.0
-        }
-
         // Helper function that generates a evobandits result based on a specific seed.
         fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
@@ -450,10 +453,6 @@ mod tests {
     #[test]
     #[should_panic = "population_size"]
     fn test_panic_on_invalid_options() {
-        // Mock optimization function for testing
-        fn mock_opti_function(_vec: &[i32]) -> f64 {
-            0.0
-        }
         // Mock bounds for testing
         let bounds = vec![(1, 100), (1, 100)];
 
@@ -466,5 +465,39 @@ mod tests {
         // Panics only, if validation from GmabOptions is integrated
         let mut evobandits = EvoBandits::new(ga);
         evobandits.optimize(mock_opti_function, bounds, 1, None);
+    }
+
+    #[test]
+    fn test_evobandits_adheres_to_simulation_budget() {
+        // Mock opti_function that keeps track of used simulations
+        let simulation_used = RefCell::new(0);
+        let mock_opti_function = |_: &[i32]| {
+            *simulation_used.borrow_mut() += 1;
+            0.0
+        };
+
+        // Run the optimization, then check if simulation_used matches the budget
+        let simulation_budget = 1000;
+        let bounds = vec![(1, 100), (1, 100)];
+        let mut evobandits = EvoBandits::new(Default::default());
+        evobandits.optimize(mock_opti_function, bounds, simulation_budget, None);
+
+        assert_eq!(simulation_budget, *simulation_used.borrow_mut());
+    }
+
+    #[test]
+    #[should_panic = "simulation_budget"]
+    fn test_panic_on_invalid_budget() {
+        // Explicity set a simulation budget that prohibits sampling an initial population
+        let simulation_budget = 20;
+        let ga = GeneticAlgorithm {
+            population_size: simulation_budget + 1,
+            ..Default::default()
+        };
+
+        // Panics only, if simulation_budget is validated
+        let bounds = vec![(1, 100), (1, 100)];
+        let mut evobandits = EvoBandits::new(ga);
+        evobandits.optimize(mock_opti_function, bounds, simulation_budget, None);
     }
 }
