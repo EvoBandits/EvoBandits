@@ -1,6 +1,6 @@
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
-use pyo3::types::PyList;
+use pyo3::types::{PyDict, PyList};
 use std::panic;
 
 use evobandits_rust::arm::OptimizationFn;
@@ -76,7 +76,7 @@ impl EvoBandits {
         bounds: Vec<(i32, i32)>,
         simulation_budget: usize,
         seed: Option<u64>,
-    ) -> PyResult<Vec<i32>> {
+    ) -> PyResult<PyObject> {
         let py_opti_function = PythonOptimizationFn::new(py_func);
 
         let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -84,7 +84,7 @@ impl EvoBandits {
                 .optimize(py_opti_function, bounds, simulation_budget, seed)
         }));
 
-        match result {
+        let best_arm = match result {
             Ok(v) => Ok(v),
             Err(err) => {
                 if let Some(s) = err.downcast_ref::<&str>() {
@@ -97,7 +97,15 @@ impl EvoBandits {
                     ))
                 }
             }
-        }
+        }?;
+
+        Python::with_gil(|py| {
+            let dict = PyDict::new(py);
+            dict.set_item("action_vector", best_arm.get_action_vector().to_vec())?;
+            dict.set_item("mean_result", best_arm.get_mean_reward())?;
+            dict.set_item("num_evaluations", best_arm.get_num_pulls())?;
+            Ok(dict.into())
+        })
     }
 }
 

@@ -149,7 +149,7 @@ impl EvoBandits {
         bounds: Vec<(i32, i32)>,
         simulation_budget: usize,
         seed: Option<u64>,
-    ) -> Vec<i32> {
+    ) -> Arm {
         // Unwrap seed or fall back to system entropy
         let seed = seed.unwrap_or_else(|| rand::rng().next_u64());
         let mut rng: StdRng = SeedableRng::seed_from_u64(seed);
@@ -197,9 +197,7 @@ impl EvoBandits {
 
             for individual in mutated_pop {
                 if simulation_used >= simulation_budget {
-                    return self.arm_memory[self.find_best_ucb(simulation_used) as usize]
-                        .get_action_vector()
-                        .to_vec();
+                    return self.arm_memory[self.find_best_ucb(simulation_used) as usize].clone();
                 }
 
                 let arm_index = self.get_arm_index(&individual);
@@ -215,9 +213,7 @@ impl EvoBandits {
 
             for individual in population {
                 if simulation_used >= simulation_budget {
-                    return self.arm_memory[self.find_best_ucb(simulation_used) as usize]
-                        .get_action_vector()
-                        .to_vec();
+                    return self.arm_memory[self.find_best_ucb(simulation_used) as usize].clone();
                 }
 
                 let arm_index = self.get_arm_index(&individual);
@@ -439,7 +435,7 @@ mod tests {
             let bounds = vec![(1, 100), (1, 100)];
             let mut evobandits = EvoBandits::new(Default::default());
             let result = evobandits.optimize(mock_opti_function, bounds, 100, seed);
-            return result;
+            return result.get_action_vector().to_vec();
         }
 
         // The same seed should lead to the same result

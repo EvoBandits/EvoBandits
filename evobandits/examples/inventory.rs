@@ -1062,12 +1062,13 @@ fn main() {
         let start_time = Instant::now(); // Record the start time
         let bounds = vec![(1, 100), (1, 100)]; // Set the bounds for the problem
         let mut evobandits = EvoBandits::new(Default::default()); // Initialize a default EvoBandits Instance
-        let result = evobandits.optimize(inventory, bounds, 10000, None); // Optimize inventory, unseeded, with constraints (bounds, budget)
+        let best_arm = evobandits.optimize(inventory, bounds, 10000, None); // Optimize inventory, unseeded, with constraints (bounds, budget)
 
         let elapsed_time = start_time.elapsed().as_secs_f64(); // Record the elapsed time
         total_time += elapsed_time; // Add the elapsed time to the total
 
-        let true_objective_value = get_true_objective_value(&result);
+        let action_vector = best_arm.get_action_vector().to_vec();
+        let true_objective_value = get_true_objective_value(&action_vector);
         total_value += true_objective_value;
 
         // Print the counter, the true objective value, and the time for every 10 runs

@@ -48,4 +48,11 @@ def test_evobandits(bounds, budget, kwargs):
     seed = kwargs.pop("seed", None)
     with expectation:
         evobandits = EvoBandits(**kwargs)
-        _ = evobandits.optimize(rb.function, bounds, budget, seed)
+        result = evobandits.optimize(rb.function, bounds, budget, seed)
+
+        # Check if results is a dict that contains action_vector, mean_result, num_evaluations, and nothing else
+        assert isinstance(result, dict)
+        assert all([isinstance(x, int) for x in result.pop("action_vector")])
+        assert isinstance(result.pop("mean_result"), float)
+        assert isinstance(result.pop("num_evaluations"), int)
+        assert result == dict()
