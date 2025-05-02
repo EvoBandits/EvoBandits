@@ -196,6 +196,12 @@ impl EvoBandits {
             let mutated_pop = self.genetic_algorithm.mutate(next_seed, &crossover_pop);
 
             for individual in mutated_pop {
+                if simulation_used >= simulation_budget {
+                    return self.arm_memory[self.find_best_ucb(simulation_used) as usize]
+                        .get_action_vector()
+                        .to_vec();
+                }
+
                 let arm_index = self.get_arm_index(&individual);
 
                 // check if arm is in current population
@@ -205,24 +211,18 @@ impl EvoBandits {
 
                 self.sample_and_update(arm_index, individual.clone(), &opti_function);
                 simulation_used += 1;
-
-                if simulation_used >= simulation_budget {
-                    return self.arm_memory[self.find_best_ucb(simulation_used) as usize]
-                        .get_action_vector()
-                        .to_vec();
-                }
             }
 
             for individual in population {
-                let arm_index = self.get_arm_index(&individual);
-                self.sample_and_update(arm_index, individual.clone(), &opti_function);
-                simulation_used += 1;
-
                 if simulation_used >= simulation_budget {
                     return self.arm_memory[self.find_best_ucb(simulation_used) as usize]
                         .get_action_vector()
                         .to_vec();
                 }
+
+                let arm_index = self.get_arm_index(&individual);
+                self.sample_and_update(arm_index, individual.clone(), &opti_function);
+                simulation_used += 1;
             }
 
             if verbose {
