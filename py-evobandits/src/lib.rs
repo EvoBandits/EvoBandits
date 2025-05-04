@@ -102,15 +102,16 @@ impl EvoBandits {
         }?;
 
         Python::with_gil(|py| {
-            let dict = PyDict::new(py);
+            let results = PyList::empty(py);
             for (i, arm) in best_arms.iter().enumerate() {
                 let arm_dict = PyDict::new(py);
                 arm_dict.set_item("action_vector", arm.get_action_vector().to_vec())?;
                 arm_dict.set_item("mean_result", arm.get_mean_reward())?;
                 arm_dict.set_item("num_evaluations", arm.get_num_pulls())?;
-                dict.set_item(i, arm_dict)?;
+                arm_dict.set_item("top_k", i + 1)?;
+                results.append(arm_dict)?;
             }
-            Ok(dict.into())
+            Ok(results.into())
         })
     }
 }
