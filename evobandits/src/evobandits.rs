@@ -158,12 +158,11 @@ impl EvoBandits {
         self.genetic_algorithm.set_bounds(bounds);
         self.genetic_algorithm.validate();
 
-        if simulation_budget < self.genetic_algorithm.population_size {
-            panic!(
-                "simulation_budget must be at least population_size ({})",
-                self.genetic_algorithm.population_size
-            );
-        }
+        assert!(
+            simulation_budget >= self.genetic_algorithm.population_size,
+            "simulation_budget must be at least population_size ({})",
+            self.genetic_algorithm.population_size
+        );
 
         // Initialize the Population for the Optimization
         let next_seed = rng.next_u64();
