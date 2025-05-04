@@ -106,6 +106,9 @@ class Study:
             params (dict): A dictionary of parameters with their bounds.
             trials (int): The number of trials to run.
             maximize (bool): Indicates if objective is maximized. Default is False.
+
+        Returns:
+            dict: The best parameter values found during optimization.
         """
         if not isinstance(maximize, bool):
             raise TypeError(f"maximize must be a bool, got {type(maximize)}.")
