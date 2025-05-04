@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 from evobandits import ALGORITHM_DEFAULT, EvoBandits, Study
 
+from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb
 
 
@@ -48,8 +49,19 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
 
 @pytest.mark.parametrize(
     "objective, params, trials, kwargs",
-    [[rb.function, rb.PARAMS_2D, 1, {}]],
-    ids=["valid_default_testcase"],
+    [
+        [rb.function, rb.PARAMS_2D, 1, {}],
+        [
+            cl.function,
+            cl.PARAMS,
+            1,
+            {"mock_opt_return": cl.RESULTS_EXAMPLE, "mock_best_trial": cl.BEST_TRIAL_EXAMPLE},
+        ],
+    ],
+    ids=[
+        "valid_default_testcase",
+        "valid_clustering_testcase",
+    ],
 )
 def test_optimize(objective, params, trials, kwargs):
     # Mock dependencies
@@ -64,5 +76,5 @@ def test_optimize(objective, params, trials, kwargs):
     # Optimize a study and verify results
     with expectation:
         best_trial = study.optimize(objective, params, trials)
-        assert best_trial == kwargs.get("mock_opt_return", rb.BEST_TRIAL_2D)
+        assert best_trial == kwargs.get("mock_best_trial", rb.BEST_TRIAL_2D)
         assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now
