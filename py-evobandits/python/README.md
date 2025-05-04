@@ -101,4 +101,4 @@ best_trial = study.optimize(objective, params, trials=10000, population_size=100
 
 ## 4. Access the results (TBD.)
 
-Add `study.best_trial` to output the best result that has been returned from multiple runs, and more.
+The `optimize` method returns the best result directly. Assign the result of `study.optimize()` to a variable to access the best result from multiple runs.

@@ -95,6 +95,9 @@ class Study:
             func (Callable): The objective function to optimize.
             params (dict): A dictionary of parameters with their bounds.
             trials (int): The number of trials to run.
+
+        Returns:
+            dict: The best parameter values found during optimization.
         """
         self.objective = objective
         self.params = params
