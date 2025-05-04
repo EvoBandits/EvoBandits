@@ -68,6 +68,7 @@ impl EvoBandits {
         py_func,
         bounds,
         simulation_budget,
+        top_k,
         seed=None,
     ))]
     fn optimize(
@@ -75,16 +76,17 @@ impl EvoBandits {
         py_func: PyObject,
         bounds: Vec<(i32, i32)>,
         simulation_budget: usize,
+        top_k: usize,
         seed: Option<u64>,
     ) -> PyResult<PyObject> {
         let py_opti_function = PythonOptimizationFn::new(py_func);
 
         let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             self.evobandits
-                .optimize(py_opti_function, bounds, simulation_budget, seed)
+                .optimize(py_opti_function, bounds, simulation_budget, top_k, seed)
         }));
 
-        let best_arm = match result {
+        let best_arms = match result {
             Ok(v) => Ok(v),
             Err(err) => {
                 if let Some(s) = err.downcast_ref::<&str>() {
@@ -101,9 +103,13 @@ impl EvoBandits {
 
         Python::with_gil(|py| {
             let dict = PyDict::new(py);
-            dict.set_item("action_vector", best_arm.get_action_vector().to_vec())?;
-            dict.set_item("mean_result", best_arm.get_mean_reward())?;
-            dict.set_item("num_evaluations", best_arm.get_num_pulls())?;
+            for (i, arm) in best_arms.iter().enumerate() {
+                let arm_dict = PyDict::new(py);
+                arm_dict.set_item("action_vector", arm.get_action_vector().to_vec())?;
+                arm_dict.set_item("mean_result", arm.get_mean_reward())?;
+                arm_dict.set_item("num_evaluations", arm.get_num_pulls())?;
+                dict.set_item(i, arm_dict)?;
+            }
             Ok(dict.into())
         })
     }
