@@ -77,3 +77,5 @@ pip-selfcheck.json
 *.so
 
 site/
+
+*/.coverage
