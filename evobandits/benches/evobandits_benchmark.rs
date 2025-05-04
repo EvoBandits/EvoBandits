@@ -23,8 +23,10 @@ pub fn noisy_rosenbrock(x: &[i32]) -> f64 {
 fn benchmark_evobandits(c: &mut Criterion) {
     let mut group = c.benchmark_group("Rosenbrock Optimization");
 
+    group.measurement_time(std::time::Duration::from_secs(60));
+
     // Simulate different budgets
-    for budget in [1000, 10_000, 100_000, 1_000_000].iter() {
+    for budget in [10_000, 100_000].iter() {
         group.bench_with_input(BenchmarkId::new("Noisy", budget), budget, |b, &budget| {
             b.iter(|| {
                 let mut evobandits = EvoBandits::new(Default::default());
