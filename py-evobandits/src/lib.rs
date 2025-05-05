@@ -1,9 +1,9 @@
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList};
+use pyo3::types::PyList;
 use std::panic;
 
-use evobandits_rust::arm::OptimizationFn;
+use evobandits_rust::arm::{Arm as RustArm, OptimizationFn};
 use evobandits_rust::evobandits::EvoBandits as RustEvoBandits;
 use evobandits_rust::genetic::{
     GeneticAlgorithm, CROSSOVER_RATE_DEFAULT, MUTATION_RATE_DEFAULT, MUTATION_SPAN_DEFAULT,
@@ -30,6 +30,35 @@ impl OptimizationFn for PythonOptimizationFn {
                 .expect("Failed to call Python function");
             result.extract::<f64>(py).expect("Failed to extract f64")
         })
+    }
+}
+
+#[pyclass]
+struct Arm {
+    arm: RustArm,
+}
+
+#[pymethods]
+impl Arm {
+    #[getter]
+    pub fn num_pulls(&self) -> i32 {
+        self.arm.get_num_pulls()
+    }
+
+    #[getter]
+    pub fn mean_reward(&self) -> f64 {
+        self.arm.get_mean_reward()
+    }
+
+    #[getter]
+    pub fn action_vector(&self) -> Vec<i32> {
+        self.arm.get_action_vector().to_vec()
+    }
+}
+
+impl From<RustArm> for Arm {
+    fn from(arm: RustArm) -> Self {
+        Arm { arm }
     }
 }
 
@@ -78,7 +107,7 @@ impl EvoBandits {
         simulation_budget: usize,
         top_k: usize,
         seed: Option<u64>,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Vec<Arm>> {
         let py_opti_function = PythonOptimizationFn::new(py_func);
 
         let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -86,8 +115,11 @@ impl EvoBandits {
                 .optimize(py_opti_function, bounds, simulation_budget, top_k, seed)
         }));
 
-        let best_arms = match result {
-            Ok(v) => Ok(v),
+        match result {
+            Ok(result) => {
+                let py_result: Vec<Arm> = result.into_iter().map(Arm::from).collect();
+                Ok(py_result)
+            }
             Err(err) => {
                 if let Some(s) = err.downcast_ref::<&str>() {
                     Err(PyRuntimeError::new_err(format!("{}", s)))
@@ -99,35 +131,14 @@ impl EvoBandits {
                     ))
                 }
             }
-        }?;
-
-        Python::with_gil(|py| {
-            let action_vectors = PyList::empty(py);
-            let mean_results = PyList::empty(py);
-            let num_evaluations = PyList::empty(py);
-            let top_ks = PyList::empty(py);
-
-            for (i, arm) in best_arms.iter().enumerate() {
-                action_vectors.append(arm.get_action_vector().to_vec())?;
-                mean_results.append(arm.get_mean_reward())?;
-                num_evaluations.append(arm.get_num_pulls())?;
-                top_ks.append((i + 1) as i64)?;
-            }
-
-            let result_dict = PyDict::new(py);
-            result_dict.set_item("action_vector", action_vectors)?;
-            result_dict.set_item("mean_result", mean_results)?;
-            result_dict.set_item("num_evaluations", num_evaluations)?;
-            result_dict.set_item("top_k", top_ks)?;
-
-            Ok(result_dict.into())
-        })
+        }
     }
 }
 
 #[pymodule]
 fn evobandits(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<EvoBandits>()?;
+    m.add_class::<Arm>()?;
 
     m.add("POPULATION_SIZE_DEFAULT", POPULATION_SIZE_DEFAULT)?;
     m.add("MUTATION_RATE_DEFAULT", MUTATION_RATE_DEFAULT)?;

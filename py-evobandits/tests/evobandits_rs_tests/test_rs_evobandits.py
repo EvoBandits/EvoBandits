@@ -1,8 +1,7 @@
 from contextlib import nullcontext
 
 import pytest
-from evobandits import EvoBandits
-from pydantic import BaseModel
+from evobandits import Arm, EvoBandits
 
 from tests._functions import rosenbrock as rb
 
@@ -29,13 +28,6 @@ def test_evobandits_init(kwargs):
     with expectation:
         evobandits = EvoBandits(**kwargs)
         assert isinstance(evobandits, EvoBandits)
-
-
-class ResultDataModel(BaseModel):
-    action_vector: list[list[int]]
-    mean_result: list[float]
-    num_evaluations: list[int]
-    top_k: list[int]
 
 
 @pytest.mark.parametrize(
@@ -73,4 +65,5 @@ def test_evobandits(bounds, budget, kwargs):
         evobandits = EvoBandits(**kwargs)
         result = evobandits.optimize(rb.function, bounds, budget, top_k, seed)
 
-        ResultDataModel.model_validate(result)  # raises Errors for unexpected output dict
+        assert all([isinstance(r, Arm) for r in result])
+        assert len(result) == top_k

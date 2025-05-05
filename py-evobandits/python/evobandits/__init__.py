@@ -1,11 +1,12 @@
 import importlib.util
 
 from evobandits import logging
-from evobandits.evobandits import EvoBandits
+from evobandits.evobandits import Arm, EvoBandits
 from evobandits.params import CategoricalParam, FloatParam, IntParam
 from evobandits.study import Study
 
 __all__ = [
+    "Arm",
     "EvoBandits",
     "logging",
     "Study",
