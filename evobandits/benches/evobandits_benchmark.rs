@@ -1,6 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use evobandits::evobandits::EvoBandits;
-use rand::{rng, Rng};
+use rand::rng;
 use rand_distr::{Distribution, Normal};
 
 pub fn noisy_rosenbrock(x: &[i32]) -> f64 {
@@ -32,15 +32,12 @@ fn benchmark_evobandits(c: &mut Criterion) {
                 let mut evobandits = EvoBandits::new(Default::default());
                 let bounds = vec![(-50, 50), (-50, 50)];
 
-                // Use a fresh random seed each time
-                let seed = rng().random();
-
                 // Run the optimization
                 let result = evobandits.optimize(
                     black_box(noisy_rosenbrock),
                     black_box(bounds),
                     black_box(budget),
-                    Some(seed),
+                    Default::default(),
                 );
 
                 result
