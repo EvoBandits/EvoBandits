@@ -72,12 +72,13 @@ def test_evobandits(bounds, budget, kwargs):
         evobandits = EvoBandits(**kwargs)
         result = evobandits.optimize(rb.function, bounds, budget, top_k, seed)
 
-        # Verify the result, which should be a list that contains a dictionary for each arm
-        # Example for top_k = 1: [{"action_vector": [0, 0], "mean_result": 0.0, "num_evaluations": 1}]
-        assert len(result) == top_k
-        for arm in result:
-            assert all([isinstance(x, int) for x in arm.pop("action_vector")])
-            assert isinstance(arm.pop("mean_result"), float)
-            assert isinstance(arm.pop("num_evaluations"), int)
-            assert isinstance(arm.pop("top_k"), int)
-            assert arm == dict()
+        # Check if results dict is valid:
+        # Contains top_k action_vectors, mean_results, num_evaluations, and nothing else
+        assert isinstance(result, dict)
+
+        expected = {"action_vector", "mean_result", "num_evaluations", "top_k"}
+        assert set(result.keys()) == expected
+
+        for v in result.values():
+            assert isinstance(v, list)
+            assert len(v) == top_k
