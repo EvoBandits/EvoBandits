@@ -148,6 +148,11 @@ impl EvoBandits {
         for _ in 0..top_k {
             // Check if there are still arms in the sample_average_tree
             if self.sample_average_tree.iter().peekable().peek().is_none() {
+                println!(
+                    "Population ({}) is smaller than top_k ({}). Returning all arms instead.",
+                    top_k_arms.len(),
+                    top_k
+                );
                 break;
             }
 
@@ -577,7 +582,7 @@ mod tests {
     }
 
     #[test]
-    fn test_evobandits_get_best_arms_with_nonexisting() {
+    fn test_evobandits_get_best_arms_with_large_top_k() {
         // Mock an evobandits instance with 20 unique arms (distinct action vector and reward, one pull each)
         fn mock_opti_function(vec: &[i32]) -> f64 {
             vec.iter()
@@ -606,7 +611,7 @@ mod tests {
         });
 
         // Try to get more best arms than available
-        let top_k = 21;
+        let top_k = population_size + 1;
         let top_k_arms = evobandits.extract_top_arms(population_size, top_k);
 
         // Ensure the number of best arms returned matches the population size
