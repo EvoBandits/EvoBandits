@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import TypeAlias
 
 from evobandits import logging
@@ -10,7 +10,7 @@ from evobandits.params import BaseParam
 _logger = logging.get_logger(__name__)
 
 
-ParamsType: TypeAlias = dict[str, BaseParam]
+ParamsType: TypeAlias = Mapping[str, BaseParam]
 
 
 ALGORITHM_DEFAULT = EvoBandits()
