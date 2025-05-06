@@ -18,7 +18,7 @@ pub struct Arm {
 }
 
 impl Arm {
-    pub(crate) fn new(action_vector: &[i32]) -> Self {
+    pub fn new(action_vector: &[i32]) -> Self {
         Self {
             reward: 0.0,
             num_pulls: 0,

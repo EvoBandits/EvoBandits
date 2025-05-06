@@ -1,6 +1,6 @@
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
-use pyo3::types::PyList;
+use pyo3::types::{PyDict, PyList};
 use std::panic;
 
 use evobandits_rust::arm::{Arm as RustArm, OptimizationFn};
@@ -40,19 +40,37 @@ struct Arm {
 
 #[pymethods]
 impl Arm {
+    #[new]
+    fn new(action_vector: Vec<i32>) -> PyResult<Self> {
+        let arm = RustArm::new(&action_vector);
+        Ok(Arm { arm })
+    }
+
     #[getter]
-    pub fn num_pulls(&self) -> i32 {
+    fn num_pulls(&self) -> i32 {
         self.arm.get_num_pulls()
     }
 
     #[getter]
-    pub fn mean_reward(&self) -> f64 {
+    fn mean_reward(&self) -> f64 {
         self.arm.get_mean_reward()
     }
 
     #[getter]
-    pub fn action_vector(&self) -> Vec<i32> {
+    fn action_vector(&self) -> Vec<i32> {
         self.arm.get_action_vector().to_vec()
+    }
+
+    #[getter]
+    fn to_dict(&self, py: Python) -> Py<PyDict> {
+        let dict = PyDict::new(py);
+        dict.set_item("action_vector", self.arm.get_action_vector().to_vec())
+            .unwrap();
+        dict.set_item("mean_reward", self.arm.get_mean_reward())
+            .unwrap();
+        dict.set_item("num_pulls", self.arm.get_num_pulls())
+            .unwrap();
+        dict.into()
     }
 }
 
