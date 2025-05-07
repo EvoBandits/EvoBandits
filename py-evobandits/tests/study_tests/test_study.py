@@ -71,7 +71,8 @@ def test_optimize(objective, params, trials, kwargs):
     # Mock dependencies
     # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
     mock_algorithm = MagicMock()
-    mock_algorithm.optimize.return_value = kwargs.get("mock_opt_return", rb.RESULTS_2D)
+    mock_algorithm.optimize.return_value = kwargs.pop("mock_opt_return", rb.RESULTS_2D)
+    mock_best_trial = kwargs.pop("mock_best_trial", rb.BEST_TRIAL_2D)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
 
     # Extract expected exceptions
@@ -79,6 +80,6 @@ def test_optimize(objective, params, trials, kwargs):
 
     # Optimize a study and verify results
     with expectation:
-        best_trial = study.optimize(objective, params, trials)
-        assert best_trial == kwargs.get("mock_best_trial", rb.BEST_TRIAL_2D)
+        best_trial = study.optimize(objective, params, trials, **kwargs)
+        assert best_trial == mock_best_trial
         assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now
