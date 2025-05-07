@@ -71,8 +71,9 @@ def test_evobandits(bounds, budget, kwargs):
         [EvoBandits(), EvoBandits(), True],
         [EvoBandits(population_size=1), EvoBandits(population_size=1), True],
         [EvoBandits(), EvoBandits(population_size=1), False],
+        [EvoBandits(), "EvoBandits()", False],
     ],
-    ids=["default_eq", "modified_eq", "not_eq"],
+    ids=["default_eq", "modified_eq", "not_eq", "not_evobandits"],
 )
 def test_evobandits_eq(this, other, expected_eq):
     assert (this == other) == expected_eq
