@@ -48,7 +48,7 @@ impl OptimizationFn for PythonOptimizationFn {
 }
 
 #[pyclass(eq)]
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 struct EvoBandits {
     evobandits: RustEvoBandits,
 }
@@ -67,7 +67,7 @@ impl EvoBandits {
         mutation_rate: Option<f64>,
         crossover_rate: Option<f64>,
         mutation_span: Option<f64>,
-    ) -> EvoBandits {
+    ) -> PyResult<Self> {
         let genetic_algorithm = GeneticAlgorithm {
             population_size: population_size.unwrap(),
             mutation_rate: mutation_rate.unwrap(),
@@ -76,7 +76,7 @@ impl EvoBandits {
             ..Default::default()
         };
         let evobandits = RustEvoBandits::new(genetic_algorithm);
-        EvoBandits { evobandits }
+        Ok(EvoBandits { evobandits })
     }
 
     #[pyo3(signature = (
@@ -113,6 +113,13 @@ impl EvoBandits {
                 }
             }
         }
+    }
+}
+
+impl PartialEq for EvoBandits {
+    fn eq(&self, other: &Self) -> bool {
+        // Compares the `RustEvoBandits` only if both are in the `Ok` state
+        self.evobandits == other.evobandits
     }
 }
 
