@@ -446,12 +446,9 @@ mod tests {
             return evobandits.optimize(mock_opti_function, bounds, 100, seed);
         }
 
-        // The same seed should lead to the same evobandits
+        // The same seed should lead to the same result
         let seed = 42;
-        assert_eq!(
-            generate_evobandits(Some(seed)),
-            generate_evobandits(Some(seed))
-        );
+        assert_eq!(generate_evobandits(Some(seed)), generate_evobandits(Some(seed)));
 
         // A different seed should not lead to the same result
         assert_ne!(generate_result(Some(seed)), generate_result(Some(seed + 1)));
