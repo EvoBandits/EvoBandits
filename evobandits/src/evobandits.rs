@@ -434,12 +434,16 @@ mod tests {
 
     #[test]
     fn test_reproduction_with_seeding() {
-        // Helper function to construct and optimize an evobandits instance
-        fn generate_evobandits(seed: Option<u64>) -> EvoBandits {
+        // Mock the optimization function
+        fn mock_opti_function(vec: &[i32]) -> f64 {
+            vec.iter().map(|&x| x as f64).sum()
+        }
+        
+        // Helper function that generates a evobandits result based on a specific seed.
+        fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
             let mut evobandits = EvoBandits::new(Default::default());
-            evobandits.optimize(mock_opti_function, bounds, 100, seed);
-            return evobandits;
+            return evobandits.optimize(mock_opti_function, bounds, 100, seed);
         }
 
         // The same seed should lead to the same evobandits
@@ -449,11 +453,8 @@ mod tests {
             generate_evobandits(Some(seed))
         );
 
-        // A different seed should not lead to the same evobandits
-        assert_ne!(
-            generate_evobandits(Some(seed)),
-            generate_evobandits(Some(seed + 1))
-        );
+        // A different seed should not lead to the same result
+        assert_ne!(generate_result(Some(seed)), generate_result(Some(seed + 1)));
     }
 
     #[test]

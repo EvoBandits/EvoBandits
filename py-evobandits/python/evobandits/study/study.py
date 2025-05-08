@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import TypeAlias
 
 from evobandits import logging
@@ -10,7 +10,7 @@ from evobandits.params import BaseParam
 _logger = logging.get_logger(__name__)
 
 
-ParamsType: TypeAlias = dict[str, BaseParam]
+ParamsType: TypeAlias = Mapping[str, BaseParam]
 
 
 ALGORITHM_DEFAULT = EvoBandits()
@@ -44,7 +44,6 @@ class Study:
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
-
     def _collect_bounds(self) -> list[tuple[int, int]]:
         """
         Collects the bounds of all parameters in the study.

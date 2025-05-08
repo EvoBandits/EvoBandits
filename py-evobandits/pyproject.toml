@@ -29,7 +29,11 @@ dependencies = []
 
 [project.optional-dependencies]
 sklearn = ["scikit-learn"]
-test = ["pytest", "scikit-learn"] # see weird behavior with musllinux
+test = [
+    "pytest",
+    "scikit-learn",
+    "coverage[toml]",
+] # see weird behavior with musllinux
 
 [project.urls]
 Documentation = "https://evobandits.github.io/EvoBandits/"
@@ -54,3 +58,6 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = []
+
+[tool.coverage.run]
+source = ['python/evobandits']
