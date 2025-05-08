@@ -48,7 +48,7 @@ impl OptimizationFn for PythonOptimizationFn {
 }
 
 #[pyclass(eq)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 struct EvoBandits {
     evobandits: RustEvoBandits,
 }
@@ -113,13 +113,6 @@ impl EvoBandits {
                 }
             }
         }
-    }
-}
-
-impl PartialEq for EvoBandits {
-    fn eq(&self, other: &Self) -> bool {
-        // Compares the `RustEvoBandits` only if both are in the `Ok` state
-        self.evobandits == other.evobandits
     }
 }
 
