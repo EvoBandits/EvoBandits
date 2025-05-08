@@ -114,16 +114,6 @@ impl EvoBandits {
             }
         }
     }
-
-    /// Compares two `EvoBandits` objects for equality.
-    ///
-    /// This method compares the `evobandits` fields of the two objects, which encapsulate
-    /// the internal state of the evolutionary bandit optimization process.
-    ///
-    /// Returns `true` if they are equal, and `false` otherwise.
-    fn __eq__(&self, other: &Self) -> PyResult<bool> {
-        Ok(self.evobandits == other.evobandits)
-    }
 }
 
 #[pymodule]
