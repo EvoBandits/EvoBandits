@@ -24,7 +24,7 @@ BOUNDS_2D = [(-5, 10), (-5, 10)]
 RESULTS_2D = [Arm([1, 1])]
 BEST_TRIAL_2D = [{"n_best": 1, "mean_reward": 0.0, "num_pulls": 0, "params": {"number": [1, 1]}}]
 TRIALS_DF_2D = pd.DataFrame(
-    [{"mean_reward": 0.0, "num_pulls": 0, "params_number_0": 1, "params_number_1": 1}]
+    [{"n_best": 1, "mean_reward": 0.0, "num_pulls": 0, "params_number_0": 1, "params_number_1": 1}]
 )
 
 
