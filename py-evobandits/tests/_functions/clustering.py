@@ -22,6 +22,13 @@ PARAMS = {
     "tol": FloatParam(1e-4, 1e-2),
 }
 BOUNDS = [(0, 1), (0, 1), (1, 10), (0, 100)]
+RESULTS_EXAMPLE = [0, 0, 3, 0]
+BEST_TRIAL_EXAMPLE = {
+    "algorithm": KMeans,
+    "init": "k-means++",
+    "n_clusters": 3,
+    "tol": 0.0001,
+}
 
 
 # Generate sample data

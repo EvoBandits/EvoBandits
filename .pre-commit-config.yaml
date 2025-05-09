@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: check-toml
@@ -23,15 +23,34 @@ repos:
         types: [rust]
         pass_filenames: false
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.2
+    rev: v0.11.8
     hooks:
       - id: ruff
         name: ruff
         types_or: [python, pyi, jupyter]
-        args: [ --fix ]
+        args: [--fix]
         minimum_pre_commit_version: "2.9.2"
       - id: ruff-format
         name: ruff-format
         types_or: [python, pyi, jupyter]
         args: []
         minimum_pre_commit_version: "2.9.2"
+  - repo: https://github.com/google/addlicense
+    rev: "499ed7f28389eb4a08c2d7e40b1637cfd7f65381"
+    hooks:
+      - id: addlicense
+        args:
+          [
+            "-c",
+            "EvoBandits",
+            "-ignore",
+            "yaml",
+            "-ignore",
+            "md",
+            "-ignore",
+            "toml",
+            "-ignore",
+            "yml",
+            "-ignore",
+            ".pre-commit-config.yaml",
+          ]

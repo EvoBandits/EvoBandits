@@ -1,4 +1,5 @@
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
+from typing import TypeAlias
 
 from evobandits import logging
 from evobandits.evobandits import (
@@ -9,6 +10,12 @@ from evobandits.params import BaseParam
 _logger = logging.get_logger(__name__)
 
 
+ParamsType: TypeAlias = Mapping[str, BaseParam]
+
+
+ALGORITHM_DEFAULT = EvoBandits()
+
+
 class Study:
     """
     A Study represents an optimization task consisting of a set of trials.
@@ -16,8 +23,6 @@ class Study:
     This class provides interfaces to optimize an objective function within specified bounds
     and to manage user-defined attributes related to the study.
     """
-
-    ALGORITHM_DEFAULT = EvoBandits()
 
     def __init__(self, seed: int | None = None, algorithm=ALGORITHM_DEFAULT) -> None:
         """
@@ -33,26 +38,23 @@ class Study:
             raise TypeError(f"Seed must be integer: {seed}")
 
         self.seed: int | None = seed
-        self.func: Callable | None = None
-        self.params: dict[str, BaseParam] | None = None
+        self.algorithm = algorithm  # ToDo Issue #23: type and input validation
+        self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
+        self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
 
-        self._algorithm = algorithm
-        self._best_trial: dict | None = None
-
-    @property
-    def best_trial(self) -> dict:
+        # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
+        self._direction: int = 1
+    def _collect_bounds(self) -> list[tuple[int, int]]:
         """
-        Retrieve the parameters of the best trial in the study.
+        Collects the bounds of all parameters in the study.
 
         Returns:
-            dict: A dictionary containing the parameters of the best trial.
-
-        Raises:
-            RuntimeError: If the best trial is not available yet.
+            list[tuple[int, int]]: A list of tuples representing the bounds for each parameter.
         """
-        if not self._best_trial:
-            raise RuntimeError("best_trial is not available yet. Run study.optimize().")
-        return self._best_trial
+        bounds = []
+        for param in self.params.values():
+            bounds.extend(param.bounds)
+        return bounds
 
     def _decode(self, action_vector: list) -> dict:
         """
@@ -71,7 +73,7 @@ class Study:
             idx += param.size
         return result
 
-    def _run_trial(self, action_vector: list) -> float:
+    def _evaluate(self, action_vector: list) -> float:
         """
         Execute a trial with the given action vector.
 
@@ -82,9 +84,16 @@ class Study:
             float: The result of the objective function.
         """
         solution = self._decode(action_vector)
-        return self.func(**solution)
+        evaluation = self._direction * self.objective(**solution)
+        return evaluation
 
-    def optimize(self, func: Callable, params: dict, trials: int) -> None:
+    def optimize(
+        self,
+        objective: Callable,
+        params: ParamsType,
+        trials: int,
+        maximize: bool = False,
+    ) -> None:
         """
         Optimize the objective function.
 
@@ -92,19 +101,22 @@ class Study:
         specified bounds and running the objective function for a given number of trials.
 
         Args:
-            func (Callable): The objective function to optimize.
+            objective (Callable): The objective function to optimize.
             params (dict): A dictionary of parameters with their bounds.
             trials (int): The number of trials to run.
+            maximize (bool): Indicates if objective is maximized. Default is False.
+
+        Returns:
+            dict: The best parameter values found during optimization.
         """
-        self.func = func  # ToDo: Add input validation
-        self.params = params  # ToDo: Add input validation
+        if not isinstance(maximize, bool):
+            raise TypeError(f"maximize must be a bool, got {type(maximize)}.")
+        self._direction = -1 if maximize else 1
 
-        # Retrieve the bounds for the parameters
-        bounds = []
-        for param in self.params.values():
-            bounds.extend(param.bounds)
+        self.objective = objective
+        self.params = params
 
-        best_action_vector = self._algorithm.optimize(self._run_trial, bounds, trials, self.seed)
+        bounds = self._collect_bounds()
+        best_action_vector = self.algorithm.optimize(self._evaluate, bounds, trials, self.seed)
 
-        self._best_trial = self._decode(best_action_vector)
-        _logger.info("completed")
+        return self._decode(best_action_vector)

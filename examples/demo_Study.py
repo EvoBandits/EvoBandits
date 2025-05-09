@@ -19,5 +19,5 @@ if __name__ == "__main__":
 
     # Execute the Optimization
     study = Study(seed=42, algorithm=my_evobandits)
-    study.optimize(rosenbrock_function, params, 100)
-    print(study.best_trial)
+    best_trial = study.optimize(rosenbrock_function, params, 100)
+    print(best_trial)

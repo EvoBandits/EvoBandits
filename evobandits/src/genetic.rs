@@ -11,6 +11,7 @@ pub const MUTATION_RATE_DEFAULT: f64 = 0.25;
 pub const CROSSOVER_RATE_DEFAULT: f64 = 1.0;
 pub const MUTATION_SPAN_DEFAULT: f64 = 0.1;
 
+#[derive(Debug, PartialEq)]
 pub struct GeneticAlgorithm {
     pub mutation_rate: f64,
     pub crossover_rate: f64,

@@ -1,3 +1,3 @@
-from evobandits.study.study import Study
+from evobandits.study.study import ALGORITHM_DEFAULT, Study
 
-__all__ = ["Study"]
+__all__ = ["Study", "ALGORITHM_DEFAULT"]

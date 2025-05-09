@@ -8,6 +8,7 @@ PARAMS_2D = {"number": IntParam(-5, 10, 2)}
 
 BOUNDS_2D = [(-5, 10), (-5, 10)]
 RESULTS_2D = [1, 1]
+BEST_TRIAL_2D = {"number": RESULTS_2D}
 
 
 def function(number: list):
