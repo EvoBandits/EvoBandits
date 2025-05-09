@@ -23,8 +23,8 @@ Last accessed: 2025-04-18
 Version: 1.6.1
 """
 
-# import pandas as pd
 import numpy as np
+import pandas as pd
 from evobandits import Arm, CategoricalParam, FloatParam, IntParam
 from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.datasets import make_blobs
@@ -62,7 +62,7 @@ BEST_TRIAL_EXAMPLE = [
         },
     },
 ]
-# TRIALS_DF = pd.DataFrame(BEST_TRIAL_EXAMPLE)
+TRIALS_DF = pd.DataFrame(BEST_TRIAL_EXAMPLE)
 
 
 # Generate sample data
