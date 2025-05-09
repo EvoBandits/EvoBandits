@@ -60,9 +60,9 @@ def test_evobandits_init(kwargs):
     [
         [[(0, 100), (0, 100)] * 5, 100, {}],
         [[(0, 100), (0, 100)] * 5, 100, {"seed": 42}],
-        [[(0, 100), (0, 100)] * 5, 100, {"top_k": 2}],
+        [[(0, 100), (0, 100)] * 5, 100, {"n_best": 2}],
         [[(0, 100), (0, 100)] * 5, 1, {"population_size": 2, "exp": pytest.raises(RuntimeError)}],
-        [[(0, 100), (0, 100)] * 5, 1, {"top_k": 0, "exp": pytest.raises(RuntimeError)}],
+        [[(0, 100), (0, 100)] * 5, 1, {"n_best": 0, "exp": pytest.raises(RuntimeError)}],
         [[(0, 10), (0, 10)], 100, {"population_size": 0, "exp": pytest.raises(RuntimeError)}],
         [[(0, 10), (0, 10)], 100, {"mutation_rate": -0.1, "exp": pytest.raises(RuntimeError)}],
         [[(0, 10), (0, 10)], 100, {"crossover_rate": 1.1, "exp": pytest.raises(RuntimeError)}],
@@ -72,9 +72,9 @@ def test_evobandits_init(kwargs):
     ids=[
         "success",
         "success_with_seed",
-        "success_with_top_k",
+        "success_with_n_best",
         "fail_budget_value",
-        "fail_top_k_value",
+        "fail_n_best_value",
         "fail_population_size_value",  # ToDo Issue #57: Err should be raised in the constructor
         "fail_mutation_rate_value",  # ToDo Issue #57: Err should be raised in the constructor
         "fail_crossover_rate_value",  # ToDo Issue #57: Err should be raised in the constructor
@@ -85,13 +85,13 @@ def test_evobandits_init(kwargs):
 def test_evobandits(bounds, budget, kwargs):
     expectation = kwargs.pop("exp", nullcontext())
     seed = kwargs.pop("seed", None)
-    top_k = kwargs.pop("top_k", 1)
+    n_best = kwargs.pop("n_best", 1)
     with expectation:
         evobandits = EvoBandits(**kwargs)
-        result = evobandits.optimize(rb.function, bounds, budget, top_k, seed)
+        result = evobandits.optimize(rb.function, bounds, budget, n_best, seed)
 
         assert all(isinstance(r, Arm) for r in result)
-        assert len(result) == top_k
+        assert len(result) == n_best
 
 
 @pytest.mark.parametrize(

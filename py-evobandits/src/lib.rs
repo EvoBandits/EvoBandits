@@ -130,7 +130,7 @@ impl EvoBandits {
         py_func,
         bounds,
         simulation_budget,
-        top_k,
+        n_best,
         seed=None,
     ))]
     fn optimize(
@@ -138,14 +138,14 @@ impl EvoBandits {
         py_func: PyObject,
         bounds: Vec<(i32, i32)>,
         simulation_budget: usize,
-        top_k: usize,
+        n_best: usize,
         seed: Option<u64>,
     ) -> PyResult<Vec<Arm>> {
         let py_opti_function = PythonOptimizationFn::new(py_func);
 
         let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             self.evobandits
-                .optimize(py_opti_function, bounds, simulation_budget, top_k, seed)
+                .optimize(py_opti_function, bounds, simulation_budget, n_best, seed)
         }));
 
         match result {
