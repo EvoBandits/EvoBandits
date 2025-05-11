@@ -134,9 +134,21 @@ jobs:
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
             set -e
-            apk add py3-pip py3-virtualenv py3-scikit-learn py3-numpy
+            apk add --no-cache \
+              py3-pip \
+              py3-virtualenv \
+              build-base \
+              python3-dev \
+              openblas-dev \
+              libffi-dev \
+              lapack-dev \
+              gfortran \
+              freetype-dev \
+              musl-dev
             python3 -m virtualenv .venv --system-site-packages
             source .venv/bin/activate
+            pip install -U pip
+            pip install numpy pandas scikit-learn
             pip install evobandits --no-index --find-links dist --force-reinstall
             pip install pytest
             pytest
@@ -160,7 +172,7 @@ jobs:
               freetype-dev \
               musl-dev
             pip install -U pip
-            pip install pandas scikit-learn numpy
+            pip install numpy pandas scikit-learn
           run: |
             set -e
             python3 -m virtualenv .venv --system-site-packages
