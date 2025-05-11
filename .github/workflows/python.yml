@@ -126,7 +126,7 @@ jobs:
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
           path: dist
-      - name: pytest
+      - name: pytest (x86_64)
         if: ${{ startsWith(matrix.platform.target, 'x86_64') }}
         uses: addnab/docker-run-action@v3
         with:
@@ -134,6 +134,7 @@ jobs:
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
             set -e
+            # System dependencies installation
             apk add --no-cache \
               py3-pip \
               py3-virtualenv \
@@ -145,21 +146,27 @@ jobs:
               gfortran \
               freetype-dev \
               musl-dev
+
+            # Create and activate virtual environment
             python3 -m virtualenv .venv --system-site-packages
             source .venv/bin/activate
+
+            # Install Python dependencies inside the venv
             pip install -U pip
-            pip install numpy pandas scikit-learn
             pip install evobandits --no-index --find-links dist --force-reinstall
             pip install pytest
+
+            # Run tests
             pytest
-      - name: pytest
-        if: ${{ !startsWith(matrix.platform.target, 'x86') }}
+      - name: pytest (aarch64)
+        if: ${{ !startsWith(matrix.platform.target, 'x86') && matrix.platform.target != 'armv7' }}
         uses: uraimo/run-on-arch-action@v2
         with:
           arch: ${{ matrix.platform.target }}
           distro: alpine_latest
           githubToken: ${{ github.token }}
           install: |
+            # System dependencies installation
             apk add --no-cache \
               py3-virtualenv \
               build-base \
@@ -171,16 +178,20 @@ jobs:
               gfortran \
               freetype-dev \
               musl-dev
-            pip install -U pip
-            pip install numpy pandas scikit-learn
           run: |
             set -e
+            # Create and activate virtual environment
             python3 -m virtualenv .venv --system-site-packages
             source .venv/bin/activate
+
+            # Install Python dependencies inside the venv
+            pip install -U pip
+            pip install evobandits --no-index --find-links dist --force-reinstall
             pip install pytest
-            pip install evobandits --find-links dist --force-reinstall
+
+            # Run tests
             pytest
-      - name: pytest
+      - name: pytest (armv7)
         if: ${{ matrix.platform.target == 'armv7' }}
         uses: uraimo/run-on-arch-action@v2
         with:
@@ -188,6 +199,7 @@ jobs:
           distro: alpine_latest
           githubToken: ${{ github.token }}
           install: |
+            # System dependencies installation
             apk add --no-cache \
               py3-virtualenv \
               build-base \
@@ -199,14 +211,18 @@ jobs:
               gfortran \
               freetype-dev \
               musl-dev
-            pip install -U pip
-            pip install numpy pandas scikit-learn
           run: |
             set -e
+            # Create and activate virtual environment
             python3 -m virtualenv .venv --system-site-packages
             source .venv/bin/activate
+
+            # Install Python dependencies inside the venv
+            pip install -U pip
+            pip install evobandits --no-index --find-links dist --force-reinstall
             pip install pytest
-            pip install evobandits --find-links dist --force-reinstall
+
+            # Run tests
             pytest
 
   windows:
