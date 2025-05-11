@@ -180,6 +180,34 @@ jobs:
             pip install pytest
             pip install evobandits --find-links dist --force-reinstall
             pytest
+      - name: pytest
+        if: ${{ matrix.platform.target == 'armv7' }}
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: armv7
+          distro: alpine_latest
+          githubToken: ${{ github.token }}
+          install: |
+            apk add --no-cache \
+              py3-virtualenv \
+              build-base \
+              py3-pip \
+              python3-dev \
+              openblas-dev \
+              libffi-dev \
+              lapack-dev \
+              gfortran \
+              freetype-dev \
+              musl-dev
+            pip install -U pip
+            pip install numpy pandas scikit-learn
+          run: |
+            set -e
+            python3 -m virtualenv .venv --system-site-packages
+            source .venv/bin/activate
+            pip install pytest
+            pip install evobandits --find-links dist --force-reinstall
+            pytest
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
