@@ -15,7 +15,6 @@
 # differences to the original file:
 # - added manifest path to the maturin-action
 # - commented out not so popular platforms (could be added if someone needs them)
-# - we install ourPackage[test] only on platforms that support sklearn at the moment
 
 name: Test & Build Python
 
@@ -153,8 +152,7 @@ jobs:
 
             # Install Python dependencies inside the venv
             pip install -U pip
-            pip install numpy scikit-learn
-            pip install evobandits --no-index --find-links dist --force-reinstall
+            pip install evobandits[test] --find-links dist --force-reinstall
             pip install pytest
 
             # Run tests
@@ -187,8 +185,7 @@ jobs:
 
             # Install Python dependencies inside the venv
             pip install -U pip
-            pip install numpy scikit-learn
-            pip install evobandits --no-index --find-links dist --force-reinstall
+            pip install evobandits[test] --find-links dist --force-reinstall
             pip install pytest
 
             # Run tests
@@ -221,8 +218,7 @@ jobs:
 
             # Install Python dependencies inside the venv
             pip install -U pip
-            pip install numpy scikit-learn
-            pip install evobandits --no-index --find-links dist --force-reinstall
+            pip install evobandits[test] --find-links dist --force-reinstall
             pip install pytest
 
             # Run tests
