@@ -153,6 +153,7 @@ jobs:
 
             # Install Python dependencies inside the venv
             pip install -U pip
+            pip install numpy scikit-learn
             pip install evobandits --no-index --find-links dist --force-reinstall
             pip install pytest
 
@@ -186,6 +187,7 @@ jobs:
 
             # Install Python dependencies inside the venv
             pip install -U pip
+            pip install numpy scikit-learn
             pip install evobandits --no-index --find-links dist --force-reinstall
             pip install pytest
 
@@ -219,6 +221,7 @@ jobs:
 
             # Install Python dependencies inside the venv
             pip install -U pip
+            pip install numpy scikit-learn
             pip install evobandits --no-index --find-links dist --force-reinstall
             pip install pytest
 
