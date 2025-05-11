@@ -35,3 +35,5 @@ if __name__ == "__main__":
     study = Study(seed=42, algorithm=my_evobandits)
     best_trials = study.optimize(rosenbrock_function, params, 1000)
     print(best_trials[0])
+
+    print(study.results_df)
