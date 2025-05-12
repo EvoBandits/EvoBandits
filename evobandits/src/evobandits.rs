@@ -515,7 +515,7 @@ mod tests {
 
     #[test]
     #[should_panic = "n_best"]
-    fn test_panic_on_invalid_return_n_best() {
+    fn test_panic_on_invalid_n_best() {
         let n_best = 0; // top 0 results makes no sense, but fits in usize
         let bounds = vec![(1, 100), (1, 100)];
         let mut evobandits = EvoBandits::new(Default::default());

@@ -33,5 +33,9 @@ if __name__ == "__main__":
 
     # Execute the Optimization
     study = Study(seed=42, algorithm=my_evobandits)
-    best_trials = study.optimize(rosenbrock_function, params, 1000)
-    print(best_trials[0])
+    results = study.optimize(rosenbrock_function, params, 10000, n_best=3)
+
+    print("Number of Results:", len(results))  # matches n_best
+    [
+        print(r) for r in results
+    ]  # params, mean_reward, num_pulls, and position for each result
