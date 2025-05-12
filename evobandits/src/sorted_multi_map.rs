@@ -75,3 +75,51 @@ impl<K: Ord, V: PartialEq> SortedMultiMap<K, V> {
         self.inner.is_empty()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sorted_multi_map_insert() {
+        let mut map = SortedMultiMap::new();
+        map.insert(FloatKey::new(1.0), 1);
+        map.insert(FloatKey::new(1.0), 2);
+        map.insert(FloatKey::new(2.0), 3);
+
+        let mut iter = map.iter();
+
+        assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &1)));
+        assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &2)));
+        assert_eq!(iter.next(), Some((&FloatKey::new(2.0), &3)));
+        assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn test_sorted_multi_map_delete() {
+        let mut map = SortedMultiMap::new();
+        map.insert(FloatKey::new(1.0), 1);
+        map.insert(FloatKey::new(1.0), 2);
+        map.insert(FloatKey::new(2.0), 3);
+
+        assert!(map.delete(&FloatKey::new(1.0), &1));
+        assert!(map.delete(&FloatKey::new(2.0), &3));
+        assert!(!map.delete(&FloatKey::new(2.0), &3));
+
+        let mut iter = map.iter();
+
+        assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &2)));
+        assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn test_sorted_multi_map_is_empty() {
+        let mut map = SortedMultiMap::new();
+
+        map.insert(FloatKey::new(1.0), 1);
+        assert_eq!(map.is_empty(), false);
+
+        map.delete(&FloatKey::new(1.0), &1);
+        assert!(map.is_empty());
+    }
+}
