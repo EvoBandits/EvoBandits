@@ -27,11 +27,13 @@ def rosenbrock_function(number: list):
 if __name__ == "__main__":
     bounds = [(-5, 10), (-5, 10)]
     evaluation_budget = 10000
-    n_best = 1
+    n_best = 3
     evobandits = EvoBandits()
-    results = evobandits.optimize(
+    best_arms = evobandits.optimize(
         rosenbrock_function, bounds, evaluation_budget, n_best
     )
 
-    print(len(results))  # matches n_best
-    print(results[0].to_dict)  # action_vector, mean_reward, and num_pull for best arm
+    print("Number of Results:", len(best_arms))  # matches n_best
+    print(
+        best_arms[0].to_dict
+    )  # action_vector, mean_reward, and num_pulls for best arm

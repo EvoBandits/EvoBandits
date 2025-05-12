@@ -65,15 +65,15 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
 @pytest.mark.parametrize(
     "objective, params, trials, kwargs",
     [
-        [rb.function, rb.PARAMS_2D, 1, {}],
+        [rb.function, rb.PARAMS, 1, {}],
         [
             cl.function,
             cl.PARAMS,
             2,
-            {"n_best": 2, "optimize_ret": cl.RESULTS_EXAMPLE, "exp_result": cl.BEST_TRIAL_EXAMPLE},
+            {"n_best": 2, "optimize_ret": cl.ARMS_EXAMPLE, "exp_result": cl.TRIALS_EXAMPLE},
         ],
-        [rb.function, rb.PARAMS_2D, 1, {"maximize": True}],
-        [rb.function, rb.PARAMS_2D, 1, {"maximize": "False", "exp": pytest.raises(TypeError)}],
+        [rb.function, rb.PARAMS, 1, {"maximize": True}],
+        [rb.function, rb.PARAMS, 1, {"maximize": "False", "exp": pytest.raises(TypeError)}],
     ],
     ids=[
         "valid_default_testcase",
@@ -86,8 +86,8 @@ def test_optimize(objective, params, trials, kwargs):
     # Mock dependencies
     # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
     mock_algorithm = MagicMock()
-    mock_algorithm.optimize.return_value = kwargs.pop("optimize_ret", rb.RESULTS_2D)
-    exp_result = kwargs.pop("exp_result", rb.BEST_TRIAL_2D)
+    mock_algorithm.optimize.return_value = kwargs.pop("optimize_ret", rb.ARM_BEST)
+    exp_result = kwargs.pop("exp_result", rb.TRIAL_BEST)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
 
     # Extract expected exceptions
@@ -107,8 +107,8 @@ def test_optimize(objective, params, trials, kwargs):
 @pytest.mark.parametrize(
     "study_results, exp_df, kwargs",
     [
-        [rb.BEST_TRIAL_2D, rb.TRIALS_DF_2D, {}],
-        [cl.BEST_TRIAL_EXAMPLE, cl.TRIALS_DF, {}],
+        [rb.TRIAL_BEST, rb.DF_BEST, {}],
+        [cl.TRIALS_EXAMPLE, cl.DF_EXAMPLE, {}],
         [[], None, {"exp": pytest.raises(AttributeError)}],  # unsafe, if study was not optimized
     ],
     ids=[

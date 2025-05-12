@@ -158,11 +158,11 @@ impl EvoBandits {
         }
     }
 
-    fn extract_best_arms(&mut self, simulation_used: usize, n_best: usize) -> Vec<Arm> {
+    fn extract_best_arms(&mut self, simulation_used: usize, mut n_best: usize) -> Vec<Arm> {
         let mut best_arms: Vec<Arm> = Vec::new();
-        for _ in 0..n_best {
+        while n_best > 0 {
             // Return early if there are no more arms to extract
-            if self.sample_average_tree.iter().peekable().peek().is_none() {
+            if self.sample_average_tree.is_empty() {
                 println!(
                     "Population ({}) is smaller than n_best ({}). Returning all arms instead.",
                     best_arms.len(),
@@ -179,6 +179,7 @@ impl EvoBandits {
                 .delete(&FloatKey::new(best_arm.get_mean_reward()), &best_arm_index);
 
             best_arms.push(best_arm);
+            n_best -= 1;
         }
 
         best_arms
@@ -292,38 +293,6 @@ impl EvoBandits {
 mod tests {
     use super::*;
     use std::cell::RefCell;
-
-    #[test]
-    fn test_sorted_multi_map_insert() {
-        let mut map = SortedMultiMap::new();
-        map.insert(FloatKey::new(1.0), 1);
-        map.insert(FloatKey::new(1.0), 2);
-        map.insert(FloatKey::new(2.0), 3);
-
-        let mut iter = map.iter();
-
-        assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &1)));
-        assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &2)));
-        assert_eq!(iter.next(), Some((&FloatKey::new(2.0), &3)));
-        assert_eq!(iter.next(), None);
-    }
-
-    #[test]
-    fn test_sorted_multi_map_delete() {
-        let mut map = SortedMultiMap::new();
-        map.insert(FloatKey::new(1.0), 1);
-        map.insert(FloatKey::new(1.0), 2);
-        map.insert(FloatKey::new(2.0), 3);
-
-        assert!(map.delete(&FloatKey::new(1.0), &1));
-        assert!(map.delete(&FloatKey::new(2.0), &3));
-        assert!(!map.delete(&FloatKey::new(2.0), &3));
-
-        let mut iter = map.iter();
-
-        assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &2)));
-        assert_eq!(iter.next(), None);
-    }
 
     fn mock_opti_function(_vec: &[i32]) -> f64 {
         0.0
@@ -546,7 +515,7 @@ mod tests {
 
     #[test]
     #[should_panic = "n_best"]
-    fn test_panic_on_invalid_return_n_best() {
+    fn test_panic_on_invalid_n_best() {
         let n_best = 0; // top 0 results makes no sense, but fits in usize
         let bounds = vec![(1, 100), (1, 100)];
         let mut evobandits = EvoBandits::new(Default::default());

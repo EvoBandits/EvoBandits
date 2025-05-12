@@ -29,16 +29,18 @@ from evobandits import Arm, CategoricalParam, FloatParam, IntParam
 from sklearn.cluster import KMeans, MiniBatchKMeans
 from sklearn.datasets import make_blobs
 
-# Useful parameters
+# Bounds and example Arm to mock EvoBandits optimization (for n_best = 2)
+BOUNDS = [(0, 1), (0, 1), (1, 10), (0, 100)]
+ARMS_EXAMPLE = [Arm([0, 0, 4, 0]), Arm([0, 0, 3, 0])]
+
+# Params and expected result to mock a Study (with n_best = 1)
 PARAMS = {
     "algorithm": CategoricalParam([KMeans, MiniBatchKMeans]),
     "init": CategoricalParam(["k-means++", "random"]),
     "n_clusters": IntParam(1, 10),
     "tol": FloatParam(1e-4, 1e-2),
 }
-BOUNDS = [(0, 1), (0, 1), (1, 10), (0, 100)]
-RESULTS_EXAMPLE = [Arm([0, 0, 4, 0]), Arm([0, 0, 3, 0])]
-BEST_TRIAL_EXAMPLE = [
+TRIALS_EXAMPLE = [
     {
         "n_best": 1,
         "mean_reward": 0.0,
@@ -62,7 +64,7 @@ BEST_TRIAL_EXAMPLE = [
         },
     },
 ]
-TRIALS_DF = pd.DataFrame(
+DF_EXAMPLE = pd.DataFrame(
     [
         {
             "n_best": 1,

@@ -19,11 +19,14 @@ Objective function and useful parameters for the multidimensional rosenbrock fun
 import pandas as pd
 from evobandits import Arm, IntParam
 
-PARAMS_2D = {"number": IntParam(-5, 10, 2)}
-BOUNDS_2D = [(-5, 10), (-5, 10)]
-RESULTS_2D = [Arm([1, 1])]
-BEST_TRIAL_2D = [{"n_best": 1, "mean_reward": 0.0, "num_pulls": 0, "params": {"number": [1, 1]}}]
-TRIALS_DF_2D = pd.DataFrame(
+# Bounds and best Arm to mock EvoBandits optimization (two-dimensional, for n_best = 1)
+BOUNDS = [(-5, 10), (-5, 10)]
+ARM_BEST = [Arm([1, 1])]
+
+# Params and expected result to mock a Study (two-dimensional, with n_best = 1)
+PARAMS = {"number": IntParam(-5, 10, 2)}
+TRIAL_BEST = [{"n_best": 1, "mean_reward": 0.0, "num_pulls": 0, "params": {"number": [1, 1]}}]
+DF_BEST = pd.DataFrame(
     [{"n_best": 1, "mean_reward": 0.0, "num_pulls": 0, "params_number_0": 1, "params_number_1": 1}]
 )
 
