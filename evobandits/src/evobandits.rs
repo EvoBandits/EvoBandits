@@ -158,11 +158,11 @@ impl EvoBandits {
         }
     }
 
-    fn extract_best_arms(&mut self, simulation_used: usize, n_best: usize) -> Vec<Arm> {
+    fn extract_best_arms(&mut self, simulation_used: usize, mut n_best: usize) -> Vec<Arm> {
         let mut best_arms: Vec<Arm> = Vec::new();
-        for _ in 0..n_best {
+        while n_best > 0 {
             // Return early if there are no more arms to extract
-            if self.sample_average_tree.iter().peekable().peek().is_none() {
+            if self.sample_average_tree.is_empty() {
                 println!(
                     "Population ({}) is smaller than n_best ({}). Returning all arms instead.",
                     best_arms.len(),
@@ -179,6 +179,7 @@ impl EvoBandits {
                 .delete(&FloatKey::new(best_arm.get_mean_reward()), &best_arm_index);
 
             best_arms.push(best_arm);
+            n_best -= 1;
         }
 
         best_arms
@@ -323,6 +324,17 @@ mod tests {
 
         assert_eq!(iter.next(), Some((&FloatKey::new(1.0), &2)));
         assert_eq!(iter.next(), None);
+    }
+
+    #[test]
+    fn test_sorted_multi_map_is_empty() {
+        let mut map = SortedMultiMap::new();
+
+        map.insert(FloatKey::new(1.0), 1);
+        assert_eq!(map.is_empty(), false);
+
+        map.delete(&FloatKey::new(1.0), &1);
+        assert!(map.is_empty());
     }
 
     fn mock_opti_function(_vec: &[i32]) -> f64 {
