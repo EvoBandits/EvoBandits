@@ -72,13 +72,42 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
             {"n_best": 2, "optimize_ret": cl.ARMS_EXAMPLE, "exp_result": cl.TRIALS_EXAMPLE},
         ],
         [rb.function, rb.PARAMS, 1, {"maximize": True}],
+        [
+            rb.function,
+            rb.PARAMS,
+            1,
+            {
+                "n_runs": 2,
+                "exp_result": [
+                    {
+                        "run_id": 0,
+                        "best_id": 1,
+                        "mean_reward": 0.0,
+                        "num_pulls": 0,
+                        "params": {"number": [1, 1]},
+                    },
+                    {
+                        "run_id": 1,
+                        "best_id": 1,
+                        "mean_reward": 0.0,
+                        "num_pulls": 0,
+                        "params": {"number": [1, 1]},
+                    },
+                ],
+            },
+        ],
         [rb.function, rb.PARAMS, 1, {"maximize": "False", "exp": pytest.raises(TypeError)}],
+        [rb.function, rb.PARAMS, 1, {"n_runs": "2", "exp": pytest.raises(TypeError)}],
+        [rb.function, rb.PARAMS, 1, {"n_runs": 0, "exp": pytest.raises(ValueError)}],
     ],
     ids=[
         "valid_default_testcase",
         "valid_clustering_testcase",
         "default_with_maximize",
+        "default_with_n_runs",
         "invalid_maximize_type",
+        "invalid_n_runs_type",
+        "invalid_n_runs_value",
     ],
 )
 def test_optimize(objective, params, trials, kwargs):
@@ -94,6 +123,15 @@ def test_optimize(objective, params, trials, kwargs):
 
     # Optimize a study and verify results
     with expectation:
-        result = study.optimize(objective, params, trials, **kwargs)
+        study.optimize(objective, params, trials, **kwargs)
+
+        result = study.results
+
+        print(result)
+        print(exp_result)
+
         assert result == exp_result
-        assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now
+        assert mock_algorithm.optimize.call_count == kwargs.get("n_runs", 1)
+
+
+# ToDo: add aggregation properties

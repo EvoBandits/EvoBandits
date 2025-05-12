@@ -55,6 +55,7 @@ class Study:
         self.algorithm = algorithm  # ToDo Issue #23: type and input validation
         self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
         self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
+        self.results: list = []
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
@@ -109,6 +110,7 @@ class Study:
         trials: int,
         maximize: bool = False,
         n_best: int = 1,
+        n_runs: int = 1,
     ) -> None:
         """
         Optimize the objective function.
@@ -122,6 +124,7 @@ class Study:
             trials (int): The number of trials to run.
             maximize (bool): Indicates if objective is maximized. Default is False.
             n_best (int): The number of results to return per run. Default is 1.
+            n_runs (int): The number of times optimization is repeated. Default is 1.
 
         Returns:
             dict: The best parameter values found during optimization.
@@ -130,18 +133,24 @@ class Study:
             raise TypeError(f"maximize must be a bool, got {type(maximize)}.")
         self._direction = -1 if maximize else 1
 
+        if not isinstance(n_runs, int):
+            raise TypeError(f"n_runs must be a int larger than 0, got {type(n_runs)}.")
+        if n_runs < 1:
+            raise ValueError(f"n_runs must be a int larger than 0, got {n_runs}.")
+
         self.objective = objective
         self.params = params
-
         bounds = self._collect_bounds()
-        best_arms = self.algorithm.optimize(self._evaluate, bounds, trials, n_best, self.seed)
 
-        best_results = []
-        for i, arm in enumerate(best_arms, start=1):
-            result = arm.to_dict
-            action_vector = result.pop("action_vector")
-            result["params"] = self._decode(action_vector)
-            result["n_best"] = i
-            best_results.append(result)
+        for run_id in range(n_runs):
+            seed = self.seed + run_id  # Ensure different entropy for each run
+            algorithm = self.algorithm  # ToDo: Copy Algorithm
+            best_arms = algorithm.optimize(self._evaluate, bounds, trials, n_best, seed)
 
-        return best_results
+            for best_id, arm in enumerate(best_arms, start=1):
+                result = arm.to_dict
+                action_vector = result.pop("action_vector")
+                result["params"] = self._decode(action_vector)
+                result["best_id"] = best_id
+                result["run_id"] = run_id
+                self.results.append(result)

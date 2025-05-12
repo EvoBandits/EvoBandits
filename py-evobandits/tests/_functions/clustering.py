@@ -41,7 +41,8 @@ PARAMS = {
 }
 TRIALS_EXAMPLE = [
     {
-        "n_best": 1,
+        "run_id": 0,
+        "best_id": 1,
         "mean_reward": 0.0,
         "num_pulls": 0,
         "params": {
@@ -52,7 +53,8 @@ TRIALS_EXAMPLE = [
         },
     },
     {
-        "n_best": 2,
+        "run_id": 0,
+        "best_id": 2,
         "mean_reward": 0.0,
         "num_pulls": 0,
         "params": {
