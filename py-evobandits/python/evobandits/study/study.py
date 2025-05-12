@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from collections.abc import Callable, Mapping
+from functools import cached_property
+from statistics import mean
 from typing import TypeAlias
 
 from evobandits import logging
@@ -154,3 +156,24 @@ class Study:
                 result["best_id"] = best_id
                 result["run_id"] = run_id
                 self.results.append(result)
+
+    @cached_property
+    def best_mean_reward(self) -> float:
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        return max(self.results, key=lambda r: -self._direction * r["mean_reward"])["mean_reward"]
+
+    @cached_property
+    def mean_mean_reward(self) -> float:
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        return mean([r["mean_reward"] for r in self.results])
+
+    @cached_property
+    def best_params(self) -> ParamsType:
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        # Return first match (stable) with best reward
+        for r in self.results:
+            if r["mean_reward"] == self.best_mean_reward:
+                return r["params"]
