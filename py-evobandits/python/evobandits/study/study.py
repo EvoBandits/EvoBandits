@@ -144,7 +144,7 @@ class Study:
 
         for run_id in range(n_runs):
             seed = self.seed + run_id  # Ensure different entropy for each run
-            algorithm = self.algorithm  # ToDo: Copy Algorithm
+            algorithm = self.algorithm.clone()
             best_arms = algorithm.optimize(self._evaluate, bounds, trials, n_best, seed)
 
             for best_id, arm in enumerate(best_arms, start=1):

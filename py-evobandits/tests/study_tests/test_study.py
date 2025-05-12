@@ -115,6 +115,8 @@ def test_optimize(objective, params, trials, kwargs):
     # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
     mock_algorithm = MagicMock()
     mock_algorithm.optimize.return_value = kwargs.pop("optimize_ret", rb.ARM_BEST)
+    mock_algorithm.clone.return_value = mock_algorithm
+
     exp_result = kwargs.pop("exp_result", rb.TRIAL_BEST)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
 
