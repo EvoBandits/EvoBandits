@@ -72,13 +72,42 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
             {"n_best": 2, "optimize_ret": cl.ARMS_EXAMPLE, "exp_result": cl.TRIALS_EXAMPLE},
         ],
         [rb.function, rb.PARAMS, 1, {"maximize": True}],
+        [
+            rb.function,
+            rb.PARAMS,
+            1,
+            {
+                "n_runs": 2,
+                "exp_result": [
+                    {
+                        "run_id": 0,
+                        "best_id": 1,
+                        "mean_reward": 0.0,
+                        "num_pulls": 0,
+                        "params": {"number": [1, 1]},
+                    },
+                    {
+                        "run_id": 1,
+                        "best_id": 1,
+                        "mean_reward": 0.0,
+                        "num_pulls": 0,
+                        "params": {"number": [1, 1]},
+                    },
+                ],
+            },
+        ],
         [rb.function, rb.PARAMS, 1, {"maximize": "False", "exp": pytest.raises(TypeError)}],
+        [rb.function, rb.PARAMS, 1, {"n_runs": "2", "exp": pytest.raises(TypeError)}],
+        [rb.function, rb.PARAMS, 1, {"n_runs": 0, "exp": pytest.raises(ValueError)}],
     ],
     ids=[
         "valid_default_testcase",
         "valid_clustering_testcase",
         "default_with_maximize",
+        "default_with_n_runs",
         "invalid_maximize_type",
+        "invalid_n_runs_type",
+        "invalid_n_runs_value",
     ],
 )
 def test_optimize(objective, params, trials, kwargs):
@@ -86,6 +115,8 @@ def test_optimize(objective, params, trials, kwargs):
     # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
     mock_algorithm = MagicMock()
     mock_algorithm.optimize.return_value = kwargs.pop("optimize_ret", rb.ARM_BEST)
+    mock_algorithm.clone.return_value = mock_algorithm
+
     exp_result = kwargs.pop("exp_result", rb.TRIAL_BEST)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
 
@@ -94,6 +125,45 @@ def test_optimize(objective, params, trials, kwargs):
 
     # Optimize a study and verify results
     with expectation:
-        result = study.optimize(objective, params, trials, **kwargs)
+        study.optimize(objective, params, trials, **kwargs)
+
+        result = study.results
         assert result == exp_result
-        assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now
+        assert mock_algorithm.optimize.call_count == kwargs.get("n_runs", 1)
+
+
+@pytest.mark.parametrize(
+    "direction, best_params, best_mr, mean_mr",
+    [
+        [+1, {"number": [1, 1]}, 1.0, 2.0],
+        [-1, {"number": [3, 3]}, 3.0, 2.0],
+    ],
+    ids=["default_minimize", "default_maximize"],
+)
+def test_study_properties(direction, best_params, best_mr, mean_mr):
+    # Mock dependencies
+    mock_algorithm = MagicMock()
+    study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
+    study._direction = direction
+    study.results = [
+        {
+            "mean_reward": 1.0,
+            "num_pulls": 10,
+            "params": {"number": [1, 1]},
+        },
+        {
+            "mean_reward": 2.0,
+            "num_pulls": 10,
+            "params": {"number": [2, 2]},
+        },
+        {
+            "mean_reward": 3.0,
+            "num_pulls": 10,
+            "params": {"number": [3, 3]},
+        },
+    ]
+
+    # Access properties and verify
+    assert study.best_params == best_params
+    assert study.best_mean_reward == best_mr
+    assert study.mean_mean_reward == mean_mr

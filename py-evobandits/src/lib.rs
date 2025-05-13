@@ -95,7 +95,7 @@ impl From<RustArm> for Arm {
 }
 
 #[pyclass(eq)]
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 struct EvoBandits {
     evobandits: RustEvoBandits,
 }
@@ -165,6 +165,11 @@ impl EvoBandits {
                 }
             }
         }
+    }
+
+    fn clone(&self) -> PyResult<Self> {
+        let evobandits = self.evobandits.clone(); // Uses the derived clone() from Clone trait
+        Ok(EvoBandits { evobandits })
     }
 }
 

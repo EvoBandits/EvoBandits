@@ -36,7 +36,7 @@ impl Ord for FloatKey {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub(crate) struct SortedMultiMap<K: Ord, V: PartialEq> {
     inner: BTreeMap<K, Vec<V>>,
 }
