@@ -55,7 +55,7 @@ class Study:
         elif not isinstance(seed, int):
             raise TypeError(f"Seed must be integer: {seed}")
 
-        self.seed: int | None = seed
+        self.seed: int = seed
         self.algorithm = algorithm  # ToDo Issue #23: type and input validation
         self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
         self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
@@ -115,7 +115,7 @@ class Study:
         maximize: bool = False,
         n_best: int = 1,
         n_runs: int = 1,
-    ) -> list:
+    ) -> None:
         """
         Optimize the objective function.
 
