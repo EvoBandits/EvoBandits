@@ -14,6 +14,7 @@
 
 from collections.abc import Callable, Mapping
 from functools import cached_property
+from os import urandom
 from statistics import mean
 from typing import TypeAlias
 
@@ -50,6 +51,7 @@ class Study:
         """
         if seed is None:
             _logger.warning("No seed provided. Results will not be reproducible.")
+            seed = int.from_bytes(urandom(4), "big")  # Range: 0 to 2**32 - 1
         elif not isinstance(seed, int):
             raise TypeError(f"Seed must be integer: {seed}")
 

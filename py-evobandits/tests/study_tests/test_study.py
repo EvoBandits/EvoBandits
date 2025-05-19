@@ -48,7 +48,11 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
     # Initialize a Study and verify its properties
     with expectation:
         study = Study(seed, **kwargs)
-        assert study.seed == seed
+
+        if seed is None:
+            assert isinstance(study.seed, int)  # uses entropy in unseeded case
+        else:
+            assert study.seed == seed
         assert study.algorithm == exp_algorithm
         assert study.objective is None
         assert study.params is None
