@@ -9,5 +9,5 @@ name = "evobandits"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.24.0"
+pyo3 = "0.25.0"
 evobandits_rust = { package = "evobandits", path = "../evobandits" }
