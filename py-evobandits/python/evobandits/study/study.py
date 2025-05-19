@@ -113,7 +113,7 @@ class Study:
         maximize: bool = False,
         n_best: int = 1,
         n_runs: int = 1,
-    ) -> None:
+    ) -> list:
         """
         Optimize the objective function.
 

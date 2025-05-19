@@ -88,6 +88,8 @@ impl Arm {
     }
 }
 
+// Wraps a RustArm as python-compatible Arm instance.
+// Required, since RustArm isn't a #[pyclass] and we want to keep evobandits as clean rust crate.
 impl From<RustArm> for Arm {
     fn from(arm: RustArm) -> Self {
         Arm { arm }
@@ -149,6 +151,8 @@ impl EvoBandits {
         }));
 
         match result {
+            // Convert rust-only Vec<RustArm> into Python-compatible Vec<Arm> wrappers,
+            // so PyO3 can safely return them across the FFI boundary.
             Ok(result) => {
                 let py_result: Vec<Arm> = result.into_iter().map(Arm::from).collect();
                 Ok(py_result)
