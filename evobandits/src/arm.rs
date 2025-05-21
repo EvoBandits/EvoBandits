@@ -26,34 +26,44 @@ impl<F: Fn(&[i32]) -> f64> OptimizationFn for F {
 
 #[derive(Debug)]
 pub struct Arm {
+    // Tracks the running mean (`value`) and corrected sum of squares (`corr_ssq`) of observed rewards
+    // using Welford’s one‐pass algorithm. On each new reward `g`, we incrementally update:
+    //   let delta = g - value;
+    //   value += δ / n;
+    //   corr_ssq += delta * (g - value);
+    // `delta` is the difference between the incoming reward x and the current mean (value),
+    // i.e. the instantaneous error used to update both the mean and the corrected sum of squares.
+    //
+    // This yields a numerically stable estimate of the variance (corr_ssq / (n - 1)) without storing
+    // all past samples. It prevents catastrophic cancellation and maintains accuracy in a single pass.
+    //
+    // Source: Welford, B. P. (1962) ‘Note on a Method for Calculating Corrected Sums of Squares and Products’,
+    // Technometrics, 4(3), pp. 419–420. doi: 10.1080/00401706.1962.10490022.
     action_vector: Vec<i32>,
-    value: f64,
     n_evaluations: i32,
+    value: f64,
     corr_ssq: f64,
 }
 
 impl Arm {
     pub fn new(action_vector: &[i32]) -> Self {
         Self {
-            value: 0.0,
-            n_evaluations: 0,
-            corr_ssq: 0.0,
             action_vector: action_vector.to_vec(),
+            n_evaluations: 0,
+            value: 0.0,
+            corr_ssq: 0.0,
         }
     }
 
     pub(crate) fn pull<F: OptimizationFn>(&mut self, opt_fn: &F) -> f64 {
+        // Obtain the next reward 'g' from the OptimizationFn
         let g = opt_fn.evaluate(&self.action_vector);
 
+        // Update Arm according to Welford's algorithm
         self.n_evaluations += 1;
-
-        // Update value (mean_reward)
         let delta = g - self.value;
         self.value += delta / self.n_evaluations as f64;
-
-        // Update corrected sum of squares (Welford's Method for online variance calculation)
-        let delta2 = g - self.value;
-        self.corr_ssq += delta * delta2;
+        self.corr_ssq += delta * (g - self.value);
 
         g
     }
@@ -89,8 +99,8 @@ impl Clone for Arm {
     fn clone(&self) -> Self {
         Self {
             action_vector: self.action_vector.clone(),
-            value: self.value,
             n_evaluations: self.n_evaluations,
+            value: self.value,
             corr_ssq: self.corr_ssq,
         }
     }
