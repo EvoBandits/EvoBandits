@@ -129,12 +129,14 @@ jobs:
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
           path: dist
-      - name: Test built wheels with cibuildwheel container
+      - name: Test built wheels using cibuildwheel container
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.target }}
-          CIBW_BUILD: "cp3{10,11,12,13}-*"
+          CIBW_BUILD: "cp3{10,11,12,13}-*"   # Python versions to test
           CIBW_SKIP: "*-none-any"
-          CIBW_TEST_COMMAND: pytest
+          CIBW_TEST_COMMAND: |
+            pip install {wheel}[test]
+            pytest -v
           CIBW_MUSLLINUX_IMAGE: musllinux_1_2
         run: |
           mkdir -p py-evobandits/wheelhouse
