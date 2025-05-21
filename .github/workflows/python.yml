@@ -67,7 +67,7 @@ jobs:
         with:
           name: wheels-linux-${{ matrix.platform.target }}
           path: dist
-      - name: pytest
+      - name: pytest (x86_64)
         if: ${{ startsWith(matrix.platform.target, 'x86_64') }}
         shell: bash
         run: |
@@ -75,9 +75,8 @@ jobs:
           python3 -m venv .venv
           source .venv/bin/activate
           pip install evobandits[test] --find-links dist --force-reinstall
-          pip install pytest
           pytest
-      - name: pytest
+      - name: pytest (others)
         if: ${{ !startsWith(matrix.platform.target, 'x86') && matrix.platform.target != 'ppc64' }}
         uses: uraimo/run-on-arch-action@v2
         with:
@@ -87,10 +86,9 @@ jobs:
           install: |
             apt-get update
             apt-get install -y --no-install-recommends python3 python3-pip build-essential python3-dev
-            pip3 install -U pip pytest
           run: |
             set -e
-            pip3 install evobandits --find-links dist --force-reinstall
+            pip3 install evobandits[test] --find-links dist --force-reinstall
             pytest
 
   musllinux:
