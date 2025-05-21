@@ -134,16 +134,15 @@ jobs:
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.target }}
           CIBW_BUILD: "cp3{10,11,12,13}-*"
-          CIBW_SKIP: ""
-          CIBW_TEST_COMMAND: pip install -U evobandits[test] && pytest
+          CIBW_SKIP: "*-none-any"
+          CIBW_TEST_COMMAND: pytest
           CIBW_MUSLLINUX_IMAGE: musllinux_1_2
         run: |
-          mkdir -p wheelhouse
-          cp dist/*.whl wheelhouse/
-          python3 -m venv .venv
-          source .venv/bin/activate
-          pip install wheelhouse/*.whl[test]
-          pytest
+          mkdir -p py-evobandits/wheelhouse
+          cp dist/*.whl py-evobandits/wheelhouse/
+          cd py-evobandits
+          cibuildwheel --platform linux --only-test --output-dir ../dist
+
 
 
   windows:
