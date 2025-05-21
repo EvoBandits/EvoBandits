@@ -86,7 +86,7 @@ jobs:
           install: |
             apt-get update
             apt-get install -y --no-install-recommends \
-              python3 python3-pip build-essential python3-dev ninja-build cython3
+              python3 python3-pip build-essential python3-dev ninja-build
             pip3 install --no-cache-dir --upgrade Cython>=3.0.6
           run: |
             set -e
@@ -140,8 +140,8 @@ jobs:
         run: |
           mkdir -p wheelhouse
           cp dist/*.whl wheelhouse/
-          cibuildwheel --platform linux --output-dir dist --project-root py-evobandits
-
+          cd py-evobandits
+          cibuildwheel --platform linux --output-dir ../dist
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
