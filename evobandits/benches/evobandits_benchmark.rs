@@ -41,24 +41,28 @@ fn benchmark_evobandits(c: &mut Criterion) {
     group.measurement_time(std::time::Duration::from_secs(60));
 
     // Simulate different budgets
-    for budget in [10_000, 100_000].iter() {
-        group.bench_with_input(BenchmarkId::new("Noisy", budget), budget, |b, &budget| {
-            b.iter(|| {
-                let mut evobandits = EvoBandits::new(Default::default());
-                let bounds = vec![(-50, 50), (-50, 50)];
+    for n_trials in [10_000, 100_000].iter() {
+        group.bench_with_input(
+            BenchmarkId::new("Noisy", n_trials),
+            n_trials,
+            |b, &n_trials| {
+                b.iter(|| {
+                    let mut evobandits = EvoBandits::new(Default::default());
+                    let bounds = vec![(-50, 50), (-50, 50)];
 
-                // Run the optimization
-                let result = evobandits.optimize(
-                    black_box(noisy_rosenbrock),
-                    black_box(bounds),
-                    black_box(budget),
-                    1,
-                    Default::default(),
-                );
+                    // Run the optimization
+                    let result = evobandits.optimize(
+                        black_box(noisy_rosenbrock),
+                        black_box(bounds),
+                        black_box(n_trials),
+                        1,
+                        Default::default(),
+                    );
 
-                result
-            });
-        });
+                    result
+                });
+            },
+        );
     }
 
     group.finish();

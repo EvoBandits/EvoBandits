@@ -130,7 +130,7 @@ impl EvoBandits {
     #[pyo3(signature = (
         py_func,
         bounds,
-        simulation_budget,
+        n_trials,
         n_best,
         seed=None,
     ))]
@@ -138,7 +138,7 @@ impl EvoBandits {
         &mut self,
         py_func: PyObject,
         bounds: Vec<(i32, i32)>,
-        simulation_budget: usize,
+        n_trials: usize,
         n_best: usize,
         seed: Option<u64>,
     ) -> PyResult<Vec<Arm>> {
@@ -146,7 +146,7 @@ impl EvoBandits {
 
         let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             self.evobandits
-                .optimize(py_opti_function, bounds, simulation_budget, n_best, seed)
+                .optimize(py_opti_function, bounds, n_trials, n_best, seed)
         }));
 
         match result {

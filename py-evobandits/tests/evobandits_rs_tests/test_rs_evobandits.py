@@ -56,7 +56,7 @@ def test_evobandits_init(kwargs):
 
 
 @pytest.mark.parametrize(
-    "bounds, budget, kwargs",
+    "bounds, n_trials, kwargs",
     [
         [[(0, 100), (0, 100)] * 5, 100, {}],
         [[(0, 100), (0, 100)] * 5, 100, {"seed": 42}],
@@ -73,7 +73,7 @@ def test_evobandits_init(kwargs):
         "success",
         "success_with_seed",
         "success_with_n_best",
-        "fail_budget_value",
+        "fail_n_trials_value",
         "fail_n_best_value",
         "fail_population_size_value",  # ToDo Issue #57: Err should be raised in the constructor
         "fail_mutation_rate_value",  # ToDo Issue #57: Err should be raised in the constructor
@@ -82,13 +82,13 @@ def test_evobandits_init(kwargs):
         "fail_population_size_solution_size",
     ],
 )
-def test_evobandits(bounds, budget, kwargs):
+def test_evobandits(bounds, n_trials, kwargs):
     expectation = kwargs.pop("exp", nullcontext())
     seed = kwargs.pop("seed", None)
     n_best = kwargs.pop("n_best", 1)
     with expectation:
         evobandits = EvoBandits(**kwargs)
-        result = evobandits.optimize(rb.function, bounds, budget, n_best, seed)
+        result = evobandits.optimize(rb.function, bounds, n_trials, n_best, seed)
 
         assert all(isinstance(r, Arm) for r in result)
         assert len(result) == n_best

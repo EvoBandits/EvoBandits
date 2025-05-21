@@ -32,7 +32,7 @@ ALGORITHM_DEFAULT = EvoBandits()
 
 class Study:
     """
-    A Study represents an optimization task consisting of a set of trials.
+    A Study represents an optimization task.
 
     This class provides interfaces to optimize an objective function within specified bounds
     and to manage user-defined attributes related to the study.
@@ -106,7 +106,7 @@ class Study:
         self,
         objective: Callable,
         params: ParamsType,
-        trials: int,
+        n_trials: int,
         maximize: bool = False,
         n_best: int = 1,
     ) -> list[dict[str, Any]]:
@@ -119,7 +119,7 @@ class Study:
         Args:
             objective (Callable): The objective function to optimize.
             params (dict): A dictionary of parameters with their bounds.
-            trials (int): The number of trials to run.
+            n_trials (int): The number of evaluations to perform on the objective.
             maximize (bool): Indicates if objective is maximized. Default is False.
             n_best (int): The number of results to return per run. Default is 1.
 
@@ -134,7 +134,7 @@ class Study:
         self.params = params
 
         bounds = self._collect_bounds()
-        best_arms = self.algorithm.optimize(self._evaluate, bounds, trials, n_best, self.seed)
+        best_arms = self.algorithm.optimize(self._evaluate, bounds, n_trials, n_best, self.seed)
 
         best_results = []
         for i, arm in enumerate(best_arms, start=1):
