@@ -47,7 +47,7 @@ class Study:
 
         Args:
             seed: The seed for the Study. Defaults to None (use system entropy).
-            algorithm: The optimization algorithm to use. Defaults to EvoBandits.
+            algorithm : The optimization algorithm to use. Defaults to EvoBandits.
         """
         if seed is None:
             _logger.warning("No seed provided. Results will not be reproducible.")
@@ -59,7 +59,7 @@ class Study:
         self.algorithm = algorithm  # ToDo Issue #23: type and input validation
         self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
         self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
-        self.results: list = []
+        self.results: list[dict[str, Any]] = []
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
@@ -115,7 +115,7 @@ class Study:
         maximize: bool = False,
         n_best: int = 1,
         n_runs: int = 1,
-    ) -> list[dict[str, Any]]:
+    ) -> None:
         """
         Optimize the objective function.
 
@@ -129,9 +129,6 @@ class Study:
             maximize (bool): Indicates if objective is maximized. Default is False.
             n_best (int): The number of results to return per run. Default is 1.
             n_runs (int): The number of times optimization is repeated. Default is 1.
-
-        Returns:
-            list[dict[str, Any]]: A list of best results found during optimization.
         """
         if not isinstance(maximize, bool):
             raise TypeError(f"maximize must be a bool, got {type(maximize)}.")
@@ -160,16 +157,16 @@ class Study:
                 self.results.append(result)
 
     @cached_property
-    def best_mean_reward(self) -> float:
+    def best_value(self) -> float:
         if not self.results:
             raise AttributeError("Study has no results. Run study.optimize() first.")
-        return max(self.results, key=lambda r: -self._direction * r["mean_reward"])["mean_reward"]
+        return max(self.results, key=lambda r: -self._direction * r["value"])["value"]
 
     @cached_property
-    def mean_mean_reward(self) -> float:
+    def mean_value(self) -> float:
         if not self.results:
             raise AttributeError("Study has no results. Run study.optimize() first.")
-        return mean([r["mean_reward"] for r in self.results])
+        return mean([r["value"] for r in self.results])
 
     @cached_property
     def best_params(self) -> ParamsType:
@@ -177,5 +174,5 @@ class Study:
             raise AttributeError("Study has no results. Run study.optimize() first.")
         # Return first match (stable) with best reward
         for r in self.results:
-            if r["mean_reward"] == self.best_mean_reward:
+            if r["value"] == self.best_value:
                 return r["params"]

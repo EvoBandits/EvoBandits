@@ -137,31 +137,31 @@ def test_optimize(objective, params, n_trials, kwargs):
 
 
 @pytest.mark.parametrize(
-    "direction, best_params, best_mr, mean_mr",
+    "direction, best_params, best_value, mean_value",
     [
         [+1, {"number": [1, 1]}, 1.0, 2.0],
         [-1, {"number": [3, 3]}, 3.0, 2.0],
     ],
     ids=["default_minimize", "default_maximize"],
 )
-def test_study_properties(direction, best_params, best_mr, mean_mr):
+def test_study_properties(direction, best_params, best_value, mean_value):
     # Mock dependencies
     mock_algorithm = MagicMock()
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
     study._direction = direction
     study.results = [
         {
-            "mean_reward": 1.0,
+            "value": 1.0,
             "num_pulls": 10,
             "params": {"number": [1, 1]},
         },
         {
-            "mean_reward": 2.0,
+            "value": 2.0,
             "num_pulls": 10,
             "params": {"number": [2, 2]},
         },
         {
-            "mean_reward": 3.0,
+            "value": 3.0,
             "num_pulls": 10,
             "params": {"number": [3, 3]},
         },
@@ -169,5 +169,5 @@ def test_study_properties(direction, best_params, best_mr, mean_mr):
 
     # Access properties and verify
     assert study.best_params == best_params
-    assert study.best_mean_reward == best_mr
-    assert study.mean_mean_reward == mean_mr
+    assert study.best_value == best_value
+    assert study.mean_value == mean_value
