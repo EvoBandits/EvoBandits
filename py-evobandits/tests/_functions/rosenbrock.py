@@ -28,6 +28,7 @@ TRIAL_BEST = [
     {
         "n_best": 1,
         "value": 0.0,
+        "value_variance": 0.0,
         "value_std_dev": 0.0,
         "n_evaluations": 0,
         "params": {"number": [1, 1]},
