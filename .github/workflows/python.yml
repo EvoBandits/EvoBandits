@@ -104,8 +104,6 @@ jobs:
           #   target: x86
           - runner: ubuntu-22.04
             target: aarch64
-          # - runner: ubuntu-22.04
-          #   target: armv7
           - runner: ubuntu-22.04
             target: armv7l
 
@@ -137,7 +135,7 @@ jobs:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.target }}
           CIBW_BUILD: "cp3{10,11,12,13}-*"
           CIBW_SKIP: ""
-          CIBW_TEST_COMMAND: pip install -U evobandits[test] && pytest evobandits/tests
+          CIBW_TEST_COMMAND: pip install -U evobandits[test] && pytest py-evobandits/tests
           CIBW_MUSLLINUX_IMAGE: musllinux_1_2
         run: |
           mkdir -p wheelhouse
