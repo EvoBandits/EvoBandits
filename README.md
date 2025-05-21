@@ -31,8 +31,8 @@ def test_function(number: list) -> float:
 if __name__ == '__main__':
     bounds = [(-5, 10), (-5, 10)]
     evobandits = EvoBandits(test_function, bounds)
-    evaluation_budget = 10000
-    result = evobandits.optimize(evaluation_budget)
+    n_trials = 10000
+    result = evobandits.optimize(n_trials)
     print(result)
 ```
 

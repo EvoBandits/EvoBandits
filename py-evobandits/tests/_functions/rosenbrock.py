@@ -25,9 +25,20 @@ ARM_BEST = [Arm([1, 1])]
 
 # Params and expected result to mock a Study (two-dimensional, with n_best = 1)
 PARAMS = {"number": IntParam(-5, 10, 2)}
-TRIAL_BEST = [{"n_best": 1, "mean_reward": 0.0, "num_pulls": 0, "params": {"number": [1, 1]}}]
+TRIAL_BEST = [
+    {"run_id": 0, "n_best": 1, "value": 0.0, "n_evaluations": 0, "params": {"number": [1, 1]}}
+]
 DF_BEST = pd.DataFrame(
-    [{"n_best": 1, "mean_reward": 0.0, "num_pulls": 0, "params_number_0": 1, "params_number_1": 1}]
+    [
+        {
+            "run_id": 0,
+            "n_best": 1,
+            "value": 0.0,
+            "n_evaluations": 0,
+            "params_number_0": 1,
+            "params_number_1": 1,
+        }
+    ]
 )
 
 

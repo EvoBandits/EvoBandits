@@ -33,11 +33,10 @@ if __name__ == "__main__":
 
     # Execute the Optimization
     study = Study(seed=42, algorithm=my_evobandits)
-    study.optimize(rosenbrock_function, params, 10000, n_best=3)
+    study.optimize(rosenbrock_function, params, 10000, n_best=3, n_runs=2)
 
-    print("Number of Results:", len(study.results))  # matches n_best
-
+    print("Number of Results:", len(study.results))  # matches n_best * n_runs
     for r in study.results:
-        print(r)  # params, mean_reward, num_pulls, and position for each result
+        print(r)  # params, value, n_evaluations, position and run per result
 
-    print(study.results_df())  # Convert study.results to DataFrame
+    print(study.results_df())

@@ -13,7 +13,10 @@
 # limitations under the License.
 
 from collections.abc import Callable, Mapping
-from typing import TypeAlias
+from functools import cached_property
+from os import urandom
+from statistics import mean
+from typing import Any, TypeAlias
 
 import pandas as pd
 
@@ -34,7 +37,7 @@ ALGORITHM_DEFAULT = EvoBandits()
 
 class Study:
     """
-    A Study represents an optimization task consisting of a set of trials.
+    A Study represents an optimization task.
 
     This class provides interfaces to optimize an objective function within specified bounds
     and to manage user-defined attributes related to the study.
@@ -46,17 +49,19 @@ class Study:
 
         Args:
             seed: The seed for the Study. Defaults to None (use system entropy).
-            algorithm: The optimization algorithm to use. Defaults to EvoBandits.
+            algorithm : The optimization algorithm to use. Defaults to EvoBandits.
         """
         if seed is None:
             _logger.warning("No seed provided. Results will not be reproducible.")
+            seed = int.from_bytes(urandom(4), "big")  # Range: 0 to 2**32 - 1
         elif not isinstance(seed, int):
             raise TypeError(f"Seed must be integer: {seed}")
 
-        self.seed: int | None = seed
+        self.seed: int = seed
         self.algorithm = algorithm  # ToDo Issue #23: type and input validation
         self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
         self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
+        self.results: list[dict[str, Any]] = []
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
@@ -109,9 +114,10 @@ class Study:
         self,
         objective: Callable,
         params: ParamsType,
-        trials: int,
+        n_trials: int,
         maximize: bool = False,
         n_best: int = 1,
+        n_runs: int = 1,
     ) -> None:
         """
         Optimize the objective function, saving results to `study.results`.
@@ -122,27 +128,57 @@ class Study:
         Args:
             objective (Callable): The objective function to optimize.
             params (dict): A dictionary of parameters with their bounds.
-            trials (int): The number of trials to run.
+            n_trials (int): The number of evaluations to perform on the objective.
             maximize (bool): Indicates if objective is maximized. Default is False.
             n_best (int): The number of results to return per run. Default is 1.
-
+            n_runs (int): The number of times optimization is repeated. Default is 1.
         """
         if not isinstance(maximize, bool):
             raise TypeError(f"maximize must be a bool, got {type(maximize)}.")
         self._direction = -1 if maximize else 1
 
+        if not isinstance(n_runs, int):
+            raise TypeError(f"n_runs must be a int larger than 0, got {type(n_runs)}.")
+        if n_runs < 1:
+            raise ValueError(f"n_runs must be a int larger than 0, got {n_runs}.")
+
         self.objective = objective
         self.params = params
-
         bounds = self._collect_bounds()
-        best_arms = self.algorithm.optimize(self._evaluate, bounds, trials, n_best, self.seed)
 
-        for i, arm in enumerate(best_arms, start=1):
-            result = arm.to_dict
-            action_vector = result.pop("action_vector")
-            result["params"] = self._decode(action_vector)
-            result["n_best"] = i
-            self.results.append(result)
+        for run_id in range(n_runs):
+            seed = self.seed + run_id  # Ensure different entropy for each run
+            algorithm = self.algorithm.clone()
+            best_arms = algorithm.optimize(self._evaluate, bounds, n_trials, n_best, seed)
+
+            for n_best, arm in enumerate(best_arms, start=1):
+                result = arm.to_dict
+                action_vector = result.pop("action_vector")
+                result["params"] = self._decode(action_vector)
+                result["n_best"] = n_best
+                result["run_id"] = run_id
+                self.results.append(result)
+
+    @cached_property
+    def best_value(self) -> float:
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        return max(self.results, key=lambda r: -self._direction * r["value"])["value"]
+
+    @cached_property
+    def mean_value(self) -> float:
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        return mean([r["value"] for r in self.results])
+
+    @cached_property
+    def best_params(self) -> ParamsType:
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        # Return first match (stable) with best reward
+        for r in self.results:
+            if r["value"] == self.best_value:
+                return r["params"]
 
     def results_df(self) -> pd.DataFrame:
         if not self.results:
