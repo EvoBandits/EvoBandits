@@ -65,7 +65,6 @@ class Study:
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
-        self.results: list[dict] = []
 
     def _collect_bounds(self) -> list[tuple[int, int]]:
         """
@@ -120,7 +119,7 @@ class Study:
         n_runs: int = 1,
     ) -> None:
         """
-        Optimize the objective function, saving results to `study.results`.
+        Optimize the objective function.
 
         The optimization process involves selecting suitable hyperparameter values within
         specified bounds and running the objective function for a given number of trials.

@@ -189,7 +189,6 @@ def test_study_properties(direction, best_params, best_value, mean_value):
 )
 def test_results_df(study_results, exp_df, kwargs):
     # Mock dependencies
-    # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
     mock_algorithm = MagicMock()
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
     study.results = study_results
