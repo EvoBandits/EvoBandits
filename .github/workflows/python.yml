@@ -111,19 +111,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up QEMU for ARM builds
         uses: docker/setup-qemu-action@v2
         with:
           platforms: all
-
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-
       - name: Install build tools
         run: python -m pip install cibuildwheel
-
       - name: Build wheels with maturin
         uses: PyO3/maturin-action@v1
         with:
@@ -131,24 +127,23 @@ jobs:
           args: --release --out dist --find-interpreter --manifest-path py-evobandits/Cargo.toml
           sccache: "true"
           manylinux: musllinux_1_2
-
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
           path: dist
-
       - name: Test built wheels with cibuildwheel container
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.target }}
           CIBW_BUILD: "cp3{10,11,12,13}-*"
           CIBW_SKIP: ""
-          CIBW_TEST_COMMAND: pip install evobandits[test] && pytest .
+          CIBW_TEST_COMMAND: pip install -U evobandits[test] && pytest evobandits/tests
           CIBW_MUSLLINUX_IMAGE: musllinux_1_2
         run: |
           mkdir -p wheelhouse
           cp dist/*.whl wheelhouse/
           cibuildwheel --platform linux --output-dir dist py-evobandits
+
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
