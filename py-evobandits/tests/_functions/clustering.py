@@ -44,6 +44,7 @@ TRIALS_EXAMPLE = [
         "n_best": 1,
         "value": 0.0,
         "n_evaluations": 0,
+        "variance": 0.0,
         "params": {
             "algorithm": KMeans,
             "init": "k-means++",
@@ -55,6 +56,7 @@ TRIALS_EXAMPLE = [
         "n_best": 2,
         "value": 0.0,
         "n_evaluations": 0,
+        "variance": 0.0,
         "params": {
             "algorithm": KMeans,
             "init": "k-means++",

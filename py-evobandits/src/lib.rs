@@ -71,6 +71,11 @@ impl Arm {
     }
 
     #[getter]
+    fn variance(&self) -> f64 {
+        self.arm.get_variance()
+    }
+
+    #[getter]
     fn action_vector(&self) -> Vec<i32> {
         self.arm.get_action_vector().to_vec()
     }
@@ -83,6 +88,7 @@ impl Arm {
         dict.set_item("value", self.arm.get_value()).unwrap();
         dict.set_item("n_evaluations", self.arm.get_n_evaluations())
             .unwrap();
+        dict.set_item("variance", self.arm.get_variance()).unwrap();
         dict.into()
     }
 }

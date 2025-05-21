@@ -87,7 +87,7 @@ impl Arm {
         self.value
     }
 
-    pub(crate) fn get_variance(&self) -> f64 {
+    pub fn get_variance(&self) -> f64 {
         if self.n_evaluations <= 1 {
             return 0.0;
         }
