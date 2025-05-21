@@ -22,11 +22,11 @@ from tests._functions import rosenbrock as rb
 
 def test_arm():
     mock_av = [1, 1, 1]
-    exp_dict = {"action_vector": mock_av, "mean_reward": 0.0, "num_pulls": 0}
+    exp_dict = {"action_vector": mock_av, "mean_reward": 0.0, "n_evaluations": 0}
 
     arm = Arm(mock_av)
     assert arm.action_vector == mock_av
-    assert arm.num_pulls == 0
+    assert arm.n_evaluations == 0
     assert arm.mean_reward == 0.0
     assert arm.to_dict == exp_dict
 

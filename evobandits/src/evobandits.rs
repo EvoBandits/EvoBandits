@@ -55,8 +55,8 @@ impl EvoBandits {
     fn max_number_pulls(&self) -> i32 {
         let mut max_number_pulls = 0;
         for arm in &self.arm_memory {
-            if arm.get_num_pulls() > max_number_pulls {
-                max_number_pulls = arm.get_num_pulls();
+            if arm.get_n_evaluations() > max_number_pulls {
+                max_number_pulls = arm.get_n_evaluations();
             }
         }
         max_number_pulls
@@ -77,7 +77,7 @@ impl EvoBandits {
             );
 
             // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
-            if self.arm_memory[*arm_index as usize].get_num_pulls() == max_number_pulls {
+            if self.arm_memory[*arm_index as usize].get_n_evaluations() == max_number_pulls {
                 break;
             }
         }
@@ -96,7 +96,7 @@ impl EvoBandits {
                 (self.arm_memory[*arm_index as usize].get_mean_reward() - ucb_norm_min)
                     / (ucb_norm_max - ucb_norm_min);
             let penalty_term: f64 = (2.0 * (simulations_used as f64).ln()
-                / self.arm_memory[*arm_index as usize].get_num_pulls() as f64)
+                / self.arm_memory[*arm_index as usize].get_n_evaluations() as f64)
                 .sqrt();
             let ucb_value: f64 = transformed_sample_mean + penalty_term;
 
@@ -107,7 +107,7 @@ impl EvoBandits {
             }
 
             // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
-            if self.arm_memory[*arm_index as usize].get_num_pulls() == max_number_pulls {
+            if self.arm_memory[*arm_index as usize].get_n_evaluations() == max_number_pulls {
                 break;
             }
         }
@@ -282,7 +282,7 @@ impl EvoBandits {
                 // print number of pulls of best arm
                 println!(
                     " n(x): {}",
-                    self.arm_memory[best_arm_index as usize].get_num_pulls()
+                    self.arm_memory[best_arm_index as usize].get_n_evaluations()
                 );
             }
         }
@@ -429,7 +429,7 @@ mod tests {
 
         evobandits.sample_and_update(0, arm.clone(), &mock_opti_function);
 
-        assert_eq!(evobandits.arm_memory[0].get_num_pulls(), 2);
+        assert_eq!(evobandits.arm_memory[0].get_n_evaluations(), 2);
         assert_eq!(evobandits.arm_memory[0].get_mean_reward(), 0.0);
         assert_eq!(
             evobandits

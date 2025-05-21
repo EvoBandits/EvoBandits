@@ -31,13 +31,22 @@ The user can modify the conditions for the optimization using the following keyw
 
 The optimization function (also: 'objective', or 'func') is defined by the user and **evaluated** multiple times during optimization with EvoBandits. The user also specifies constraints for the solution space (as decision parameters using the Python API or directly as bounds), as well as the conditions (for example, the simulation budget) for the optimization.
 
-#### Trial
+#### Results
 
-With respect to the Python API, a trial stands for a single evaluation of the optimization function. This is closely connected to the following keywords:
-- `trials`: The budget, or number of function evaluations for the optimization.
-- `best_trial`: The parameters with the best evaluation result from the optimization.
+In the context of EvoBandits, a multi-armed bandit algorithm, each result is internally represented by an `Arm`. During optimization, each arm is pulled, i.e. the result is chosen by the algorithm, evaluated with the objective function, and its value is observed and saved. After optimization, the best results are returned.
+
+Users can assess the quality of each distinct results with the following metrics:
+- `value`: The objective value of the result observed during optimization. In the case of the EvoBandits algorithm, the value is the mean of all evaluation results.
+- `n_evaluations`: The number of times a result has been evaluated during optimization. This metric tracks how much experience the algorithm has with each result (or Arm) and indicates whether a result has been explored or exploited by the algorithm.
+- `n_best`: The rank of the result in the respective optimization run. The best configuration is marked with n_best = 1.
 
 #### Seeding
 
 The user can define a `seed` to ensure deterministic behaviour and reproduce optimization results (under certain conditions).
 Per default, the optimization is unseeded, and system entropy is used instead.
+
+#### Trial
+
+With respect to the Python API, a trial stands for a single evaluation of the optimization function. This is closely connected to the following keywords:
+- `trials`: The budget, or number of function evaluations for the optimization.
+- `best_trial`: The parameters with the best evaluation result from the optimization.

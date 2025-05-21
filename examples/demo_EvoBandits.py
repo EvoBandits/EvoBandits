@@ -36,4 +36,4 @@ if __name__ == "__main__":
     print("Number of Results:", len(best_arms))  # matches n_best
     print(
         best_arms[0].to_dict
-    )  # action_vector, mean_reward, and num_pulls for best arm
+    )  # action_vector, mean_reward, and n_evaluations for best arm

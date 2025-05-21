@@ -61,8 +61,8 @@ impl Arm {
     }
 
     #[getter]
-    fn num_pulls(&self) -> i32 {
-        self.arm.get_num_pulls()
+    fn n_evaluations(&self) -> i32 {
+        self.arm.get_n_evaluations()
     }
 
     #[getter]
@@ -82,7 +82,7 @@ impl Arm {
             .unwrap();
         dict.set_item("mean_reward", self.arm.get_mean_reward())
             .unwrap();
-        dict.set_item("num_pulls", self.arm.get_num_pulls())
+        dict.set_item("n_evaluations", self.arm.get_n_evaluations())
             .unwrap();
         dict.into()
     }
