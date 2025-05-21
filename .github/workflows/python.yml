@@ -136,13 +136,11 @@ jobs:
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.target }}
           CIBW_SKIP: cp27-* cp36-* cp37-*
-          CIBW_TEST_COMMAND: |
-            pip install evobandits[test]
-            pytest .
+          CIBW_TEST_COMMAND: pip install evobandits[test] && pytest .
         run: |
           mkdir -p wheelhouse
           cp dist/*.whl wheelhouse/
-          cibuildwheel --only test --platform linux --output-dir dist
+          cibuildwheel --platform linux --output-dir dist
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
