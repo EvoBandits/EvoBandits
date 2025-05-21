@@ -29,7 +29,7 @@ pub struct Arm {
     // Tracks the running mean (`value`) and corrected sum of squares (`corr_ssq`) of observed rewards
     // using Welford’s one‐pass algorithm. On each new reward `g`, we incrementally update:
     //   let delta = g - value;
-    //   value += δ / n;
+    //   value += delta / n;
     //   corr_ssq += delta * (g - value);
     // `delta` is the difference between the incoming reward x and the current mean (value),
     // i.e. the instantaneous error used to update both the mean and the corrected sum of squares.
@@ -56,10 +56,9 @@ impl Arm {
     }
 
     pub(crate) fn pull<F: OptimizationFn>(&mut self, opt_fn: &F) -> f64 {
-        // Obtain the next reward 'g' from the OptimizationFn
         let g = opt_fn.evaluate(&self.action_vector);
 
-        // Update Arm according to Welford's algorithm
+        // Update Arm according to Welford's algorithm (see above)
         self.n_evaluations += 1;
         let delta = g - self.value;
         self.value += delta / self.n_evaluations as f64;
@@ -95,9 +94,6 @@ impl Arm {
     }
 
     pub fn get_value_std_dev(&self) -> f64 {
-        if self.n_evaluations <= 1 {
-            return 0.0;
-        }
         (self.get_value_variance()).sqrt()
     }
 }
@@ -226,6 +222,7 @@ mod tests {
     #[test]
     fn test_variance_with_zero_pulls() {
         let arm = Arm::new(&vec![1, 2]);
+        assert_eq!(arm.get_value_variance(), 0.0);
         assert_eq!(arm.get_value_std_dev(), 0.0);
     }
 
