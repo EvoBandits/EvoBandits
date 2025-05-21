@@ -35,7 +35,7 @@ ALGORITHM_DEFAULT = EvoBandits()
 
 class Study:
     """
-    A Study represents an optimization task consisting of a set of trials.
+    A Study represents an optimization task.
 
     This class provides interfaces to optimize an objective function within specified bounds
     and to manage user-defined attributes related to the study.
@@ -111,7 +111,7 @@ class Study:
         self,
         objective: Callable,
         params: ParamsType,
-        trials: int,
+        n_trials: int,
         maximize: bool = False,
         n_best: int = 1,
         n_runs: int = 1,
@@ -125,7 +125,7 @@ class Study:
         Args:
             objective (Callable): The objective function to optimize.
             params (dict): A dictionary of parameters with their bounds.
-            trials (int): The number of trials to run.
+            n_trials (int): The number of evaluations to perform on the objective.
             maximize (bool): Indicates if objective is maximized. Default is False.
             n_best (int): The number of results to return per run. Default is 1.
             n_runs (int): The number of times optimization is repeated. Default is 1.
@@ -149,13 +149,13 @@ class Study:
         for run_id in range(n_runs):
             seed = self.seed + run_id  # Ensure different entropy for each run
             algorithm = self.algorithm.clone()
-            best_arms = algorithm.optimize(self._evaluate, bounds, trials, n_best, seed)
+            best_arms = algorithm.optimize(self._evaluate, bounds, n_trials, n_best, seed)
 
-            for best_id, arm in enumerate(best_arms, start=1):
+            for n_best, arm in enumerate(best_arms, start=1):
                 result = arm.to_dict
                 action_vector = result.pop("action_vector")
                 result["params"] = self._decode(action_vector)
-                result["best_id"] = best_id
+                result["n_best"] = n_best
                 result["run_id"] = run_id
                 self.results.append(result)
 

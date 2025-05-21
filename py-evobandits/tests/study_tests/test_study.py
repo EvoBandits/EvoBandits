@@ -66,7 +66,7 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
 
 
 @pytest.mark.parametrize(
-    "objective, params, trials, kwargs",
+    "objective, params, n_trials, kwargs",
     [
         [rb.function, rb.PARAMS, 1, {}],
         [
@@ -85,16 +85,16 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
                 "exp_result": [
                     {
                         "run_id": 0,
-                        "best_id": 1,
-                        "mean_reward": 0.0,
-                        "num_pulls": 0,
+                        "n_best": 1,
+                        "value": 0.0,
+                        "n_evaluations": 0,
                         "params": {"number": [1, 1]},
                     },
                     {
                         "run_id": 1,
-                        "best_id": 1,
-                        "mean_reward": 0.0,
-                        "num_pulls": 0,
+                        "n_best": 1,
+                        "value": 0.0,
+                        "n_evaluations": 0,
                         "params": {"number": [1, 1]},
                     },
                 ],
@@ -114,7 +114,7 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
         "invalid_n_runs_value",
     ],
 )
-def test_optimize(objective, params, trials, kwargs):
+def test_optimize(objective, params, n_trials, kwargs):
     # Mock dependencies
     # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
     mock_algorithm = MagicMock()
@@ -129,7 +129,7 @@ def test_optimize(objective, params, trials, kwargs):
 
     # Optimize a study and verify results
     with expectation:
-        study.optimize(objective, params, trials, **kwargs)
+        study.optimize(objective, params, n_trials, **kwargs)
 
         result = study.results
         assert result == exp_result

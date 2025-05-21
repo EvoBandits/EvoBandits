@@ -13,11 +13,11 @@ A discrete, integer decision vector that represents a distinct solution of the o
 
 #### Bounds
 
-A list of tuples that define the lower and upper bounds for each value of the action vector, and therefore, constrain the solution space for the optimization with EvoBandits. For problems that are modeled using the Python API, the bounds are derived from the specifications for the individual decision parameters that build the action vector.
+Bounds are defined as a list of tuples, where each tuple specifies the lower and upper limits for a value in the action vector. These bounds constrain the solution space for optimization with EvoBandits. When using the Python API, the bounds are derived from the specifications of the individual decision parameters that make up the action vector.
 
 #### Encoding / Decoding
 
-If the user defines a solution space using the Python API, an encoding step is necessary to convert the solution to an action vector that is usable for optimization with EvoBandits. This step is trivial for integer parameters; however, a discretization step for float parameters and label encoding for categorical parameters is required.
+If the user defines a solution space using the Python API, an encoding step is necessary to convert the solution to an action vector that is usable for optimization with EvoBandits. This step is trivial for integer parameters; however, a discretization step (converting continuous values into discrete intervals) for float parameters and label encoding (assigning unique integer values to categorical data) for categorical parameters is required.
 
 #### EvoBandits Algorithm Options
 
@@ -29,13 +29,18 @@ The user can modify the conditions for the optimization using the following keyw
 
 #### Optimization Function
 
-The optimization function (also: 'objective', or 'func') is defined by the user and **evaluated** multiple times during optimization with EvoBandits. The user also specifies constraints for the solution space (as decision parameters using the Python API or directly as bounds), as well as the conditions (for example, the simulation budget) for the optimization.
+The optimization function (also: 'objective', or 'func') is defined by the user and **evaluated** multiple times during optimization with EvoBandits. The user also specifies constraints for the solution space (as decision parameters using the Python API or directly as bounds), as well as the conditions for the optimization:
+- The budget, or number of function evaluations before the optimization stops is set using `n_trials`. A trial stands for a single evaluation of the optimization function.
 
-#### Trial
+#### Results
 
-With respect to the Python API, a trial stands for a single evaluation of the optimization function. This is closely connected to the following keywords:
-- `trials`: The budget, or number of function evaluations for the optimization.
-- `best_trial`: The parameters with the best evaluation result from the optimization.
+In the context of EvoBandits, a multi-armed bandit algorithm, each result is internally represented by an `Arm`. During optimization, each arm is pulled, i.e. the result is chosen by the algorithm, evaluated with the objective function, and its value is observed and saved. After optimization, the best results are returned.
+
+Users can assess distinct results with the following metrics:
+- `params`: The distinct parameter configuration for the result.
+- `value`: The objective value of the result observed during optimization. In the case of the EvoBandits algorithm, the value is the mean of all evaluation results.
+- `n_evaluations`: The number of times a result has been evaluated during optimization. This metric tracks how much experience the algorithm has with each result (or Arm) and indicates whether a result has been explored or exploited by the algorithm.
+- `n_best`: The rank of the result in the respective optimization run. The best configuration is marked with n_best = 1.
 
 #### Seeding
 
