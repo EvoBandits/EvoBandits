@@ -39,7 +39,7 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 dynamic = ["version"]
-dependencies = ["scikit-learn"]
+dependencies = ["numpy", "scikit-learn"]
 
 [project.optional-dependencies]
 test = [
