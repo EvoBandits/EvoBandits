@@ -43,4 +43,4 @@ if __name__ == "__main__":
     print("Number of Results:", len(results))  # matches n_best
     [
         print(r) for r in results
-    ]  # params, value, n_evaluations, variance and position for each result
+    ]  # params, value, value_std_dev, n_evaluations and position for each result

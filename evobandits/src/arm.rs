@@ -87,11 +87,11 @@ impl Arm {
         self.value
     }
 
-    pub fn get_variance(&self) -> f64 {
+    pub fn get_value_std_dev(&self) -> f64 {
         if self.n_evaluations <= 1 {
             return 0.0;
         }
-        self.corr_ssq / (self.n_evaluations - 1) as f64
+        (self.corr_ssq / (self.n_evaluations - 1) as f64).sqrt()
     }
 }
 
@@ -146,7 +146,7 @@ mod tests {
         assert_eq!(reward, 5.0);
         assert_eq!(arm.get_n_evaluations(), 1);
         assert_eq!(arm.get_value(), 5.0);
-        assert_eq!(arm.get_variance(), 0.0);
+        assert_eq!(arm.get_value_std_dev(), 0.0);
     }
 
     #[test]
@@ -157,7 +157,7 @@ mod tests {
 
         assert_eq!(arm.get_n_evaluations(), 2);
         assert_eq!(arm.get_value(), 5.0); // Since reward is always 5.0
-        assert_eq!(arm.get_variance(), 0.0) // Since reward is always 5.0
+        assert_eq!(arm.get_value_std_dev(), 0.0) // Since reward is always 5.0
     }
 
     #[test]
@@ -182,8 +182,8 @@ mod tests {
         arm.pull(&variable_fn);
         arm.pull(&variable_fn);
 
-        let expected_variance = 1.0; // sample variance of [1,2,3]
-        assert!((arm.get_variance() - expected_variance).abs() < 1e-10);
+        let exp_std_dev = 1.0; // sample std dev of [1,2,3]
+        assert!((arm.get_value_std_dev() - exp_std_dev).abs() < 1e-10);
     }
 
     #[test]
@@ -197,7 +197,7 @@ mod tests {
             cloned_arm.get_function_value(&mock_opti_function)
         );
         assert_eq!(arm.get_action_vector(), cloned_arm.get_action_vector());
-        assert_eq!(arm.get_variance(), cloned_arm.get_variance());
+        assert_eq!(arm.get_value_std_dev(), cloned_arm.get_value_std_dev());
     }
 
     #[test]
@@ -215,7 +215,7 @@ mod tests {
     #[test]
     fn test_variance_with_zero_pulls() {
         let arm = Arm::new(&vec![1, 2]);
-        assert_eq!(arm.get_variance(), 0.0);
+        assert_eq!(arm.get_value_std_dev(), 0.0);
     }
 
     #[test]
@@ -226,6 +226,6 @@ mod tests {
         let cloned_arm = arm.clone();
         assert_eq!(arm.get_n_evaluations(), cloned_arm.get_n_evaluations());
         assert_eq!(arm.get_value(), cloned_arm.get_value());
-        assert_eq!(arm.get_variance(), cloned_arm.get_variance());
+        assert_eq!(arm.get_value_std_dev(), cloned_arm.get_value_std_dev());
     }
 }

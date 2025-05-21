@@ -71,8 +71,8 @@ impl Arm {
     }
 
     #[getter]
-    fn variance(&self) -> f64 {
-        self.arm.get_variance()
+    fn value_std_dev(&self) -> f64 {
+        self.arm.get_value_std_dev()
     }
 
     #[getter]
@@ -86,9 +86,10 @@ impl Arm {
         dict.set_item("action_vector", self.arm.get_action_vector().to_vec())
             .unwrap();
         dict.set_item("value", self.arm.get_value()).unwrap();
+        dict.set_item("value_std_dev", self.arm.get_value_std_dev())
+            .unwrap();
         dict.set_item("n_evaluations", self.arm.get_n_evaluations())
             .unwrap();
-        dict.set_item("variance", self.arm.get_variance()).unwrap();
         dict.into()
     }
 }
