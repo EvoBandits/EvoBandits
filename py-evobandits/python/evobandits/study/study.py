@@ -1,5 +1,19 @@
+# Copyright 2025 EvoBandits
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 from collections.abc import Callable, Mapping
-from typing import TypeAlias
+from typing import Any, TypeAlias
 
 from evobandits import logging
 from evobandits.evobandits import (
@@ -18,7 +32,7 @@ ALGORITHM_DEFAULT = EvoBandits()
 
 class Study:
     """
-    A Study represents an optimization task consisting of a set of trials.
+    A Study represents an optimization task.
 
     This class provides interfaces to optimize an objective function within specified bounds
     and to manage user-defined attributes related to the study.
@@ -44,6 +58,7 @@ class Study:
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
+
     def _collect_bounds(self) -> list[tuple[int, int]]:
         """
         Collects the bounds of all parameters in the study.
@@ -91,9 +106,10 @@ class Study:
         self,
         objective: Callable,
         params: ParamsType,
-        trials: int,
+        n_trials: int,
         maximize: bool = False,
-    ) -> None:
+        n_best: int = 1,
+    ) -> list[dict[str, Any]]:
         """
         Optimize the objective function.
 
@@ -103,11 +119,12 @@ class Study:
         Args:
             objective (Callable): The objective function to optimize.
             params (dict): A dictionary of parameters with their bounds.
-            trials (int): The number of trials to run.
+            n_trials (int): The number of evaluations to perform on the objective.
             maximize (bool): Indicates if objective is maximized. Default is False.
+            n_best (int): The number of results to return per run. Default is 1.
 
         Returns:
-            dict: The best parameter values found during optimization.
+            list[dict[str, Any]]: A list of best results found during optimization.
         """
         if not isinstance(maximize, bool):
             raise TypeError(f"maximize must be a bool, got {type(maximize)}.")
@@ -117,6 +134,14 @@ class Study:
         self.params = params
 
         bounds = self._collect_bounds()
-        best_action_vector = self.algorithm.optimize(self._evaluate, bounds, trials, self.seed)
+        best_arms = self.algorithm.optimize(self._evaluate, bounds, n_trials, n_best, self.seed)
 
-        return self._decode(best_action_vector)
+        best_results = []
+        for i, arm in enumerate(best_arms, start=1):
+            result = arm.to_dict
+            action_vector = result.pop("action_vector")
+            result["params"] = self._decode(action_vector)
+            result["n_best"] = i
+            best_results.append(result)
+
+        return best_results
