@@ -16,7 +16,7 @@ from collections.abc import Callable, Mapping
 from functools import cached_property
 from os import urandom
 from statistics import mean
-from typing import TypeAlias
+from typing import Any, TypeAlias
 
 from evobandits import logging
 from evobandits.evobandits import (
@@ -115,7 +115,7 @@ class Study:
         maximize: bool = False,
         n_best: int = 1,
         n_runs: int = 1,
-    ) -> None:
+    ) -> list[dict[str, Any]]:
         """
         Optimize the objective function.
 
@@ -131,7 +131,7 @@ class Study:
             n_runs (int): The number of times optimization is repeated. Default is 1.
 
         Returns:
-            dict: The best parameter values found during optimization.
+            list[dict[str, Any]]: A list of best results found during optimization.
         """
         if not isinstance(maximize, bool):
             raise TypeError(f"maximize must be a bool, got {type(maximize)}.")
