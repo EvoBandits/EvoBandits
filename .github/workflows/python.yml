@@ -99,44 +99,51 @@ jobs:
         platform:
           - runner: ubuntu-22.04
             target: x86_64
-          #- runner: ubuntu-22.04
-          #  target: x86
+          # - runner: ubuntu-22.04
+          #   target: x86
           - runner: ubuntu-22.04
             target: aarch64
+          # - runner: ubuntu-22.04
+          #   target: armv7
           - runner: ubuntu-22.04
-            target: armv7
+            target: armv7l
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up QEMU for ARM builds
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: all
+
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Build wheels
+
+      - name: Install build tools
+        run: python -m pip install cibuildwheel
+
+      - name: Build wheels with maturin
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --manifest-path py-evobandits/Cargo.toml
           sccache: "true"
-          # Using musllinux_1_2 for compatibility with musl-based systems like Alpine Linux
           manylinux: musllinux_1_2
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: wheels-musllinux-${{ matrix.platform.target }}
           path: dist
 
-      # Test wheels using cibuildwheel instead
-      # cibuildwheel is used here because it provides a consistent and reliable
-      # environment for testing wheels on musl-based systems like Alpine Linux,
-      # ensuring compatibility and avoiding potential issues with manual setups.
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel
-
-      - name: pytest using cibuildwheel container
+      - name: Test built wheels with cibuildwheel container
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.target }}
           CIBW_BUILD: "cp3{10,11,12,13}-*"
           CIBW_SKIP: ""
           CIBW_TEST_COMMAND: pip install evobandits[test] && pytest .
+          CIBW_MUSLLINUX_IMAGE: musllinux_1_2
         run: |
           mkdir -p wheelhouse
           cp dist/*.whl wheelhouse/
