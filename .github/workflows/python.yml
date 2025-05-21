@@ -87,9 +87,9 @@ jobs:
             apt-get update
             apt-get install -y --no-install-recommends \
               python3 python3-pip build-essential python3-dev ninja-build cython3
+            pip3 install --no-cache-dir --upgrade Cython>=3.0.6
           run: |
             set -e
-            pip3 install -U cython
             pip3 install -U evobandits[test] --find-links dist --force-reinstall
             pytest
 
@@ -135,7 +135,7 @@ jobs:
           CIBW_ARCHS_LINUX: ${{ matrix.platform.target }}
           CIBW_BUILD: "cp3{10,11,12,13}-*"
           CIBW_SKIP: ""
-          CIBW_TEST_COMMAND: pip install -U evobandits[test] && pytest py-evobandits/tests
+          CIBW_TEST_COMMAND: pip install -U evobandits[test] && pytest /io/py-evobandits/tests
           CIBW_MUSLLINUX_IMAGE: musllinux_1_2
         run: |
           mkdir -p wheelhouse
