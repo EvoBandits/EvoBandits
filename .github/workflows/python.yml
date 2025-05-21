@@ -89,7 +89,8 @@ jobs:
               python3 python3-pip build-essential python3-dev ninja-build cython3
           run: |
             set -e
-            pip3 install evobandits[test] --find-links dist --force-reinstall
+            pip3 install -U cython
+            pip3 install -U evobandits[test] --find-links dist --force-reinstall
             pytest
 
   musllinux:
