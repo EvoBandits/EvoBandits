@@ -147,7 +147,7 @@ jobs:
         run: |
           mkdir -p wheelhouse
           cp dist/*.whl wheelhouse/
-          cibuildwheel --platform linux --output-dir dist
+          cibuildwheel --platform linux --output-dir dist py-evobandits
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
