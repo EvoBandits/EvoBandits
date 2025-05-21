@@ -140,8 +140,11 @@ jobs:
         run: |
           mkdir -p wheelhouse
           cp dist/*.whl wheelhouse/
-          cd py-evobandits
-          cibuildwheel --platform linux --output-dir ../dist
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install wheelhouse/*.whl[test]
+          pytest
+
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
