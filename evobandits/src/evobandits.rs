@@ -64,7 +64,7 @@ impl EvoBandits {
 
     fn find_best_ucb(&self, simulations_used: usize) -> i32 {
         let arm_index_ucb_norm_min: i32 = *self.sample_average_tree.iter().next().unwrap().1;
-        let ucb_norm_min: f64 = self.arm_memory[arm_index_ucb_norm_min as usize].get_mean_reward();
+        let ucb_norm_min: f64 = self.arm_memory[arm_index_ucb_norm_min as usize].get_value();
 
         let max_number_pulls = self.max_number_pulls();
 
@@ -73,7 +73,7 @@ impl EvoBandits {
         for (_ucb_norm, arm_index) in self.sample_average_tree.iter() {
             ucb_norm_max = f64::max(
                 ucb_norm_max,
-                self.arm_memory[*arm_index as usize].get_mean_reward(),
+                self.arm_memory[*arm_index as usize].get_value(),
             );
 
             // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
@@ -92,9 +92,9 @@ impl EvoBandits {
             }
 
             // transform sample mean to interval [0,1]
-            let transformed_sample_mean: f64 =
-                (self.arm_memory[*arm_index as usize].get_mean_reward() - ucb_norm_min)
-                    / (ucb_norm_max - ucb_norm_min);
+            let transformed_sample_mean: f64 = (self.arm_memory[*arm_index as usize].get_value()
+                - ucb_norm_min)
+                / (ucb_norm_max - ucb_norm_min);
             let penalty_term: f64 = (2.0 * (simulations_used as f64).ln()
                 / self.arm_memory[*arm_index as usize].get_n_evaluations() as f64)
                 .sqrt();
@@ -123,12 +123,12 @@ impl EvoBandits {
     ) {
         if arm_index >= 0 {
             self.sample_average_tree.delete(
-                &FloatKey::new(self.arm_memory[arm_index as usize].get_mean_reward()),
+                &FloatKey::new(self.arm_memory[arm_index as usize].get_value()),
                 &arm_index,
             );
             self.arm_memory[arm_index as usize].pull(opti_function);
             self.sample_average_tree.insert(
-                FloatKey::new(self.arm_memory[arm_index as usize].get_mean_reward()),
+                FloatKey::new(self.arm_memory[arm_index as usize].get_value()),
                 arm_index,
             );
         } else {
@@ -139,7 +139,7 @@ impl EvoBandits {
                 self.arm_memory.len() as i32 - 1,
             );
             self.sample_average_tree.insert(
-                FloatKey::new(individual.get_mean_reward()),
+                FloatKey::new(individual.get_value()),
                 self.arm_memory.len() as i32 - 1,
             );
         }
@@ -154,7 +154,7 @@ impl EvoBandits {
             self.lookup_table
                 .insert(individual.get_action_vector().to_vec(), index as i32);
             self.sample_average_tree
-                .insert(FloatKey::new(individual.get_mean_reward()), index as i32);
+                .insert(FloatKey::new(individual.get_value()), index as i32);
         }
     }
 
@@ -176,7 +176,7 @@ impl EvoBandits {
             let best_arm = self.arm_memory[best_arm_index as usize].clone();
 
             self.sample_average_tree
-                .delete(&FloatKey::new(best_arm.get_mean_reward()), &best_arm_index);
+                .delete(&FloatKey::new(best_arm.get_value()), &best_arm_index);
 
             best_arms.push(best_arm);
             n_best -= 1;
@@ -430,7 +430,7 @@ mod tests {
         evobandits.sample_and_update(0, arm.clone(), &mock_opti_function);
 
         assert_eq!(evobandits.arm_memory[0].get_n_evaluations(), 2);
-        assert_eq!(evobandits.arm_memory[0].get_mean_reward(), 0.0);
+        assert_eq!(evobandits.arm_memory[0].get_value(), 0.0);
         assert_eq!(
             evobandits
                 .lookup_table
@@ -545,11 +545,7 @@ mod tests {
 
         // Copy and sort all arms
         let mut sorted_arms = evobandits.arm_memory.clone();
-        sorted_arms.sort_by(|a, b| {
-            a.get_mean_reward()
-                .partial_cmp(&b.get_mean_reward())
-                .unwrap()
-        });
+        sorted_arms.sort_by(|a, b| a.get_value().partial_cmp(&b.get_value()).unwrap());
 
         // Get n_best arms
         let n_best = 3;
@@ -590,11 +586,7 @@ mod tests {
 
         // Copy and sort all arms
         let mut sorted_arms = evobandits.arm_memory.clone();
-        sorted_arms.sort_by(|a, b| {
-            a.get_mean_reward()
-                .partial_cmp(&b.get_mean_reward())
-                .unwrap()
-        });
+        sorted_arms.sort_by(|a, b| a.get_value().partial_cmp(&b.get_value()).unwrap());
 
         // Try to get more best arms than available
         let n_best = population_size + 1;

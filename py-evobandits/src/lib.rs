@@ -66,8 +66,8 @@ impl Arm {
     }
 
     #[getter]
-    fn mean_reward(&self) -> f64 {
-        self.arm.get_mean_reward()
+    fn value(&self) -> f64 {
+        self.arm.get_value()
     }
 
     #[getter]
@@ -80,8 +80,7 @@ impl Arm {
         let dict = PyDict::new(py);
         dict.set_item("action_vector", self.arm.get_action_vector().to_vec())
             .unwrap();
-        dict.set_item("mean_reward", self.arm.get_mean_reward())
-            .unwrap();
+        dict.set_item("value", self.arm.get_value()).unwrap();
         dict.set_item("n_evaluations", self.arm.get_n_evaluations())
             .unwrap();
         dict.into()

@@ -27,7 +27,7 @@ impl<F: Fn(&[i32]) -> f64> OptimizationFn for F {
 #[derive(Debug)]
 pub struct Arm {
     action_vector: Vec<i32>,
-    reward: f64,
+    reward: f64, // TODO Issue #101: directly track value with Welford's algorithm
     n_evaluations: i32,
 }
 
@@ -61,7 +61,7 @@ impl Arm {
         &self.action_vector
     }
 
-    pub fn get_mean_reward(&self) -> f64 {
+    pub fn get_value(&self) -> f64 {
         if self.n_evaluations == 0 {
             return 0.0;
         }
@@ -116,7 +116,7 @@ mod tests {
 
         assert_eq!(reward, 5.0);
         assert_eq!(arm.get_n_evaluations(), 1);
-        assert_eq!(arm.get_mean_reward(), 5.0);
+        assert_eq!(arm.get_value(), 5.0);
     }
 
     #[test]
@@ -126,7 +126,7 @@ mod tests {
         arm.pull(&mock_opti_function);
 
         assert_eq!(arm.get_n_evaluations(), 2);
-        assert_eq!(arm.get_mean_reward(), 5.0); // Since reward is always 5.0
+        assert_eq!(arm.get_value(), 5.0); // Since reward is always 5.0
     }
 
     #[test]
@@ -145,13 +145,13 @@ mod tests {
     #[test]
     fn test_initial_reward_is_zero() {
         let arm = Arm::new(&vec![1, 2]);
-        assert_eq!(arm.get_mean_reward(), 0.0);
+        assert_eq!(arm.get_value(), 0.0);
     }
 
     #[test]
-    fn test_mean_reward_with_zero_pulls() {
+    fn test_value_with_zero_pulls() {
         let arm = Arm::new(&vec![1, 2]);
-        assert_eq!(arm.get_mean_reward(), 0.0);
+        assert_eq!(arm.get_value(), 0.0);
     }
 
     #[test]
@@ -160,6 +160,6 @@ mod tests {
         arm.pull(&mock_opti_function);
         let cloned_arm = arm.clone();
         assert_eq!(arm.get_n_evaluations(), cloned_arm.get_n_evaluations());
-        assert_eq!(arm.get_mean_reward(), cloned_arm.get_mean_reward());
+        assert_eq!(arm.get_value(), cloned_arm.get_value());
     }
 }
