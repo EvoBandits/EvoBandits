@@ -96,7 +96,10 @@ class EvoBanditsSearchCV(BaseSearchCV):
 
         # 3) Create the EvoBandits optimizer and search for the best param configuration
         evobandits_opt = EvoBandits()
-        best_action_vector = evobandits_opt.optimize(evobandits_objective, bounds, self.n_trials)
+        best_arms = evobandits_opt.optimize(
+          evobandits_objective, bounds, self.n_trials, n_best=1
+        )
+        best_action_vector = best_arms[0].to_dict.get("action_vector")
 
         # 4) Evaluate the best param set again (so scikit-learn knows about it)
         best_dict = {}
