@@ -1,3 +1,17 @@
+# Copyright 2025 EvoBandits
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import numpy as np
 from sklearn.model_selection._search import BaseSearchCV
 
@@ -82,9 +96,10 @@ class EvoBanditsSearchCV(BaseSearchCV):
 
         # 3) Create the EvoBandits optimizer and search for the best param configuration
         evobandits_opt = EvoBandits()
-        best_action_vector = evobandits_opt.optimize(
-            evobandits_objective, bounds, self.evobandits_iterations
+        best_arms = evobandits_opt.optimize(
+            evobandits_objective, bounds, self.evobandits_iterations, n_best=1
         )
+        best_action_vector = best_arms[0].to_dict.get("action_vector")
 
         # 4) Evaluate the best param set again (so scikit-learn knows about it)
         best_dict = {}
