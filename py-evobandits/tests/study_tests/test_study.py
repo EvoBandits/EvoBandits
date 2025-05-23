@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from contextlib import nullcontext
-from unittest.mock import MagicMock
+from unittest.mock import create_autospec
 
 import pytest
 from evobandits import ALGORITHM_DEFAULT, EvoBandits, Study
@@ -84,7 +84,7 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
 def test_optimize(objective, params, trials, kwargs):
     # Mock dependencies
     # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
-    mock_algorithm = MagicMock()
+    mock_algorithm = create_autospec(EvoBandits, instance=True)
     mock_algorithm.optimize.return_value = kwargs.pop("optimize_ret", rb.ARM_BEST)
     exp_result = kwargs.pop("exp_result", rb.TRIAL_BEST)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
