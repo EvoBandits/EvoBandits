@@ -61,13 +61,13 @@ impl Arm {
     }
 
     #[getter]
-    fn num_pulls(&self) -> i32 {
-        self.arm.get_num_pulls()
+    fn n_evaluations(&self) -> i32 {
+        self.arm.get_n_evaluations()
     }
 
     #[getter]
-    fn mean_reward(&self) -> f64 {
-        self.arm.get_mean_reward()
+    fn value(&self) -> f64 {
+        self.arm.get_value()
     }
 
     #[getter]
@@ -80,9 +80,8 @@ impl Arm {
         let dict = PyDict::new(py);
         dict.set_item("action_vector", self.arm.get_action_vector().to_vec())
             .unwrap();
-        dict.set_item("mean_reward", self.arm.get_mean_reward())
-            .unwrap();
-        dict.set_item("num_pulls", self.arm.get_num_pulls())
+        dict.set_item("value", self.arm.get_value()).unwrap();
+        dict.set_item("n_evaluations", self.arm.get_n_evaluations())
             .unwrap();
         dict.into()
     }
@@ -131,7 +130,7 @@ impl EvoBandits {
     #[pyo3(signature = (
         py_func,
         bounds,
-        simulation_budget,
+        n_trials,
         n_best,
         seed=None,
     ))]
@@ -139,7 +138,7 @@ impl EvoBandits {
         &mut self,
         py_func: PyObject,
         bounds: Vec<(i32, i32)>,
-        simulation_budget: usize,
+        n_trials: usize,
         n_best: usize,
         seed: Option<u64>,
     ) -> PyResult<Vec<Arm>> {
@@ -147,7 +146,7 @@ impl EvoBandits {
 
         let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             self.evobandits
-                .optimize(py_opti_function, bounds, simulation_budget, n_best, seed)
+                .optimize(py_opti_function, bounds, n_trials, n_best, seed)
         }));
 
         match result {

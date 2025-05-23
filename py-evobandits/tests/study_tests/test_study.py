@@ -62,7 +62,7 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
 
 
 @pytest.mark.parametrize(
-    "objective, params, trials, kwargs",
+    "objective, params, n_trials, kwargs",
     [
         [rb.function, rb.PARAMS, 1, {}],
         [
@@ -81,7 +81,7 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
         "invalid_maximize_type",
     ],
 )
-def test_optimize(objective, params, trials, kwargs):
+def test_optimize(objective, params, n_trials, kwargs):
     # Mock dependencies
     # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
     mock_algorithm = create_autospec(EvoBandits, instance=True)
@@ -94,6 +94,6 @@ def test_optimize(objective, params, trials, kwargs):
 
     # Optimize a study and verify results
     with expectation:
-        result = study.optimize(objective, params, trials, **kwargs)
+        result = study.optimize(objective, params, n_trials, **kwargs)
         assert result == exp_result
         assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now

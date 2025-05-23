@@ -33,17 +33,17 @@ class EvoBanditsSearchCV(BaseSearchCV):
         pre_dispatch="2*n_jobs",
         error_score=np.nan,
         return_train_score=True,
-        evobandits_iterations=50,
+        n_trials=50,
     ):
         """
         param_distributions: dict
             Dictionary of parameter_name -> (lower_bound, upper_bound),
             all of which must be integer bounds.
-        evobandits_iterations: int
-            How many iterations (simulation budget) EvoBandits should run internally.
+        n_trials: int
+            How many trials (simulation budget) EvoBandits should run internally.
         """
         self.param_distributions = param_distributions
-        self.evobandits_iterations = evobandits_iterations
+        self.n_trials = n_trials
 
         super().__init__(
             estimator=estimator,
@@ -97,7 +97,7 @@ class EvoBanditsSearchCV(BaseSearchCV):
         # 3) Create the EvoBandits optimizer and search for the best param configuration
         evobandits_opt = EvoBandits()
         best_arms = evobandits_opt.optimize(
-            evobandits_objective, bounds, self.evobandits_iterations, n_best=1
+          evobandits_objective, bounds, self.n_trials, n_best=1
         )
         best_action_vector = best_arms[0].to_dict.get("action_vector")
 

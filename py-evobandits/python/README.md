@@ -96,7 +96,7 @@ Internally, the method will store and transform the user inputs for rust-evoband
 and execute the set number of algorithm instances. Finally, it will also collect the results.
 
 ```python
-best_trial = study.optimize(objective, params, trials=10000, population_size=100, ...)
+best_trial = study.optimize(objective, params, n_trials=10000, population_size=100, ...)
 ```
 
 ## 4. Access the results (TBD.)

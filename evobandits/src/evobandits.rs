@@ -55,8 +55,8 @@ impl EvoBandits {
     fn max_number_pulls(&self) -> i32 {
         let mut max_number_pulls = 0;
         for arm in &self.arm_memory {
-            if arm.get_num_pulls() > max_number_pulls {
-                max_number_pulls = arm.get_num_pulls();
+            if arm.get_n_evaluations() > max_number_pulls {
+                max_number_pulls = arm.get_n_evaluations();
             }
         }
         max_number_pulls
@@ -64,7 +64,7 @@ impl EvoBandits {
 
     fn find_best_ucb(&self, simulations_used: usize) -> i32 {
         let arm_index_ucb_norm_min: i32 = *self.sample_average_tree.iter().next().unwrap().1;
-        let ucb_norm_min: f64 = self.arm_memory[arm_index_ucb_norm_min as usize].get_mean_reward();
+        let ucb_norm_min: f64 = self.arm_memory[arm_index_ucb_norm_min as usize].get_value();
 
         let max_number_pulls = self.max_number_pulls();
 
@@ -73,11 +73,11 @@ impl EvoBandits {
         for (_ucb_norm, arm_index) in self.sample_average_tree.iter() {
             ucb_norm_max = f64::max(
                 ucb_norm_max,
-                self.arm_memory[*arm_index as usize].get_mean_reward(),
+                self.arm_memory[*arm_index as usize].get_value(),
             );
 
             // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
-            if self.arm_memory[*arm_index as usize].get_num_pulls() == max_number_pulls {
+            if self.arm_memory[*arm_index as usize].get_n_evaluations() == max_number_pulls {
                 break;
             }
         }
@@ -92,11 +92,11 @@ impl EvoBandits {
             }
 
             // transform sample mean to interval [0,1]
-            let transformed_sample_mean: f64 =
-                (self.arm_memory[*arm_index as usize].get_mean_reward() - ucb_norm_min)
-                    / (ucb_norm_max - ucb_norm_min);
+            let transformed_sample_mean: f64 = (self.arm_memory[*arm_index as usize].get_value()
+                - ucb_norm_min)
+                / (ucb_norm_max - ucb_norm_min);
             let penalty_term: f64 = (2.0 * (simulations_used as f64).ln()
-                / self.arm_memory[*arm_index as usize].get_num_pulls() as f64)
+                / self.arm_memory[*arm_index as usize].get_n_evaluations() as f64)
                 .sqrt();
             let ucb_value: f64 = transformed_sample_mean + penalty_term;
 
@@ -107,7 +107,7 @@ impl EvoBandits {
             }
 
             // checks if we are still in the non dominated-set (current mean <= mean_max_pulls)
-            if self.arm_memory[*arm_index as usize].get_num_pulls() == max_number_pulls {
+            if self.arm_memory[*arm_index as usize].get_n_evaluations() == max_number_pulls {
                 break;
             }
         }
@@ -123,12 +123,12 @@ impl EvoBandits {
     ) {
         if arm_index >= 0 {
             self.sample_average_tree.delete(
-                &FloatKey::new(self.arm_memory[arm_index as usize].get_mean_reward()),
+                &FloatKey::new(self.arm_memory[arm_index as usize].get_value()),
                 &arm_index,
             );
             self.arm_memory[arm_index as usize].pull(opti_function);
             self.sample_average_tree.insert(
-                FloatKey::new(self.arm_memory[arm_index as usize].get_mean_reward()),
+                FloatKey::new(self.arm_memory[arm_index as usize].get_value()),
                 arm_index,
             );
         } else {
@@ -139,7 +139,7 @@ impl EvoBandits {
                 self.arm_memory.len() as i32 - 1,
             );
             self.sample_average_tree.insert(
-                FloatKey::new(individual.get_mean_reward()),
+                FloatKey::new(individual.get_value()),
                 self.arm_memory.len() as i32 - 1,
             );
         }
@@ -154,11 +154,11 @@ impl EvoBandits {
             self.lookup_table
                 .insert(individual.get_action_vector().to_vec(), index as i32);
             self.sample_average_tree
-                .insert(FloatKey::new(individual.get_mean_reward()), index as i32);
+                .insert(FloatKey::new(individual.get_value()), index as i32);
         }
     }
 
-    fn extract_best_arms(&mut self, simulation_used: usize, mut n_best: usize) -> Vec<Arm> {
+    fn extract_best_arms(&mut self, used_trials: usize, mut n_best: usize) -> Vec<Arm> {
         let mut best_arms: Vec<Arm> = Vec::new();
         while n_best > 0 {
             // Return early if there are no more arms to extract
@@ -172,11 +172,11 @@ impl EvoBandits {
             }
 
             // Find the next best arm, and remove it from SAT to continue extraction
-            let best_arm_index = self.find_best_ucb(simulation_used);
+            let best_arm_index = self.find_best_ucb(used_trials);
             let best_arm = self.arm_memory[best_arm_index as usize].clone();
 
             self.sample_average_tree
-                .delete(&FloatKey::new(best_arm.get_mean_reward()), &best_arm_index);
+                .delete(&FloatKey::new(best_arm.get_value()), &best_arm_index);
 
             best_arms.push(best_arm);
             n_best -= 1;
@@ -189,7 +189,7 @@ impl EvoBandits {
         &mut self,
         opti_function: F,
         bounds: Vec<(i32, i32)>,
-        simulation_budget: usize,
+        n_trials: usize,
         n_best: usize,
         seed: Option<u64>,
     ) -> Vec<Arm> {
@@ -202,8 +202,8 @@ impl EvoBandits {
         self.genetic_algorithm.validate();
 
         assert!(
-            simulation_budget >= self.genetic_algorithm.population_size,
-            "simulation_budget must be at least population_size ({})",
+            n_trials >= self.genetic_algorithm.population_size,
+            "n_trials must be at least population_size ({})",
             self.genetic_algorithm.population_size
         );
         assert!(n_best >= 1, "n_best must be at least 1. ({})", n_best);
@@ -214,7 +214,7 @@ impl EvoBandits {
 
         // Run Optimization
         let verbose = false;
-        let mut simulation_used: usize = self.genetic_algorithm.population_size;
+        let mut used_trials: usize = self.genetic_algorithm.population_size;
         loop {
             let mut current_indexes: Vec<i32> = Vec::new();
             let mut population: Vec<Arm> = Vec::new();
@@ -239,8 +239,8 @@ impl EvoBandits {
             let mutated_pop = self.genetic_algorithm.mutate(next_seed, &crossover_pop);
 
             for individual in mutated_pop {
-                if simulation_used >= simulation_budget {
-                    return self.extract_best_arms(simulation_used, n_best);
+                if used_trials >= n_trials {
+                    return self.extract_best_arms(used_trials, n_best);
                 }
 
                 let arm_index = self.get_arm_index(&individual);
@@ -251,21 +251,21 @@ impl EvoBandits {
                 }
 
                 self.sample_and_update(arm_index, individual.clone(), &opti_function);
-                simulation_used += 1;
+                used_trials += 1;
             }
 
             for individual in population {
-                if simulation_used >= simulation_budget {
-                    return self.extract_best_arms(simulation_used, n_best);
+                if used_trials >= n_trials {
+                    return self.extract_best_arms(used_trials, n_best);
                 }
 
                 let arm_index = self.get_arm_index(&individual);
                 self.sample_and_update(arm_index, individual.clone(), &opti_function);
-                simulation_used += 1;
+                used_trials += 1;
             }
 
             if verbose {
-                let best_arm_index = self.find_best_ucb(simulation_used);
+                let best_arm_index = self.find_best_ucb(used_trials);
                 print!(
                     "x: {:?}",
                     self.arm_memory[best_arm_index as usize].get_action_vector()
@@ -278,11 +278,11 @@ impl EvoBandits {
                 }
                 print!(" f(x): {:.3}", sum / 50.0);
 
-                print!(" n: {}", simulation_used);
+                print!(" n: {}", used_trials);
                 // print number of pulls of best arm
                 println!(
                     " n(x): {}",
-                    self.arm_memory[best_arm_index as usize].get_num_pulls()
+                    self.arm_memory[best_arm_index as usize].get_n_evaluations()
                 );
             }
         }
@@ -429,8 +429,8 @@ mod tests {
 
         evobandits.sample_and_update(0, arm.clone(), &mock_opti_function);
 
-        assert_eq!(evobandits.arm_memory[0].get_num_pulls(), 2);
-        assert_eq!(evobandits.arm_memory[0].get_mean_reward(), 0.0);
+        assert_eq!(evobandits.arm_memory[0].get_n_evaluations(), 2);
+        assert_eq!(evobandits.arm_memory[0].get_value(), 0.0);
         assert_eq!(
             evobandits
                 .lookup_table
@@ -480,37 +480,37 @@ mod tests {
     }
 
     #[test]
-    fn test_evobandits_adheres_to_simulation_budget() {
+    fn test_evobandits_adheres_to_n_trials() {
         // Mock opti_function that keeps track of used simulations
-        let simulation_used = RefCell::new(0);
+        let used_trials = RefCell::new(0);
         let mock_opti_function = |_: &[i32]| {
-            *simulation_used.borrow_mut() += 1;
+            *used_trials.borrow_mut() += 1;
             0.0
         };
 
-        // Run the optimization, then check if simulation_used matches the budget
-        let simulation_budget = 1000;
+        // Run the optimization, then check if used_trials matches n_trials
+        let n_trials = 1000;
         let bounds = vec![(1, 100), (1, 100)];
         let mut evobandits = EvoBandits::new(Default::default());
-        evobandits.optimize(mock_opti_function, bounds, simulation_budget, 1, None);
+        evobandits.optimize(mock_opti_function, bounds, n_trials, 1, None);
 
-        assert_eq!(simulation_budget, *simulation_used.borrow_mut());
+        assert_eq!(n_trials, *used_trials.borrow_mut());
     }
 
     #[test]
-    #[should_panic = "simulation_budget"]
-    fn test_panic_on_invalid_budget() {
-        // Explicity set a simulation budget that prohibits sampling an initial population
-        let simulation_budget = 20;
+    #[should_panic = "n_trials"]
+    fn test_panic_on_invalid_n_trials() {
+        // Explicity set a simulation n_trials that prohibits sampling an initial population
+        let n_trials = 20;
         let ga = GeneticAlgorithm {
-            population_size: simulation_budget + 1,
+            population_size: n_trials + 1,
             ..Default::default()
         };
 
-        // Panics only, if simulation_budget is validated
+        // Panics only, if n_trials is validated
         let bounds = vec![(1, 100), (1, 100)];
         let mut evobandits = EvoBandits::new(ga);
-        evobandits.optimize(mock_opti_function, bounds, simulation_budget, 1, None);
+        evobandits.optimize(mock_opti_function, bounds, n_trials, 1, None);
     }
 
     #[test]
@@ -545,11 +545,7 @@ mod tests {
 
         // Copy and sort all arms
         let mut sorted_arms = evobandits.arm_memory.clone();
-        sorted_arms.sort_by(|a, b| {
-            a.get_mean_reward()
-                .partial_cmp(&b.get_mean_reward())
-                .unwrap()
-        });
+        sorted_arms.sort_by(|a, b| a.get_value().partial_cmp(&b.get_value()).unwrap());
 
         // Get n_best arms
         let n_best = 3;
@@ -590,11 +586,7 @@ mod tests {
 
         // Copy and sort all arms
         let mut sorted_arms = evobandits.arm_memory.clone();
-        sorted_arms.sort_by(|a, b| {
-            a.get_mean_reward()
-                .partial_cmp(&b.get_mean_reward())
-                .unwrap()
-        });
+        sorted_arms.sort_by(|a, b| a.get_value().partial_cmp(&b.get_value()).unwrap());
 
         // Try to get more best arms than available
         let n_best = population_size + 1;
