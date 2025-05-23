@@ -20,7 +20,7 @@ use rand::rngs::StdRng;
 use rand::{RngCore, SeedableRng};
 use std::collections::HashMap;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct EvoBandits {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
     arm_memory: Vec<Arm>,
