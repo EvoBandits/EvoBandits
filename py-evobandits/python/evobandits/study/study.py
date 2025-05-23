@@ -158,18 +158,36 @@ class Study:
 
     @cached_property
     def best_value(self) -> float:
+        """
+        Returns the best value found during optimization.
+
+        Returns:
+            float: The best value among `study.results`.
+        """
         if not self.results:
             raise AttributeError("Study has no results. Run study.optimize() first.")
         return max(self.results, key=lambda r: -self._direction * r["value"])["value"]
 
     @cached_property
     def mean_value(self) -> float:
+        """
+        Returns the mean value of all results found during optimization.
+
+        Returns:
+            float: The mean value of `study.results`.
+        """
         if not self.results:
             raise AttributeError("Study has no results. Run study.optimize() first.")
         return mean([r["value"] for r in self.results])
 
     @cached_property
     def best_params(self) -> ParamsType:
+        """
+        Returns the parameter set corresponding to the best value found during optimization.
+
+        Returns:
+            ParamsType: The parameters (as a dictionary) that yielded `study.best_value`.
+        """
         if not self.results:
             raise AttributeError("Study has no results. Run study.optimize() first.")
         # Return first match (stable) with best reward
