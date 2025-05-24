@@ -1,0 +1,32 @@
+site_name: EvoBandit Docs
+
+repo_url: https://github.com/EvoBandits/EvoBandits
+repo_name: EvoBandits/EvoBandits
+
+docs_dir: docs/source
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+- search
+- mkdocstrings:
+    handlers: 
+      python:
+        options:
+            show_root_heading: true
+            show_root_full_path: false
+            show_source: false
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Tutorials:
+      - Overview: tutorials/index.md
+      - Getting Started: tutorials/getting_started.md
+      - Advanced Usage: tutorials/advanced_usage.md
+  - Reference: 
+      - Study: references/study.md
+      - Params: references/params.md
