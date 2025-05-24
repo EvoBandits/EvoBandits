@@ -198,7 +198,7 @@ Before committing, install `pre-commit install` (see above)
 
 ### API reference
 
-EvoBandits has a API references which is directly generated
+EvoBandits has an API reference which is directly generated
 from the codebase, so in order to contribute, you will have to follow the steps outlined in
 [this section](#contributing-to-the-codebase) above.
 
