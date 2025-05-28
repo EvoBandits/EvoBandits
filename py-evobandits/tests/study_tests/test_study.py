@@ -145,7 +145,7 @@ def test_optimize(objective, params, n_trials, kwargs):
 )
 def test_study_properties(direction, best_params, best_value, mean_value):
     # Mock dependencies
-    mock_algorithm = MagicMock()
+    mock_algorithm = create_autospec(EvoBandits, instance=True)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
     study._direction = direction
     study.results = [
