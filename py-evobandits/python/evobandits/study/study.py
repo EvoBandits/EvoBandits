@@ -117,7 +117,7 @@ class Study:
         n_runs: int = 1,
     ) -> None:
         """
-        Optimize the objective function.
+        Optimize the objective function, saving results to `study.results`.
 
         The optimization process involves selecting suitable hyperparameter values within
         specified bounds and running the objective function for a given number of trials.
