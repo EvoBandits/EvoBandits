@@ -181,6 +181,15 @@ class Study:
         return mean([r["value"] for r in self.results])
 
     @cached_property
+    def best_solution(self) -> dict[str, Any]:
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        # Return first match (stable) with best reward
+        for r in self.results:
+            if r["value"] == self.best_value:
+                return r
+
+    @cached_property
     def best_params(self) -> ParamsType:
         """
         Returns the parameter set corresponding to the best value found during optimization.

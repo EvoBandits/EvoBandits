@@ -136,14 +136,34 @@ def test_optimize(objective, params, n_trials, kwargs):
 
 
 @pytest.mark.parametrize(
-    "direction, best_params, best_value, mean_value",
+    "direction, best_solution, best_params, best_value, mean_value",
     [
-        [+1, {"number": [1, 1]}, 1.0, 2.0],
-        [-1, {"number": [3, 3]}, 3.0, 2.0],
+        [
+            +1,
+            {
+                "value": 1.0,
+                "num_pulls": 10,
+                "params": {"number": [1, 1]},
+            },
+            {"number": [1, 1]},
+            1.0,
+            2.0,
+        ],
+        [
+            -1,
+            {
+                "value": 3.0,
+                "num_pulls": 10,
+                "params": {"number": [3, 3]},
+            },
+            {"number": [3, 3]},
+            3.0,
+            2.0,
+        ],
     ],
     ids=["default_minimize", "default_maximize"],
 )
-def test_study_properties(direction, best_params, best_value, mean_value):
+def test_study_properties(direction, best_solution, best_params, best_value, mean_value):
     # Mock dependencies
     mock_algorithm = create_autospec(EvoBandits, instance=True)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
@@ -167,6 +187,7 @@ def test_study_properties(direction, best_params, best_value, mean_value):
     ]
 
     # Access properties and verify
+    assert study.best_solution == best_solution
     assert study.best_params == best_params
     assert study.best_value == best_value
     assert study.mean_value == mean_value
