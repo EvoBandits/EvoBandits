@@ -25,7 +25,6 @@ def test_arm():
     exp_dict = {
         "action_vector": mock_av,
         "value": 0.0,
-        "value_variance": 0.0,
         "value_std_dev": 0.0,
         "n_evaluations": 0,
     }
@@ -35,7 +34,6 @@ def test_arm():
     assert arm.n_evaluations == 0
     assert arm.value == 0.0
     assert arm.value_std_dev == 0.0
-    assert arm.value_variance == 0.0
     assert arm.to_dict == exp_dict
 
 
