@@ -119,7 +119,7 @@ class Study:
         n_runs: int = 1,
     ) -> None:
         """
-        Optimize the objective function.
+        Optimize the objective function, saving results to `study.results`.
 
         The optimization process involves selecting suitable hyperparameter values within
         specified bounds and running the objective function for a given number of trials.
@@ -137,9 +137,9 @@ class Study:
         self._direction = -1 if maximize else 1
 
         if not isinstance(n_runs, int):
-            raise TypeError(f"n_runs must be a int larger than 0, got {type(n_runs)}.")
+            raise TypeError(f"n_runs must be an int larger than 0, got {type(n_runs)}.")
         if n_runs < 1:
-            raise ValueError(f"n_runs must be a int larger than 0, got {n_runs}.")
+            raise ValueError(f"n_runs must be an int larger than 0, got {n_runs}.")
 
         self.objective = objective
         self.params = params
@@ -157,29 +157,9 @@ class Study:
                 result["n_best"] = n_best
                 result["run_id"] = run_id
                 self.results.append(result)
-
-    @cached_property
-    def best_value(self) -> float:
-        if not self.results:
-            raise AttributeError("Study has no results. Run study.optimize() first.")
-        return max(self.results, key=lambda r: -self._direction * r["value"])["value"]
-
-    @cached_property
-    def mean_value(self) -> float:
-        if not self.results:
-            raise AttributeError("Study has no results. Run study.optimize() first.")
-        return mean([r["value"] for r in self.results])
-
-    @cached_property
-    def best_params(self) -> ParamsType:
-        if not self.results:
-            raise AttributeError("Study has no results. Run study.optimize() first.")
-        # Return first match (stable) with best reward
-        for r in self.results:
-            if r["value"] == self.best_value:
-                return r["params"]
-
+                
     def results_df(self) -> pd.DataFrame:
+        # TODO: Add docstring
         if not self.results:
             raise AttributeError("Cannot access results. Run study.optimize() to generate.")
 
@@ -199,3 +179,49 @@ class Study:
             processed_results.append(row)
 
         return pd.DataFrame(processed_results)
+
+    @cached_property
+    def best_value(self) -> float:
+        """
+        Returns the best value found during optimization.
+
+        Returns:
+            float: The best value among `study.results`.
+        """
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        return max(self.results, key=lambda r: -self._direction * r["value"])["value"]
+
+    @cached_property
+    def mean_value(self) -> float:
+        """
+        Returns the mean value of all results found during optimization.
+
+        Returns:
+            float: The mean value of `study.results`.
+        """
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        return mean([r["value"] for r in self.results])
+
+    @cached_property
+    def best_solution(self) -> dict[str, Any]:
+        """
+        Returns the best solution found during optimization.
+
+        Returns:
+            dict[str, Any]: The solution (as a dictionary) that yielded `study.best_value`.
+        """
+        if not self.results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        return next(r for r in self.results if r["value"] == self.best_value)
+
+    @cached_property
+    def best_params(self) -> ParamsType:
+        """
+        Returns the parameter set corresponding to the best value found during optimization.
+
+        Returns:
+            ParamsType: The parameters (as a dictionary) that yielded `study.best_value`.
+        """
+        return self.best_solution["params"]
