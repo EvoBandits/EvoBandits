@@ -187,7 +187,7 @@ mod tests {
         arm.pull(&variable_fn);
         arm.pull(&variable_fn);
 
-        // Verify expected sample variance and std_dve of [0, 2, 4]
+        // Verify expected sample variance and std_dev of [0, 2, 4]
         assert!((arm.get_value_variance() - 4.0).abs() < 1e-10);
         assert!((arm.get_value_std_dev() - 2.0).abs() < 1e-10);
     }
