@@ -19,9 +19,7 @@ from statistics import mean
 from typing import Any, TypeAlias
 
 from evobandits import logging
-from evobandits.evobandits import (
-    EvoBandits,
-)
+from evobandits.evobandits import EvoBandits
 from evobandits.params import BaseParam
 
 _logger = logging.get_logger(__name__)
@@ -41,7 +39,7 @@ class Study:
     and to manage user-defined attributes related to the study.
     """
 
-    def __init__(self, seed: int | None = None, algorithm=ALGORITHM_DEFAULT) -> None:
+    def __init__(self, seed: int | None = None, algorithm: EvoBandits = ALGORITHM_DEFAULT) -> None:
         """
         Initialize a Study instance.
 
@@ -56,7 +54,7 @@ class Study:
             raise TypeError(f"Seed must be integer: {seed}")
 
         self.seed: int = seed
-        self.algorithm = algorithm  # ToDo Issue #23
+        self.algorithm: EvoBandits = algorithm
         self.objective: Callable | None = None  # type: ignore # ToDo Issue #23
         self.params: ParamsType | None = None  # type: ignore # ToDo Issue #23
         self.results: list[dict[str, Any]] = []
