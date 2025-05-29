@@ -18,6 +18,8 @@ from os import urandom
 from statistics import mean
 from typing import Any, TypeAlias
 
+import pandas as pd
+
 from evobandits import logging
 from evobandits.evobandits import (
     EvoBandits,
@@ -155,6 +157,28 @@ class Study:
                 result["n_best"] = n_best
                 result["run_id"] = run_id
                 self.results.append(result)
+                
+    def results_df(self) -> pd.DataFrame:
+        # TODO: Add docstring
+        if not self.results:
+            raise AttributeError("Cannot access results. Run study.optimize() to generate.")
+
+        processed_results = []
+
+        for result in self.results:
+            row = result.copy()
+            params = row.pop("params")
+
+            for key, value in params.items():
+                if isinstance(value, list):
+                    for i, v in enumerate(value):
+                        row[f"params_{key}_{i}"] = v
+                else:
+                    row[f"params_{key}"] = value
+
+            processed_results.append(row)
+
+        return pd.DataFrame(processed_results)
 
     @cached_property
     def best_value(self) -> float:

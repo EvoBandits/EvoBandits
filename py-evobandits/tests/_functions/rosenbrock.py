@@ -16,6 +16,7 @@
 Objective function and useful parameters for the multidimensional rosenbrock function
 """
 
+import pandas as pd
 from evobandits import Arm, IntParam
 
 # Bounds and best Arm to mock EvoBandits optimization (two-dimensional, for n_best = 1)
@@ -27,6 +28,18 @@ PARAMS = {"number": IntParam(-5, 10, 2)}
 TRIAL_BEST = [
     {"run_id": 0, "n_best": 1, "value": 0.0, "n_evaluations": 0, "params": {"number": [1, 1]}}
 ]
+DF_BEST = pd.DataFrame(
+    [
+        {
+            "run_id": 0,
+            "n_best": 1,
+            "value": 0.0,
+            "n_evaluations": 0,
+            "params_number_0": 1,
+            "params_number_1": 1,
+        }
+    ]
+)
 
 
 def function(number: list):

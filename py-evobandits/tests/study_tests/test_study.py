@@ -17,6 +17,7 @@ from unittest.mock import create_autospec
 
 import pytest
 from evobandits import ALGORITHM_DEFAULT, EvoBandits, Study
+from pandas.testing import assert_frame_equal
 
 from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb
@@ -191,3 +192,33 @@ def test_study_properties(direction, best_solution, best_params, best_value, mea
     assert study.best_params == best_params
     assert study.best_value == best_value
     assert study.mean_value == mean_value
+
+
+@pytest.mark.parametrize(
+    "study_results, exp_df, kwargs",
+    [
+        [rb.TRIAL_BEST, rb.DF_BEST, {}],
+        [cl.TRIALS_EXAMPLE, cl.DF_EXAMPLE, {}],
+        [[], None, {"exp": pytest.raises(AttributeError)}],  # unsafe, if study was not optimized
+    ],
+    ids=[
+        "valid_default_testcase",
+        "valid_clustering_testcase",
+        "invalid_no_results",
+    ],
+)
+def test_results_df(study_results, exp_df, kwargs):
+    # Mock dependencies
+    mock_algorithm = MagicMock()
+    study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
+    study.results = study_results
+
+    # Extract expected exceptions
+    expectation = kwargs.pop("exp", nullcontext())
+
+    # Extract the results dataframe and verify
+    with expectation:
+        df = study.results_df()
+        print(df)
+        assert_frame_equal(df, exp_df)
+        assert study.results == study_results  # this must not affect the storage

@@ -38,3 +38,5 @@ if __name__ == "__main__":
     print("Number of Results:", len(study.results))  # matches n_best * n_runs
     for r in study.results:
         print(r)  # params, value, n_evaluations, position and run per result
+
+    print(study.results_df())
