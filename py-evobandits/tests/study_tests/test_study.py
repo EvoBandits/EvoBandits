@@ -48,7 +48,11 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
     # Initialize a Study and verify its properties
     with expectation:
         study = Study(seed, **kwargs)
-        assert study.seed == seed
+
+        if seed is None:
+            assert isinstance(study.seed, int)  # uses entropy in unseeded case
+        else:
+            assert study.seed == seed
         assert study.algorithm == exp_algorithm
         assert study.objective is None
         assert study.params is None
@@ -72,13 +76,42 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
             {"n_best": 2, "optimize_ret": cl.ARMS_EXAMPLE, "exp_result": cl.TRIALS_EXAMPLE},
         ],
         [rb.function, rb.PARAMS, 1, {"maximize": True}],
+        [
+            rb.function,
+            rb.PARAMS,
+            1,
+            {
+                "n_runs": 2,
+                "exp_result": [
+                    {
+                        "run_id": 0,
+                        "n_best": 1,
+                        "value": 0.0,
+                        "n_evaluations": 0,
+                        "params": {"number": [1, 1]},
+                    },
+                    {
+                        "run_id": 1,
+                        "n_best": 1,
+                        "value": 0.0,
+                        "n_evaluations": 0,
+                        "params": {"number": [1, 1]},
+                    },
+                ],
+            },
+        ],
         [rb.function, rb.PARAMS, 1, {"maximize": "False", "exp": pytest.raises(TypeError)}],
+        [rb.function, rb.PARAMS, 1, {"n_runs": "2", "exp": pytest.raises(TypeError)}],
+        [rb.function, rb.PARAMS, 1, {"n_runs": 0, "exp": pytest.raises(ValueError)}],
     ],
     ids=[
         "valid_default_testcase",
         "valid_clustering_testcase",
         "default_with_maximize",
+        "default_with_n_runs",
         "invalid_maximize_type",
+        "invalid_n_runs_type",
+        "invalid_n_runs_value",
     ],
 )
 def test_optimize(objective, params, n_trials, kwargs):
@@ -86,6 +119,7 @@ def test_optimize(objective, params, n_trials, kwargs):
     # Per default, and expected results from the rosenbrock testcase are used to mock EvoBandits.
     mock_algorithm = create_autospec(EvoBandits, instance=True)
     mock_algorithm.optimize.return_value = kwargs.pop("optimize_ret", rb.ARM_BEST)
+    mock_algorithm.clone.return_value = mock_algorithm
     exp_result = kwargs.pop("exp_result", rb.TRIAL_BEST)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
 
@@ -94,6 +128,66 @@ def test_optimize(objective, params, n_trials, kwargs):
 
     # Optimize a study and verify results
     with expectation:
-        result = study.optimize(objective, params, n_trials, **kwargs)
+        study.optimize(objective, params, n_trials, **kwargs)
+
+        result = study.results
         assert result == exp_result
-        assert mock_algorithm.optimize.call_count == 1  # Always run algorithm once for now
+        assert mock_algorithm.optimize.call_count == kwargs.get("n_runs", 1)
+
+
+@pytest.mark.parametrize(
+    "direction, best_solution, best_params, best_value, mean_value",
+    [
+        [
+            +1,
+            {
+                "value": 1.0,
+                "num_pulls": 10,
+                "params": {"number": [1, 1]},
+            },
+            {"number": [1, 1]},
+            1.0,
+            2.0,
+        ],
+        [
+            -1,
+            {
+                "value": 3.0,
+                "num_pulls": 10,
+                "params": {"number": [3, 3]},
+            },
+            {"number": [3, 3]},
+            3.0,
+            2.0,
+        ],
+    ],
+    ids=["default_minimize", "default_maximize"],
+)
+def test_study_properties(direction, best_solution, best_params, best_value, mean_value):
+    # Mock dependencies
+    mock_algorithm = create_autospec(EvoBandits, instance=True)
+    study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
+    study._direction = direction
+    study.results = [
+        {
+            "value": 1.0,
+            "num_pulls": 10,
+            "params": {"number": [1, 1]},
+        },
+        {
+            "value": 2.0,
+            "num_pulls": 10,
+            "params": {"number": [2, 2]},
+        },
+        {
+            "value": 3.0,
+            "num_pulls": 10,
+            "params": {"number": [3, 3]},
+        },
+    ]
+
+    # Access properties and verify
+    assert study.best_solution == best_solution
+    assert study.best_params == best_params
+    assert study.best_value == best_value
+    assert study.mean_value == mean_value
