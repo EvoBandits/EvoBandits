@@ -182,12 +182,15 @@ class Study:
 
     @cached_property
     def best_solution(self) -> dict[str, Any]:
+        """
+        Returns the best solution found during optimization.
+
+        Returns:
+            dict[str, Any]: The solution (as a dictionary) that yielded `study.best_value`.
+        """
         if not self.results:
             raise AttributeError("Study has no results. Run study.optimize() first.")
-        # Return first match (stable) with best reward
-        for r in self.results:
-            if r["value"] == self.best_value:
-                return r
+        return next(r for r in self.results if r["value"] == self.best_value)
 
     @cached_property
     def best_params(self) -> ParamsType:
@@ -197,9 +200,4 @@ class Study:
         Returns:
             ParamsType: The parameters (as a dictionary) that yielded `study.best_value`.
         """
-        if not self.results:
-            raise AttributeError("Study has no results. Run study.optimize() first.")
-        # Return first match (stable) with best reward
-        for r in self.results:
-            if r["value"] == self.best_value:
-                return r["params"]
+        return self.best_solution["params"]
