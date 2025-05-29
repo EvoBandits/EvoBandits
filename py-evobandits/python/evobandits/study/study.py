@@ -135,9 +135,9 @@ class Study:
         self._direction = -1 if maximize else 1
 
         if not isinstance(n_runs, int):
-            raise TypeError(f"n_runs must be a int larger than 0, got {type(n_runs)}.")
+            raise TypeError(f"n_runs must be an int larger than 0, got {type(n_runs)}.")
         if n_runs < 1:
-            raise ValueError(f"n_runs must be a int larger than 0, got {n_runs}.")
+            raise ValueError(f"n_runs must be an int larger than 0, got {n_runs}.")
 
         self.objective = objective
         self.params = params
