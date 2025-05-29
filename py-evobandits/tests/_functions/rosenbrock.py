@@ -24,7 +24,15 @@ ARM_BEST = [Arm([1, 1])]
 
 # Params and expected result to mock a Study (two-dimensional, with n_best = 1)
 PARAMS = {"number": IntParam(-5, 10, 2)}
-TRIAL_BEST = [{"n_best": 1, "value": 0.0, "n_evaluations": 0, "params": {"number": [1, 1]}}]
+TRIAL_BEST = [
+    {
+        "n_best": 1,
+        "value": 0.0,
+        "value_std_dev": 0.0,
+        "n_evaluations": 0,
+        "params": {"number": [1, 1]},
+    }
+]
 
 
 def function(number: list):

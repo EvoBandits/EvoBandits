@@ -32,4 +32,7 @@ if __name__ == "__main__":
     best_arms = evobandits.optimize(rosenbrock_function, bounds, n_trials, n_best)
 
     print("Number of Results:", len(best_arms))  # matches n_best
-    print(best_arms[0].to_dict)  # action_vector, value, and n_evaluations for best arm
+
+    # print action_vector, value, variance, std_dev and n_evaluations for best arm
+    # variance and std_dev should be 0.0, as objective function is deterministic
+    print(best_arms[0].to_dict)

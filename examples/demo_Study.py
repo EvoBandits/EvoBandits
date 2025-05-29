@@ -12,16 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from numpy import random
 from evobandits import Study, IntParam, EvoBandits
 
 
-def rosenbrock_function(number: list):
-    return sum(
+def noisy_rosenbrock(number: list):
+    # Rosenbrock Function
+    value = sum(
         [
             100 * (number[i + 1] - number[i] ** 2) ** 2 + (1 - number[i]) ** 2
             for i in range(len(number) - 1)
         ]
     )
+    # Add Gaussian Noise
+    value += random.normal(0, 5)
+    return value
 
 
 if __name__ == "__main__":
@@ -33,9 +38,9 @@ if __name__ == "__main__":
 
     # Execute the Optimization
     study = Study(seed=42, algorithm=my_evobandits)
-    results = study.optimize(rosenbrock_function, params, 10000, n_best=3)
+    results = study.optimize(noisy_rosenbrock, params, 10000, n_best=3)
 
     print("Number of Results:", len(results))  # matches n_best
     [
         print(r) for r in results
-    ]  # params, value, n_evaluations, and position for each result
+    ]  # params, value, variance, std_dev, n_evaluations and position for each result
