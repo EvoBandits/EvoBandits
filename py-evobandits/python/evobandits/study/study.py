@@ -56,9 +56,9 @@ class Study:
             raise TypeError(f"Seed must be integer: {seed}")
 
         self.seed: int = seed
-        self.algorithm = algorithm  # ToDo Issue #23: type and input validation
-        self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
-        self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
+        self.algorithm = algorithm  # ToDo Issue #23
+        self.objective: Callable | None = None  # type: ignore # ToDo Issue #23
+        self.params: ParamsType | None = None  # type: ignore # ToDo Issue #23
         self.results: list[dict[str, Any]] = []
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
@@ -139,8 +139,8 @@ class Study:
         if n_runs < 1:
             raise ValueError(f"n_runs must be an int larger than 0, got {n_runs}.")
 
-        self.objective = objective
-        self.params = params
+        self.objective: Callable = objective
+        self.params: ParamsType = params
         bounds = self._collect_bounds()
 
         for run_id in range(n_runs):
