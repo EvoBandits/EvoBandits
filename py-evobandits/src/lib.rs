@@ -71,6 +71,11 @@ impl Arm {
     }
 
     #[getter]
+    fn value_std_dev(&self) -> f64 {
+        self.arm.get_value_std_dev()
+    }
+
+    #[getter]
     fn action_vector(&self) -> Vec<i32> {
         self.arm.get_action_vector().to_vec()
     }
@@ -81,6 +86,8 @@ impl Arm {
         dict.set_item("action_vector", self.arm.get_action_vector().to_vec())
             .unwrap();
         dict.set_item("value", self.arm.get_value()).unwrap();
+        dict.set_item("value_std_dev", self.arm.get_value_std_dev())
+            .unwrap();
         dict.set_item("n_evaluations", self.arm.get_n_evaluations())
             .unwrap();
         dict.into()
