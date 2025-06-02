@@ -14,82 +14,52 @@
  limitations under the License.
 -->
 
-{% extends "base.html" %} {% block scripts %} {{ super() }}
+{% extends "base.html" %} {% block styles %} {{ super() }}
+<style>
+    #copy-markdown-btn:hover {
+        color: var(--md-primary-fg-color) !important;
+    }
+</style>
+{% endblock %} {% block scripts %} {{ super() }}
 <script>
     document$.subscribe(function() {
-      // Only add copy button if we have a valid page with source file
       {% if page and page.file and page.file.src_path %}
-      // Find the article content where edit/view buttons are located
       const contentInner = document.querySelector('.md-content__inner');
-      const existingButtons = contentInner ? contentInner.querySelectorAll('.md-content__button') : [];
+      if (contentInner && !document.getElementById('copy-markdown-btn')) {
+        // Create hidden markdown container
+        const markdownContainer = document.createElement('div');
+        markdownContainer.id = 'markdown-source';
+        markdownContainer.style.display = 'none';
+        document.body.appendChild(markdownContainer);
 
-      if (contentInner && existingButtons.length > 0 && !document.getElementById('copy-markdown-btn')) {
-        // Create the copy markdown button
+        // Create copy button using existing Material classes
         const copyButton = document.createElement('button');
         copyButton.id = 'copy-markdown-btn';
-        copyButton.title = 'Copy Markdown';
         copyButton.className = 'md-content__button md-icon';
-        copyButton.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
-          </svg>
-        `;
-        copyButton.onclick = copyMarkdownContent;
+        copyButton.title = 'Copy Markdown';
+        copyButton.setAttribute('data-clipboard-target', '#markdown-source');
+        copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
 
-        // Insert the button after the last existing button (they appear at the start of content)
-        const lastButton = existingButtons[existingButtons.length - 1];
-        contentInner.insertBefore(copyButton, lastButton.nextSibling);
+        // Pre-load content on hover
+        copyButton.addEventListener('mouseenter', function() {
+          if (!markdownContainer.textContent) {
+            const apiUrl = `https://api.github.com/repos/EvoBandits/EvoBandits/contents/docs/source/{{ page.file.src_path }}`;
+            fetch(apiUrl)
+              .then(response => response.json())
+              .then(data => {
+                markdownContainer.textContent = atob(data.content);
+              })
+              .catch(console.error);
+          }
+        });
+
+        // Insert button
+        const editButton = contentInner.querySelector('.md-content__button');
+        if (editButton) {
+          contentInner.insertBefore(copyButton, editButton.nextSibling);
+        }
       }
       {% endif %}
     });
-
-    function copyMarkdownContent() {
-      const repoUrl = '{{ config.repo_url }}';
-      const sourcePath = '{{ page.file.src_path if page and page.file else "" }}';
-
-      // Use GitHub API to fetch content (avoids CORS issues)
-      const apiUrl = `https://api.github.com/repos/EvoBandits/EvoBandits/contents/docs/source/${sourcePath}`;
-
-      fetch(apiUrl)
-        .then(response => {
-          if (!response.ok) throw new Error('API request failed');
-          return response.json();
-        })
-        .then(data => {
-          if (data.content && data.encoding === 'base64') {
-            const markdownContent = atob(data.content);
-            copyToClipboard(markdownContent);
-          } else {
-            throw new Error('No content found');
-          }
-        })
-        .catch(error => {
-          console.warn('GitHub API failed, trying fallback:', error);
-        });
-    }
-
-    function copyToClipboard(text) {
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(() => {
-          showCopyFeedback('#4caf50');
-        }).catch(() => {
-          console.error('Copy failed');
-        });
-      } else {
-        console.error('Clipboard API not supported');
-      }
-    }
-
-    function showCopyFeedback(color) {
-      const button = document.getElementById('copy-markdown-btn');
-      if (button) {
-        const originalColor = button.style.color;
-        button.style.color = color;
-
-        setTimeout(() => {
-          button.style.color = originalColor;
-        }, 1000);
-      }
-    }
 </script>
 {% endblock %}
