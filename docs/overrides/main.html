@@ -1,0 +1,122 @@
+<!--
+ Copyright 2025 EvoBandits
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+{% extends "base.html" %} {% block scripts %} {{ super() }}
+<script>
+    document$.subscribe(function() {
+      // Only add copy button if we have a valid page with source file
+      {% if page and page.file and page.file.src_path %}
+      // Find the article content where edit/view buttons are located
+      const contentInner = document.querySelector('.md-content__inner');
+      const existingButtons = contentInner ? contentInner.querySelectorAll('.md-content__button') : [];
+
+      if (contentInner && existingButtons.length > 0 && !document.getElementById('copy-markdown-btn')) {
+        // Create the copy markdown button
+        const copyButton = document.createElement('button');
+        copyButton.id = 'copy-markdown-btn';
+        copyButton.title = 'Copy Markdown';
+        copyButton.className = 'md-content__button md-icon';
+        copyButton.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" />
+          </svg>
+        `;
+        copyButton.onclick = copyMarkdownContent;
+
+        // Insert the button after the last existing button (they appear at the start of content)
+        const lastButton = existingButtons[existingButtons.length - 1];
+        contentInner.insertBefore(copyButton, lastButton.nextSibling);
+      }
+      {% endif %}
+    });
+
+    function copyMarkdownContent() {
+      const repoUrl = '{{ config.repo_url }}';
+      const sourcePath = '{{ page.file.src_path if page and page.file else "" }}';
+
+      // Use GitHub API to fetch content (avoids CORS issues)
+      const apiUrl = `https://api.github.com/repos/EvoBandits/EvoBandits/contents/docs/source/${sourcePath}`;
+
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) throw new Error('API request failed');
+          return response.json();
+        })
+        .then(data => {
+          if (data.content && data.encoding === 'base64') {
+            const markdownContent = atob(data.content);
+            copyToClipboard(markdownContent);
+          } else {
+            throw new Error('No content found');
+          }
+        })
+        .catch(error => {
+          console.warn('GitHub API failed, trying fallback:', error);
+          // Fallback: copy the raw URL
+          const rawUrl = `${repoUrl}/raw/main/docs/source/${sourcePath}`;
+          copyToClipboard(`You can view and copy the markdown from: ${rawUrl}`);
+          showCopyFeedback('Raw URL copied', '#2196f3');
+        });
+    }
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => {
+          showCopyFeedback('Copied!', '#4caf50');
+        }).catch(() => {
+          fallbackCopy(text);
+        });
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        document.execCommand('copy');
+        showCopyFeedback('Copied!', '#4caf50');
+      } catch (err) {
+        showCopyFeedback('Copy failed', '#f44336');
+      } finally {
+        document.body.removeChild(textArea);
+      }
+    }
+
+    function showCopyFeedback(message, color) {
+      const button = document.getElementById('copy-markdown-btn');
+      if (button) {
+        const originalTitle = button.title;
+        const originalColor = button.style.color;
+        button.title = message;
+        button.style.color = color;
+
+        setTimeout(() => {
+          button.title = originalTitle;
+          button.style.color = originalColor;
+        }, 2000);
+      }
+    }
+</script>
+{% endblock %}
