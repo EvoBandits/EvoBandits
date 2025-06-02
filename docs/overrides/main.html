@@ -65,57 +65,30 @@
         })
         .catch(error => {
           console.warn('GitHub API failed, trying fallback:', error);
-          // Fallback: copy the raw URL
-          const rawUrl = `${repoUrl}/raw/main/docs/source/${sourcePath}`;
-          copyToClipboard(`You can view and copy the markdown from: ${rawUrl}`);
-          showCopyFeedback('Raw URL copied', '#2196f3');
         });
     }
 
     function copyToClipboard(text) {
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(text).then(() => {
-          showCopyFeedback('Copied!', '#4caf50');
+          showCopyFeedback('#4caf50');
         }).catch(() => {
-          fallbackCopy(text);
+          console.error('Copy failed');
         });
       } else {
-        fallbackCopy(text);
+        console.error('Clipboard API not supported');
       }
     }
 
-    function fallbackCopy(text) {
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-
-      try {
-        document.execCommand('copy');
-        showCopyFeedback('Copied!', '#4caf50');
-      } catch (err) {
-        showCopyFeedback('Copy failed', '#f44336');
-      } finally {
-        document.body.removeChild(textArea);
-      }
-    }
-
-    function showCopyFeedback(message, color) {
+    function showCopyFeedback(color) {
       const button = document.getElementById('copy-markdown-btn');
       if (button) {
-        const originalTitle = button.title;
         const originalColor = button.style.color;
-        button.title = message;
         button.style.color = color;
 
         setTimeout(() => {
-          button.title = originalTitle;
           button.style.color = originalColor;
-        }, 2000);
+        }, 1000);
       }
     }
 </script>
