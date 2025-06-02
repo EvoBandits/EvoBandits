@@ -43,11 +43,11 @@
         // Pre-load content on hover
         copyButton.addEventListener('mouseenter', function() {
           if (!markdownContainer.textContent) {
-            const apiUrl = `https://api.github.com/repos/EvoBandits/EvoBandits/contents/docs/source/{{ page.file.src_path }}`;
-            fetch(apiUrl)
-              .then(response => response.json())
+            const rawUrl = `https://raw.githubusercontent.com/EvoBandits/EvoBandits/main/docs/source/{{ page.file.src_path }}`;
+            fetch(rawUrl)
+              .then(response => response.text())
               .then(data => {
-                markdownContainer.textContent = atob(data.content);
+                markdownContainer.textContent = data;
               })
               .catch(console.error);
           }
