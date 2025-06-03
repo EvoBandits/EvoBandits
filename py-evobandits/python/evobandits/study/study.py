@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from collections.abc import Callable, Mapping
-from functools import cached_property
 from statistics import mean
 from typing import Any, TypeAlias
 
@@ -154,7 +153,7 @@ class Study:
                 result["run_id"] = run_id
                 self.results.append(result)
 
-    @cached_property
+    @property
     def best_value(self) -> float:
         """
         Returns the best value found during optimization.
@@ -166,7 +165,7 @@ class Study:
             raise AttributeError("Study has no results. Run study.optimize() first.")
         return max(self.results, key=lambda r: -self._direction * r["value"])["value"]
 
-    @cached_property
+    @property
     def mean_value(self) -> float:
         """
         Returns the mean value of all results found during optimization.
@@ -178,7 +177,7 @@ class Study:
             raise AttributeError("Study has no results. Run study.optimize() first.")
         return mean([r["value"] for r in self.results])
 
-    @cached_property
+    @property
     def best_solution(self) -> dict[str, Any]:
         """
         Returns the best solution found during optimization.
@@ -190,7 +189,7 @@ class Study:
             raise AttributeError("Study has no results. Run study.optimize() first.")
         return next(r for r in self.results if r["value"] == self.best_value)
 
-    @cached_property
+    @property
     def best_params(self) -> ParamsType:
         """
         Returns the parameter set corresponding to the best value found during optimization.
