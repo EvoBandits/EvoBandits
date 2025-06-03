@@ -133,17 +133,22 @@
           }
         });
 
+        // Create hidden markdown container
+        const markdownContainer = document.createElement('div');
+        markdownContainer.id = 'markdown-source';
+        markdownContainer.style.display = 'none';
+        document.body.appendChild(markdownContainer);
+
         // Create copy button using existing Material classes
         const copyButton = document.createElement('button');
         copyButton.id = 'copy-markdown-btn';
         copyButton.className = 'md-content__button md-icon';
         copyButton.title = 'Copy Markdown';
+        copyButton.setAttribute('data-clipboard-target', '#markdown-source');
         copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z" /></svg>`;
 
-        // Copy rendered content to clipboard
-        copyButton.addEventListener('click', async function() {
-          try {
-            // Get the main content area (excluding navigation, headers, etc.)
+        copyButton.addEventListener('mouseenter', function() {
+          if (!markdownContainer.textContent) {
             const article = document.querySelector('article.md-content__inner') ||
                            document.querySelector('.md-content__inner > *:not(.md-content__button)') ||
                            contentInner;
@@ -176,31 +181,7 @@
             // Convert to markdown using Turndown
             const markdown = turndownService.turndown(clone);
 
-            // Copy to clipboard
-            await navigator.clipboard.writeText(markdown);
-
-            // Visual feedback
-            const originalTitle = copyButton.title;
-            copyButton.title = 'Copied!';
-            copyButton.style.color = 'var(--md-accent-fg-color)';
-
-            setTimeout(() => {
-              copyButton.title = originalTitle;
-              copyButton.style.color = '';
-            }, 2000);
-
-          } catch (error) {
-            console.error('Failed to copy content:', error);
-
-            // Fallback: show error feedback
-            const originalTitle = copyButton.title;
-            copyButton.title = 'Copy failed - see console';
-            copyButton.style.color = 'var(--md-error-fg-color)';
-
-            setTimeout(() => {
-              copyButton.title = originalTitle;
-              copyButton.style.color = '';
-            }, 3000);
+            markdownContainer.textContent = markdown;
           }
         });
 
