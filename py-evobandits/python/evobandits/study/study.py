@@ -14,7 +14,6 @@
 
 from collections.abc import Callable, Mapping
 from functools import cached_property
-from os import urandom
 from statistics import mean
 from typing import Any, TypeAlias
 
@@ -51,11 +50,10 @@ class Study:
         """
         if seed is None:
             _logger.warning("No seed provided. Results will not be reproducible.")
-            seed = int.from_bytes(urandom(4), "big")  # Range: 0 to 2**32 - 1
         elif not isinstance(seed, int):
             raise TypeError(f"Seed must be integer: {seed}")
 
-        self.seed: int = seed
+        self.seed: int | None = seed
         self.algorithm = algorithm  # ToDo Issue #23: type and input validation
         self.objective: Callable | None = None  # ToDo Issue #23: type and input validation
         self.params: ParamsType | None = None  # ToDo Issue #23: Input validation
@@ -144,7 +142,7 @@ class Study:
         bounds = self._collect_bounds()
 
         for run_id in range(n_runs):
-            seed = self.seed + run_id  # Ensure different entropy for each run
+            seed = self.seed + run_id if self.seed else None  # new entropy for each seeded run
             algorithm = self.algorithm.clone()
             best_arms = algorithm.optimize(self._evaluate, bounds, n_trials, n_best, seed)
 
