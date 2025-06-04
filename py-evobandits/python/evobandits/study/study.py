@@ -45,7 +45,7 @@ class Study:
 
         Args:
             seed: The seed for the Study. Defaults to None (use system entropy).
-            algorithm : The optimization algorithm to use. Defaults to EvoBandits.
+            algorithm: The optimization algorithm to use. Defaults to EvoBandits.
         """
         if seed is None:
             _logger.warning("No seed provided. Results will not be reproducible.")
