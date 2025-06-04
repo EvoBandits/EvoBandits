@@ -13,10 +13,10 @@
 
 ---
 
-EvoBandits (Evolutionary Multi-Armed Bandits) is an innovative optimization algorithm designed to tackle stochastic problems with high efficiency. By combining genetic algorithms with multi-armed bandit mechanisms, EvoBandits offers a unique, reinforcement learning-based approach to solving complex, large-scale optimization issues. Whether you're working in operations research, machine learning, or data science, EvoBandits provides a robust, scalable solution for optimizing your stochastic models.
+EvoBandits (Evolutionary Multi-Armed Bandits) is an innovative optimization algorithm designed to tackle stochastic problems efficiently. EvoBandits offers a reinforcement learning-based approach to solving complex, large-scale optimization issues by combining genetic algorithms with multi-armed bandit mechanisms. Whether you're working in operations research, machine learning, or data science, EvoBandits provides a robust, scalable solution for optimizing your stochastic models.
 
 ## Usage
-To install EvoBandits, add the following to your Cargo.toml file:
+To install EvoBandits:
 
 ```bash
 pip install evobandits
@@ -37,19 +37,16 @@ if __name__ == '__main__':
 ```
 
 ## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you want to change.
-
+Pull requests are welcome. For major changes, please open a discussion first to talk about what you'd like to change.
 
 ## License
-
-tbd
+EvoBandits is licensed under the Apache-2.0 license ([LICENSE](LICENSE) or
+<https://opensource.org/licenses/apache-2-0>).
 
 ## Credit
-Deniz Preil wrote the initial EvoBandits code, which Timo Kühne and Jonathan Laib rewrote.
+Deniz Preil wrote the initial EvoBandits prototype in C++, which Timo Kühne and Jonathan Laib rewrote. Timo Kühne ported to Rust, which is now the backend. Felix Würmseher added the Python frontend.
 
 ## Citing EvoBandits
-
 If you use EvoBandits in your research, please cite the following paper:
 
 ```
