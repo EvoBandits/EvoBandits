@@ -1,21 +1,61 @@
-site_name: EvoBandit Docs
+# Copyright 2025 EvoBandits
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+site_name: EvoBandits Docs
 
 repo_url: https://github.com/EvoBandits/EvoBandits
 repo_name: EvoBandits/EvoBandits
+edit_uri: edit/main/docs/source/
 
 docs_dir: docs/source
 
 theme:
   name: material
+  custom_dir: docs/overrides
   icon:
     repo: fontawesome/brands/github
+  features:
+    - content.action.edit
+    - content.code.copy
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
 
 plugins:
-- search
-- mkdocstrings:
-    handlers: 
-      python:
-        options:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
             show_root_heading: true
             show_root_full_path: false
             show_source: false
@@ -27,6 +67,6 @@ nav:
       - Overview: tutorials/index.md
       - Getting Started: tutorials/getting_started.md
       - Advanced Usage: tutorials/advanced_usage.md
-  - Reference: 
+  - Reference:
       - Study: references/study.md
       - Params: references/params.md
