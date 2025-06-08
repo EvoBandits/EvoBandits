@@ -24,15 +24,12 @@ class CategoricalParam(BaseParam):
     A class representing a categorical parameter.
     """
 
-    def __init__(self, choices: list[ChoiceType]):
+    def __init__(self, choices: list[ChoiceType]) -> None:
         """
         Creates a CategoricalParam that will suggest one of the choices during optimization.
 
         Args:
-            choices (list[ChoiceType]): A list of possible choices for the parameter.
-
-        Returns:
-            CategoricalParam: An instance of the parameter with the specified properties.
+            choices: A list of possible choices for the parameter.
 
         Raises:
             ValueError: Raises a ValueError if choices is not a list, or if the objects in the list
@@ -55,11 +52,11 @@ class CategoricalParam(BaseParam):
         super().__init__(size=1)
         self.choices: list[ChoiceType] = choices
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"CategoricalParam(choices={self.choices})"
 
     @property
-    def bounds(self) -> list[tuple]:
+    def bounds(self) -> list[tuple[int, int]]:
         """
         Calculates and returns the parameter's internal bounds for optimization.
 
@@ -67,7 +64,7 @@ class CategoricalParam(BaseParam):
         of the optimization algorithm regarding the parameter's value.
 
         Returns:
-            list[tuple]: A list of tuples representing the bounds.
+            A list of (lower_bound, upper_bound) tuples representing the bounds.
         """
         return [(0, len(self.choices) - 1)]
 
@@ -81,8 +78,8 @@ class CategoricalParam(BaseParam):
         Returns:
             ChoiceType | list[ChoiceType]: The resulting choice(s).
         """
-        actions = [self.choices[idx] for idx in actions]
+        values: list[ChoiceType] = [self.choices[idx] for idx in actions]
 
-        if len(actions) == 1:
-            return actions[0]
-        return actions
+        if len(values) == 1:
+            return values[0]
+        return values

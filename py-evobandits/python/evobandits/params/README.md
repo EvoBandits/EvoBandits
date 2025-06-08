@@ -49,7 +49,7 @@ BaseParam
 # Definition of parameters (User):
 params = {
    "a": IntParam(low=0, high=1000, size=10)
-   "b": FloatParam(low=0, high=1, nsteps=100, log=True)
+   "b": FloatParam(low=0, high=1, n_steps=100, log=True)
    "c": CategoricalParam(['balanced', 'None']) # Future work
 }
 

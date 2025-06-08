@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 
 
 class BaseParam(ABC):
@@ -26,12 +27,12 @@ class BaseParam(ABC):
     The `size` attribute determines the dimensionality of the parameter.
     """
 
-    def __init__(self, size: int = 1):
+    def __init__(self, size: int = 1) -> None:
         """
         Initializes a BaseParam instance.
 
         Args:
-            size (int): The size of the parameter if it is a list. This determines
+            The size of the parameter if it is a list. This determines
             the number of dimensions for the parameter. Defaults to 1.
 
         Raises:
@@ -43,7 +44,7 @@ class BaseParam(ABC):
 
     @property
     @abstractmethod
-    def bounds(self) -> list[tuple]:
+    def bounds(self) -> list[tuple[int, int]]:
         """
         Abstract property to calculate and return the parameter's internal bounds.
 
@@ -53,7 +54,7 @@ class BaseParam(ABC):
         taking into account the `size`.
 
         Returns:
-            list[tuple]: A list of tuples representing the bounds, where each tuple
+            A list of tuples representing the bounds, where each tuple
             contains the lower and upper bounds for a dimension. The length of the
             list should match the `size`.
 
@@ -61,7 +62,7 @@ class BaseParam(ABC):
         raise NotImplementedError("Subclasses must implement the 'bounds' property.")
 
     @abstractmethod
-    def decode(self, actions: list[int]) -> bool | int | str | float | list:
+    def decode(self, actions: list[int]) -> bool | int | str | float | Callable | None | list:
         """
         Abstract method to decode optimization actions as parameter values.
 
@@ -70,12 +71,11 @@ class BaseParam(ABC):
         specific mapping logic, considering the `size`.
 
         Args:
-            actions (list[int]): A list of integers representing actions from the
+            actions: A list of integers representing actions from the
             optimization algorithm. The length of this list should match the `size`.
 
         Returns:
-            bool | int | str | float | list: The resulting parameter value(s)
-            corresponding to the given actions.
-
+            The resulting parameter value(s) corresponding to the given actions.
+            Returns the value directly in case of `self.size` equals 1, a list of values else.
         """
         raise NotImplementedError("Subclasses must implement the 'map_to_value' method.")

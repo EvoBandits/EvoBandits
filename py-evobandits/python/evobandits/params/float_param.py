@@ -23,21 +23,21 @@ class FloatParam(BaseParam):
     """
 
     def __init__(
-        self, low: float, high: float, size: int = 1, nsteps: float = 100, log: bool = False
-    ):
+        self, low: float, high: float, size: int = 1, n_steps: float = 100, log: bool = False
+    ) -> None:
         """
         Creates a FloatParam that will suggest float values during the optimization.
 
         The parameter can either be a float, or a list of floats, depending on the specified
-        size. The values sampled by the optimizaton will be limited to the specified granularity,
+        size. The values sampled by the optimization will be limited to the specified granularity,
         lower and upper bounds.
 
         Args:
-            low (float): The lower bound of the suggested values.
-            high (float): The upper bound of the suggested values.
-            size (int): The size if the parameter shall be a list of floats. Default is 1.
-            nsteps (int): The number of steps between low and high. Default is 100.
-            log (bool): A flag to indicate log-transformation. Default is False.
+            low: The lower bound of the suggested values.
+            high: The upper bound of the suggested values.
+            size: The size if the parameter shall be a list of floats. Default is 1.
+            n_steps: The number of steps between low and high. Default is 100.
+            log: A flag to indicate log-transformation. Default is False.
 
         Returns:
             FloatParam: An instance of the parameter with the specified properties.
@@ -47,13 +47,13 @@ class FloatParam(BaseParam):
             low, or if size is not a positive integer, or if step is not a positive float.
 
         Example:
-        >>> param = FloatParam(low=1.0, high=10.0, size=3, nsteps=100)
+        >>> param = FloatParam(low=1.0, high=10.0, size=3, n_steps=100)
         >>> print(param)
-        FloatParam(low=1.0, high=10.0, size=3, nsteps=100)
+        FloatParam(low=1.0, high=10.0, size=3, n_steps=100)
         """
         if high <= low:
             raise ValueError("high must be a float that is greater than low.")
-        if nsteps <= 0:
+        if n_steps <= 0:
             raise ValueError("steps must be positive integer.")
         if log and low <= 0.0:
             raise ValueError("low must be greater than 0 for a log-transformation.")
@@ -62,26 +62,26 @@ class FloatParam(BaseParam):
         self.log: bool = bool(log)
         self.low: float = float(low)
         self.high: float = float(high)
-        self.nsteps: int = int(nsteps)
+        self.n_steps: int = int(n_steps)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         repr = f"FloatParam(low={self.low}, high={self.high}, size={self.size}, "
-        repr += f"nsteps={self.nsteps}, log={self.log})"
+        repr += f"n_steps={self.n_steps}, log={self.log})"
         return repr
 
     @property
-    def _low_trans(self):
+    def _low_trans(self) -> float:
         if self.log:
             return math.log(self.low)
         return self.low
 
     @property
-    def _stepsize(self):
+    def _step_size(self) -> float:
         high_trans = math.log(self.high) if self.log else self.high
-        return (high_trans - self._low_trans) / self.nsteps
+        return (high_trans - self._low_trans) / self.n_steps
 
     @property
-    def bounds(self) -> list[tuple]:
+    def bounds(self) -> list[tuple[int, int]]:
         """
         Calculate and return the parameter's internal bounds for the optimization.
 
@@ -91,7 +91,7 @@ class FloatParam(BaseParam):
         Returns:
             list[tuple]: A list of tuples representing the bounds
         """
-        return [(0, self.nsteps)] * self.size
+        return [(0, self.n_steps)] * self.size
 
     def decode(self, actions: list[int]) -> float | list[float]:
         """
@@ -104,12 +104,12 @@ class FloatParam(BaseParam):
             float | list[float]: The resulting float value(s).
         """
         # Apply scaling
-        actions = [self._low_trans + self._stepsize * x for x in actions]
+        values = [self._low_trans + self._step_size * x for x in actions]
 
         # Optional log-transformation
         if self.log:
-            actions = [math.exp(x) for x in actions]
+            values = [math.exp(x) for x in values]
 
-        if len(actions) == 1:
-            return actions[0]
-        return actions
+        if len(values) == 1:
+            return values[0]
+        return values

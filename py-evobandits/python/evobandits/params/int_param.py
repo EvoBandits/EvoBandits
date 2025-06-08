@@ -21,7 +21,7 @@ class IntParam(BaseParam):
     A class representing an integer parameter.
     """
 
-    def __init__(self, low: int, high: int, size: int = 1):
+    def __init__(self, low: int, high: int, size: int = 1) -> None:
         """
         Creates an IntParam that will suggest integer values during the optimization.
 
@@ -30,9 +30,9 @@ class IntParam(BaseParam):
         lower and upper bounds.
 
         Args:
-            low (int): The lower bound of the suggested values.
-            high (int): The upper bound of the suggested values.
-            size (int): The size if the parameter shall be a list of integers. Default is 1.
+            low: The lower bound of the suggested values.
+            high: The upper bound of the suggested values.
+            size: The size if the parameter shall be a list of integers. Default is 1.
 
         Returns:
             IntParam: An instance of the parameter with the specified properties.
@@ -53,11 +53,11 @@ class IntParam(BaseParam):
         self.low: int = int(low)
         self.high: int = int(high)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"IntParam(low={self.low}, high={self.high}, size={self.size})"
 
     @property
-    def bounds(self) -> list[tuple]:
+    def bounds(self) -> list[tuple[int, int]]:
         """
         Calculate and return the parameter's internal bounds for the optimization.
 
@@ -65,8 +65,7 @@ class IntParam(BaseParam):
         of the optimization algorithm about the parameter's value.
 
         Returns:
-            list[tuple]: A list of tuples representing the bounds.
-
+            A list of tuples representing the bounds.
         """
         return [(self.low, self.high)] * self.size
 
@@ -75,10 +74,10 @@ class IntParam(BaseParam):
         Decode an action by the optimization problem to the value of the parameter.
 
         Args:
-            actions (list[int]): A list of integers to map.
+            actions: A list of integers to map.
 
         Returns:
-            int | list[int]: The resulting integer value(s).
+            The resulting integer value(s).
         """
         if len(actions) == 1:
             return actions[0]
