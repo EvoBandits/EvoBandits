@@ -73,10 +73,10 @@ class CategoricalParam(BaseParam):
         Decodes an action from the optimization problem to the value of the parameter.
 
         Args:
-            actions (list[int]): A list of integers to map.
+            actions: A list of integers to map.
 
         Returns:
-            ChoiceType | list[ChoiceType]: The resulting choice(s).
+            The resulting choice(s).
         """
         values: list[ChoiceType] = [self.choices[idx] for idx in actions]
 

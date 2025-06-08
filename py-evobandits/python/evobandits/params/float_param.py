@@ -89,7 +89,7 @@ class FloatParam(BaseParam):
         of the optimization algorithm about the parameter's value
 
         Returns:
-            list[tuple]: A list of tuples representing the bounds
+            A list of tuples representing the bounds
         """
         return [(0, self.n_steps)] * self.size
 
@@ -98,10 +98,10 @@ class FloatParam(BaseParam):
         Decodes an action by the optimization problem to the value of the parameter.
 
         Args:
-            actions (list[int]): A list of integer to map.
+            A list of integer to map.
 
         Returns:
-            float | list[float]: The resulting float value(s).
+            The resulting float value(s).
         """
         # Apply scaling
         values = [self._low_trans + self._step_size * x for x in actions]
