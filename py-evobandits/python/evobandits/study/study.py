@@ -54,22 +54,22 @@ class Study:
 
         self.seed: int | None = seed
         self.algorithm: EvoBandits = algorithm
-        self.objective: Callable | None = None  # type: ignore
-        self.params: ParamsType | None = None  # type: ignore
         self.results: list[dict[str, Any]] = []
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
+        self._params: ParamsType
+        self._objective: Callable
 
     def _collect_bounds(self) -> list[tuple[int, int]]:
         """
-        Collects the bounds of the parameter configuration saved to `self.params`.
+        Collects the bounds of the parameter configuration saved to `self._params`.
 
         Returns:
             The bounds, a list of (lower_bound, upper_bound) tuples for all parameters.
         """
         bounds = []
-        for param in self.params.values():
+        for param in self._params.values():
             bounds.extend(param.bounds)
         return bounds
 
@@ -85,7 +85,7 @@ class Study:
         """
         result = {}
         idx = 0
-        for key, param in self.params.items():
+        for key, param in self._params.items():
             result[key] = param.decode(action_vector[idx : idx + param.size])
             idx += param.size
         return result
@@ -101,7 +101,7 @@ class Study:
             The value from a single evaluation of the objective function.
         """
         solution = self._decode(action_vector)
-        evaluation = self._direction * self.objective(**solution)
+        evaluation = self._direction * self._objective(**solution)
         return evaluation
 
     def optimize(
@@ -136,8 +136,18 @@ class Study:
         if n_runs < 1:
             raise ValueError(f"n_runs must be an int larger than 0, got {n_runs}.")
 
-        self.objective: Callable = objective
-        self.params: ParamsType = params
+        if not isinstance(params, Mapping):
+            raise TypeError(f"params must be a mapping, got {type(params)}.")
+        for k, v in params.items():
+            if not isinstance(k, str):
+                raise TypeError(f"Parameter key must be str, got {type(k)}.")
+            if not isinstance(v, BaseParam):
+                raise TypeError(f"Parameter '{k}' must implement BaseParam, got {type(v)}.")
+        self._params = params
+
+        # input validation for objective, n_trials, n_best is managed by 'self.algorithm'
+        self._objective = objective
+
         bounds = self._collect_bounds()
 
         for run_id in range(n_runs):

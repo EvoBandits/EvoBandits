@@ -1,3 +1,17 @@
+# Copyright 2025 EvoBandits
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import pytest
 from evobandits import CategoricalParam, IntParam
 from evobandits.study.study import Study
@@ -19,7 +33,7 @@ from evobandits.study.study import Study
 def test_collect_bounds(params, exp_bounds):
     # Mock or patch dependencies
     study = Study(seed=42)  # with seed to avoid warning logs
-    study.params = params
+    study._params = params
 
     # Collect bounds and verify result
     bounds = study._collect_bounds()
@@ -46,7 +60,7 @@ def test_collect_bounds(params, exp_bounds):
 def test_decode(params, action_vector, exp_solution):
     # Mock or patch dependencies
     study = Study(seed=42)  # with seed to avoid warning logs
-    study.params = params
+    study._params = params
 
     # Decode an action vector and verify result
     solution = study._decode(action_vector)
@@ -72,8 +86,8 @@ def test_evaluate(params, action_vector, exp_result, kwargs):
         return sum(a) * 0.5 if b else -sum(a) * 0.5
 
     study = Study(seed=42)  # with seed to avoid warning logs
-    study.params = params
-    study.objective = dummy_objective
+    study._params = params
+    study._objective = dummy_objective
     study._direction = kwargs.get("_direction", 1)
 
     # Verify if study evaluates the objective

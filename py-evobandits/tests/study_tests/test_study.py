@@ -51,8 +51,6 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
 
         assert study.seed == seed
         assert study.algorithm == exp_algorithm
-        assert study.objective is None
-        assert study.params is None
 
         if log:
             level, msg = log
@@ -99,6 +97,9 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
                 ],
             },
         ],
+        [rb.function, ["number"], 1, {"exp": pytest.raises(TypeError)}],
+        [rb.function, {1: "number"}, 1, {"exp": pytest.raises(TypeError)}],
+        [rb.function, {"number": "BaseParam"}, 1, {"exp": pytest.raises(TypeError)}],
         [rb.function, rb.PARAMS, 1, {"maximize": "False", "exp": pytest.raises(TypeError)}],
         [rb.function, rb.PARAMS, 1, {"n_runs": "2", "exp": pytest.raises(TypeError)}],
         [rb.function, rb.PARAMS, 1, {"n_runs": 0, "exp": pytest.raises(ValueError)}],
@@ -108,6 +109,9 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
         "valid_clustering_testcase",
         "default_with_maximize",
         "default_with_n_runs",
+        "invalid_params_not_a_mapping",
+        "invalid_params_not_a_str_key",
+        "invalid_params_not_a_BaseParam_value",
         "invalid_maximize_type",
         "invalid_n_runs_type",
         "invalid_n_runs_value",
