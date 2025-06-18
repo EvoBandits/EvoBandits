@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from collections.abc import Callable, Mapping
+from inspect import signature
+from random import Random
 from statistics import mean
 from typing import Any, TypeAlias
 
@@ -58,6 +60,8 @@ class Study:
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
+        self._seed_evaluations: bool = False
+        self._rng: Random
         self._params: ParamsType
         self._objective: Callable
 
@@ -101,6 +105,10 @@ class Study:
             The value from a single evaluation of the objective function.
         """
         solution = self._decode(action_vector)
+
+        if self.seed and self._seed_evaluations:
+            seed = self._rng.randint(0, 2**32 - 1)
+            solution.update({"seed": seed})
         evaluation = self._direction * self._objective(**solution)
         return evaluation
 
@@ -147,6 +155,11 @@ class Study:
 
         # input validation for objective, n_trials, n_best is managed by 'self.algorithm'
         self._objective = objective
+
+        # Active seeded evaluation only in case objective accepts a seed.
+        if "seed" in signature(objective).parameters:
+            self._seed_evaluations = True
+            self._rng: Random = Random(self.seed)
 
         bounds = self._collect_bounds()
 
