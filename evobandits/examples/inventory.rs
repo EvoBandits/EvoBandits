@@ -16,7 +16,7 @@ use std::time::Instant;
 
 use rand_distr::{Distribution, Poisson};
 
-use evobandits::evobandits::EvoBandits;
+use evobandits::evobandits::GMAB;
 
 fn random_poisson(lambda: f64) -> i32 {
     let poi = Poisson::new(lambda).unwrap();
@@ -1075,8 +1075,8 @@ fn main() {
     for i in 0..num_runs {
         let start_time = Instant::now(); // Record the start time
         let bounds = vec![(1, 100), (1, 100)]; // Set the bounds for the problem
-        let mut evobandits = EvoBandits::new(Default::default()); // Initialize a default EvoBandits Instance
-        let best_arms = evobandits.optimize(inventory, bounds, 10000, 1, None); // Optimize inventory, unseeded, with constraints (bounds, n_trials)
+        let mut gmab = GMAB::new(Default::default()); // Initialize a default GMAB Instance
+        let best_arms = gmab.optimize(inventory, bounds, 10000, 1, None); // Optimize inventory, unseeded, with constraints (bounds, n_trials)
 
         let elapsed_time = start_time.elapsed().as_secs_f64(); // Record the elapsed time
         total_time += elapsed_time; // Add the elapsed time to the total

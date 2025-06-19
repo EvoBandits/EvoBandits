@@ -15,7 +15,7 @@
 import numpy as np
 from sklearn.model_selection._search import BaseSearchCV
 
-from evobandits.evobandits import EvoBandits
+from evobandits.evobandits import GMAB
 
 
 # https://github.com/scikit-learn/scikit-learn/blob/main/sklearn/model_selection/_search.py#L433
@@ -66,7 +66,7 @@ class EvoBanditsSearchCV(BaseSearchCV):
         1) Builds an integer-bounded search space from self.param_distributions.
         2) Defines a Python function that calls evaluate_candidates to retrieve
            cross-validation scores.
-        3) Invokes EvoBandits to search for the best hyperparameters.
+        3) Invokes GMAB to search for the best hyperparameters.
         4) Finally, calls evaluate_candidates one last time with the best found
            parameters so they are recorded by scikit-learn.
         """
@@ -95,10 +95,8 @@ class EvoBanditsSearchCV(BaseSearchCV):
             return mean_score * -1
 
         # 3) Create the EvoBandits optimizer and search for the best param configuration
-        evobandits_opt = EvoBandits()
-        best_arms = evobandits_opt.optimize(
-          evobandits_objective, bounds, self.n_trials, n_best=1
-        )
+        evobandits_opt = GMAB()
+        best_arms = evobandits_opt.optimize(evobandits_objective, bounds, self.n_trials, n_best=1)
         best_action_vector = best_arms[0].to_dict.get("action_vector")
 
         # 4) Evaluate the best param set again (so scikit-learn knows about it)

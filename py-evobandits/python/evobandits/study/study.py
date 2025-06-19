@@ -17,9 +17,7 @@ from statistics import mean
 from typing import Any, TypeAlias
 
 from evobandits import logging
-from evobandits.evobandits import (
-    EvoBandits,
-)
+from evobandits.evobandits import GMAB
 from evobandits.params import BaseParam
 
 _logger = logging.get_logger(__name__)
@@ -28,7 +26,7 @@ _logger = logging.get_logger(__name__)
 ParamsType: TypeAlias = Mapping[str, BaseParam]
 
 
-ALGORITHM_DEFAULT = EvoBandits()
+ALGORITHM_DEFAULT = GMAB()
 
 
 class Study:
@@ -39,13 +37,13 @@ class Study:
     and to manage user-defined attributes related to the study.
     """
 
-    def __init__(self, seed: int | None = None, algorithm: EvoBandits = ALGORITHM_DEFAULT) -> None:
+    def __init__(self, seed: int | None = None, algorithm: GMAB = ALGORITHM_DEFAULT) -> None:
         """
         Initializes a Study instance.
 
         Args:
             seed: The seed for the Study. Defaults to None (uses system entropy).
-            algorithm: The optimization algorithm to use. Defaults to EvoBandits.
+            algorithm: The optimization algorithm to use. Defaults to GMAB.
         """
         if seed is None:
             _logger.warning("No seed provided. Results will not be reproducible.")
@@ -53,7 +51,7 @@ class Study:
             raise TypeError(f"Seed must be integer: {seed}")
 
         self.seed: int | None = seed
-        self.algorithm: EvoBandits = algorithm
+        self.algorithm: GMAB = algorithm
         self.results: list[dict[str, Any]] = []
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.

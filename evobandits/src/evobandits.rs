@@ -21,20 +21,20 @@ use rand::{RngCore, SeedableRng};
 use std::collections::HashMap;
 
 #[derive(Debug, PartialEq, Clone)]
-pub struct EvoBandits {
+pub struct GMAB {
     sample_average_tree: SortedMultiMap<FloatKey, i32>,
     arm_memory: Vec<Arm>,
     lookup_table: HashMap<Vec<i32>, i32>,
     genetic_algorithm: GeneticAlgorithm,
 }
 
-impl EvoBandits {
-    pub fn new(genetic_algorithm: GeneticAlgorithm) -> EvoBandits {
+impl GMAB {
+    pub fn new(genetic_algorithm: GeneticAlgorithm) -> GMAB {
         let arm_memory: Vec<Arm> = Vec::new();
         let lookup_table: HashMap<Vec<i32>, i32> = HashMap::new();
         let sample_average_tree: SortedMultiMap<FloatKey, i32> = SortedMultiMap::new();
 
-        EvoBandits {
+        GMAB {
             sample_average_tree,
             arm_memory,
             lookup_table,
@@ -299,7 +299,7 @@ mod tests {
     }
 
     #[test]
-    fn test_evobandits_new() {
+    fn test_gmab_new() {
         let ga = GeneticAlgorithm {
             population_size: 10,
             mutation_rate: 0.5,
@@ -309,23 +309,23 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga);
-        evobandits.initialize_population(0, &mock_opti_function);
+        let mut gmab = GMAB::new(ga);
+        gmab.initialize_population(0, &mock_opti_function);
 
-        assert_eq!(evobandits.genetic_algorithm.population_size, 10);
-        assert_eq!(evobandits.arm_memory.len(), 10);
-        assert_eq!(evobandits.lookup_table.len(), 10);
+        assert_eq!(gmab.genetic_algorithm.population_size, 10);
+        assert_eq!(gmab.arm_memory.len(), 10);
+        assert_eq!(gmab.lookup_table.len(), 10);
 
         // check if there are 10  elements in sample_average_tree
         let mut count = 0;
-        for _ in evobandits.sample_average_tree.iter() {
+        for _ in gmab.sample_average_tree.iter() {
             count += 1;
         }
         assert_eq!(count, 10);
     }
 
     #[test]
-    fn test_evobandits_get_arm_index_with_existing() {
+    fn test_gmab_get_arm_index_with_existing() {
         let ga = GeneticAlgorithm {
             population_size: 10,
             mutation_rate: 0.5,
@@ -335,17 +335,16 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga);
+        let mut gmab = GMAB::new(ga);
         let arm = Arm::new(&vec![1, 2]);
-        evobandits.arm_memory.push(arm.clone());
-        evobandits
-            .lookup_table
+        gmab.arm_memory.push(arm.clone());
+        gmab.lookup_table
             .insert(arm.get_action_vector().to_vec(), 0);
-        assert_eq!(evobandits.get_arm_index(&arm), 0);
+        assert_eq!(gmab.get_arm_index(&arm), 0);
     }
 
     #[test]
-    fn test_evobandits_max_number_pulls() {
+    fn test_gmab_max_number_pulls() {
         let ga = GeneticAlgorithm {
             population_size: 10,
             mutation_rate: 0.5,
@@ -355,13 +354,13 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga);
-        evobandits.initialize_population(0, &mock_opti_function);
-        assert_eq!(evobandits.max_number_pulls(), 1);
+        let mut gmab = GMAB::new(ga);
+        gmab.initialize_population(0, &mock_opti_function);
+        assert_eq!(gmab.max_number_pulls(), 1);
     }
 
     #[test]
-    fn test_evobandits_find_best_ucb() {
+    fn test_gmab_find_best_ucb() {
         let ga = GeneticAlgorithm {
             population_size: 10,
             mutation_rate: 0.5,
@@ -371,13 +370,13 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga);
-        evobandits.initialize_population(0, &mock_opti_function);
-        assert_eq!(evobandits.find_best_ucb(100), 0);
+        let mut gmab = GMAB::new(ga);
+        gmab.initialize_population(0, &mock_opti_function);
+        assert_eq!(gmab.find_best_ucb(100), 0);
     }
 
     #[test]
-    fn test_evobandits_find_best_ucb_with_existing() {
+    fn test_gmab_find_best_ucb_with_existing() {
         let ga = GeneticAlgorithm {
             population_size: 10,
             mutation_rate: 0.5,
@@ -387,28 +386,26 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga);
+        let mut gmab = GMAB::new(ga);
 
         let arm = Arm::new(&vec![1, 2]);
-        evobandits.arm_memory.push(arm.clone());
-        evobandits
-            .lookup_table
+        gmab.arm_memory.push(arm.clone());
+        gmab.lookup_table
             .insert(arm.get_action_vector().to_vec(), 0);
 
         let arm2 = Arm::new(&vec![1, 2]);
-        evobandits.arm_memory.push(arm2.clone());
-        evobandits
-            .lookup_table
+        gmab.arm_memory.push(arm2.clone());
+        gmab.lookup_table
             .insert(arm2.get_action_vector().to_vec(), 1);
 
-        evobandits.sample_and_update(0, arm.clone(), &mock_opti_function);
-        evobandits.sample_and_update(1, arm2.clone(), &mock_opti_function);
+        gmab.sample_and_update(0, arm.clone(), &mock_opti_function);
+        gmab.sample_and_update(1, arm2.clone(), &mock_opti_function);
 
-        assert_eq!(evobandits.find_best_ucb(100), 0);
+        assert_eq!(gmab.find_best_ucb(100), 0);
     }
 
     #[test]
-    fn test_evobandits_sample_and_update_with_existing() {
+    fn test_gmab_sample_and_update_with_existing() {
         let ga = GeneticAlgorithm {
             population_size: 10,
             mutation_rate: 0.5,
@@ -418,23 +415,20 @@ mod tests {
             lower_bound: vec![0, 0],
             upper_bound: vec![10, 10],
         };
-        let mut evobandits = EvoBandits::new(ga);
-        evobandits.initialize_population(0, &mock_opti_function);
+        let mut gmab = GMAB::new(ga);
+        gmab.initialize_population(0, &mock_opti_function);
 
         let arm = Arm::new(&vec![1, 2]);
-        evobandits.arm_memory.push(arm.clone());
-        evobandits
-            .lookup_table
+        gmab.arm_memory.push(arm.clone());
+        gmab.lookup_table
             .insert(arm.get_action_vector().to_vec(), 0);
 
-        evobandits.sample_and_update(0, arm.clone(), &mock_opti_function);
+        gmab.sample_and_update(0, arm.clone(), &mock_opti_function);
 
-        assert_eq!(evobandits.arm_memory[0].get_n_evaluations(), 2);
-        assert_eq!(evobandits.arm_memory[0].get_value(), 0.0);
+        assert_eq!(gmab.arm_memory[0].get_n_evaluations(), 2);
+        assert_eq!(gmab.arm_memory[0].get_value(), 0.0);
         assert_eq!(
-            evobandits
-                .lookup_table
-                .get(&arm.get_action_vector().to_vec()),
+            gmab.lookup_table.get(&arm.get_action_vector().to_vec()),
             Some(&0)
         );
     }
@@ -446,11 +440,11 @@ mod tests {
             vec.iter().map(|&x| x as f64).sum()
         }
 
-        // Helper function that generates a evobandits result based on a specific seed.
+        // Helper function that generates a result based on a specific seed.
         fn generate_result(seed: Option<u64>) -> Vec<i32> {
             let bounds = vec![(1, 100), (1, 100)];
-            let mut evobandits = EvoBandits::new(Default::default());
-            let result = evobandits.optimize(mock_opti_function, bounds, 100, 1, seed);
+            let mut gmab = GMAB::new(Default::default());
+            let result = gmab.optimize(mock_opti_function, bounds, 100, 1, seed);
             return result[0].get_action_vector().to_vec();
         }
 
@@ -475,12 +469,12 @@ mod tests {
         };
 
         // Panics only, if validation from GmabOptions is integrated
-        let mut evobandits = EvoBandits::new(ga);
-        evobandits.optimize(mock_opti_function, bounds, 1, 1, None);
+        let mut gmab = GMAB::new(ga);
+        gmab.optimize(mock_opti_function, bounds, 1, 1, None);
     }
 
     #[test]
-    fn test_evobandits_adheres_to_n_trials() {
+    fn test_gmab_adheres_to_n_trials() {
         // Mock opti_function that keeps track of used simulations
         let used_trials = RefCell::new(0);
         let mock_opti_function = |_: &[i32]| {
@@ -491,8 +485,8 @@ mod tests {
         // Run the optimization, then check if used_trials matches n_trials
         let n_trials = 1000;
         let bounds = vec![(1, 100), (1, 100)];
-        let mut evobandits = EvoBandits::new(Default::default());
-        evobandits.optimize(mock_opti_function, bounds, n_trials, 1, None);
+        let mut gmab = GMAB::new(Default::default());
+        gmab.optimize(mock_opti_function, bounds, n_trials, 1, None);
 
         assert_eq!(n_trials, *used_trials.borrow_mut());
     }
@@ -509,8 +503,8 @@ mod tests {
 
         // Panics only, if n_trials is validated
         let bounds = vec![(1, 100), (1, 100)];
-        let mut evobandits = EvoBandits::new(ga);
-        evobandits.optimize(mock_opti_function, bounds, n_trials, 1, None);
+        let mut gmab = GMAB::new(ga);
+        gmab.optimize(mock_opti_function, bounds, n_trials, 1, None);
     }
 
     #[test]
@@ -518,13 +512,13 @@ mod tests {
     fn test_panic_on_invalid_n_best() {
         let n_best = 0; // top 0 results makes no sense, but fits in usize
         let bounds = vec![(1, 100), (1, 100)];
-        let mut evobandits = EvoBandits::new(Default::default());
-        evobandits.optimize(mock_opti_function, bounds, 20, n_best, None);
+        let mut gmab = GMAB::new(Default::default());
+        gmab.optimize(mock_opti_function, bounds, 20, n_best, None);
     }
 
     #[test]
-    fn test_evobandits_extract_n_best_arms() {
-        // Mock an evobandits instance with 20 unique arms (distinct action vector and reward, one pull each)
+    fn test_gmab_extract_n_best_arms() {
+        // Mock a GMAB instance with 20 unique arms (distinct action vector and reward, one pull each)
         fn mock_opti_function(vec: &[i32]) -> f64 {
             vec.iter()
                 .enumerate()
@@ -540,16 +534,16 @@ mod tests {
             upper_bound: vec![9, 9, 9],
             ..Default::default()
         };
-        let mut evobandits = EvoBandits::new(ga);
-        evobandits.initialize_population(0, &mock_opti_function);
+        let mut gmab = GMAB::new(ga);
+        gmab.initialize_population(0, &mock_opti_function);
 
         // Copy and sort all arms
-        let mut sorted_arms = evobandits.arm_memory.clone();
+        let mut sorted_arms = gmab.arm_memory.clone();
         sorted_arms.sort_by(|a, b| a.get_value().partial_cmp(&b.get_value()).unwrap());
 
         // Get n_best arms
         let n_best = 3;
-        let best_arms = evobandits.extract_best_arms(population_size, n_best);
+        let best_arms = gmab.extract_best_arms(population_size, n_best);
 
         // Ensure the number of best arms returned matches n_best
         assert_eq!(best_arms.len(), n_best);
@@ -564,8 +558,8 @@ mod tests {
     }
 
     #[test]
-    fn test_evobandits_extract_all_arms() {
-        // Mock an evobandits instance with 20 unique arms (distinct action vector and reward, one pull each)
+    fn test_gmab_extract_all_arms() {
+        // Mock a GMAB instance with 20 unique arms (distinct action vector and reward, one pull each)
         fn mock_opti_function(vec: &[i32]) -> f64 {
             vec.iter()
                 .enumerate()
@@ -581,16 +575,16 @@ mod tests {
             upper_bound: vec![9, 9, 9],
             ..Default::default()
         };
-        let mut evobandits = EvoBandits::new(ga);
-        evobandits.initialize_population(0, &mock_opti_function);
+        let mut gmab = GMAB::new(ga);
+        gmab.initialize_population(0, &mock_opti_function);
 
         // Copy and sort all arms
-        let mut sorted_arms = evobandits.arm_memory.clone();
+        let mut sorted_arms = gmab.arm_memory.clone();
         sorted_arms.sort_by(|a, b| a.get_value().partial_cmp(&b.get_value()).unwrap());
 
         // Try to get more best arms than available
         let n_best = population_size + 1;
-        let best_arms = evobandits.extract_best_arms(population_size, n_best);
+        let best_arms = gmab.extract_best_arms(population_size, n_best);
 
         // Ensure the number of best arms returned matches the population size
         assert_eq!(best_arms.len(), sorted_arms.len());

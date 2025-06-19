@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from evobandits import EvoBandits
+from evobandits import GMAB
 
 
 def rosenbrock_function(number: list):
@@ -28,8 +28,8 @@ if __name__ == "__main__":
     bounds = [(-5, 10), (-5, 10)]
     n_trials = 10000
     n_best = 3
-    evobandits = EvoBandits()
-    best_arms = evobandits.optimize(rosenbrock_function, bounds, n_trials, n_best)
+    algorithm = GMAB()
+    best_arms = algorithm.optimize(rosenbrock_function, bounds, n_trials, n_best)
 
     print("Number of Results:", len(best_arms))  # matches n_best
 

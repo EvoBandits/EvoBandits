@@ -15,14 +15,14 @@
 import importlib.util
 
 from evobandits import logging
-from evobandits.evobandits import Arm, EvoBandits
+from evobandits.evobandits import GMAB, Arm
 from evobandits.params import CategoricalParam, FloatParam, IntParam
 from evobandits.study import ALGORITHM_DEFAULT, Study
 
 __all__ = [
     "Arm",
     "ALGORITHM_DEFAULT",
-    "EvoBandits",
+    "GMAB",
     "logging",
     "Study",
     "CategoricalParam",
