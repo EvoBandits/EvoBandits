@@ -19,9 +19,9 @@ Bounds are defined as a list of tuples, where each tuple specifies the lower and
 
 If the user defines a solution space using the Python API, an encoding step is necessary to convert the solution to an action vector that is usable for optimization with EvoBandits. This step is trivial for integer parameters; however, a discretization step (converting continuous values into discrete intervals) for float parameters and label encoding (assigning unique integer values to categorical data) for categorical parameters is required.
 
-#### EvoBandits Algorithm Options
+#### Algorithm Configuration
 
-The user can modify the conditions for the optimization using the following keywords:
+EvoBandits implements the GMAB algorithm. The user can modify the behaviour of GMAB using the following hyperparameters:
 - `population_size`: The number of starting solutions, and the number of individual solutions in a generation.
 - `mutation_rate`: The probability that a parameter value of an individual solution is adjusted during the genetic modification step.
 - `crossover_rate`: The probability that a parameter value pair is exchanged between individuals during the genetic modification step.
@@ -34,11 +34,11 @@ The optimization function (also: 'objective', or 'func') is defined by the user 
 
 #### Results
 
-In the context of EvoBandits, a multi-armed bandit algorithm, each result is internally represented by an `Arm`. During optimization, each arm is pulled, i.e. the result is chosen by the algorithm, evaluated with the objective function, and its value is observed and saved. After optimization, the best results are returned.
+In the context of GMAB, a multi-armed bandit algorithm, each result is internally represented by an `Arm`. During optimization, each arm is pulled, i.e. the result is chosen by the algorithm, evaluated with the objective function, and its value is observed and saved. After optimization, the best results are returned.
 
 Users can assess distinct results with the following metrics:
 - `params`: The distinct parameter configuration for the result.
-- `value`: The objective value of the result observed during optimization. In the case of the EvoBandits algorithm, the value is the mean of all evaluation results.
+- `value`: The objective value of the result observed during optimization. In the case of the GMAB algorithm, the value is the mean of all evaluation results.
 - `n_evaluations`: The number of times a result has been evaluated during optimization. This metric tracks how much experience the algorithm has with each result (or Arm) and indicates whether a result has been explored or exploited by the algorithm.
 - `n_best`: The rank of the result in the respective optimization run. The best configuration is marked with n_best = 1.
 
