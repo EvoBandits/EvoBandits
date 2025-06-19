@@ -32,7 +32,7 @@ if __name__ == '__main__':
     bounds = [(-5, 10), (-5, 10)]
     algorithm = GMAB(test_function, bounds)
     n_trials = 10000
-    result = evobandits.optimize(n_trials)
+    result = algorithm.optimize(n_trials)
     print(result)
 ```
 
