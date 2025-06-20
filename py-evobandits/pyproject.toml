@@ -47,7 +47,6 @@ test = [
     "pytest",
     "scikit-learn",
     "coverage[toml]",
-    "numba>=0.57.0,<=0.61.2",  # requires support for np.random, up to latest tested release
 ] # see weird behavior with musllinux
 
 [project.urls]
