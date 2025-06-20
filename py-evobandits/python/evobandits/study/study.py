@@ -58,10 +58,10 @@ class Study:
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
-        self._seed_evaluations: bool = False
-        self._rng: Random
         self._params: ParamsType
         self._objective: Callable
+        self._seeded_call = None
+        self._rng = None
 
     def _collect_bounds(self) -> list[tuple[int, int]]:
         """
@@ -92,6 +92,10 @@ class Study:
             idx += param.size
         return result
 
+    def _generate_seed(self) -> int:
+        """Returns a random seed for objective evaluations."""
+        return self.rng.randint(0, 2**32 - 1)
+
     def _evaluate(self, action_vector: list[int]) -> float:
         """
         Execute a trial with the given action vector.
@@ -104,9 +108,9 @@ class Study:
         """
         solution = self._decode(action_vector)
 
-        if self.seed and self._seed_evaluations:
-            seed = self._rng.randint(0, 2**32 - 1)
-            solution.update({"seed": seed})
+        if self.seeded_call:
+            solution.update({"seed": self._generate_seed()})
+
         evaluation = self._direction * self._objective(**solution)
         return evaluation
 
@@ -149,20 +153,21 @@ class Study:
                 raise TypeError(f"Parameter key must be str, got {type(k)}.")
             if not isinstance(v, BaseParam):
                 raise TypeError(f"Parameter '{k}' must implement BaseParam, got {type(v)}.")
+        if "seed" in params.keys():
+            raise ValueError(
+                "A parameter named 'seed' was found in the decision space at `study.params`."
+                "Using 'seed' as parameter can cause conflicts with the internal rng used by"
+                "the Study. Please consider renaming this parameter to avoid ambiguity."
+            )
         self._params = params
 
         # input validation for objective, n_trials, n_best is managed by 'self.algorithm'
         self._objective = objective
 
-        # Active seeded evaluation only in case objective accepts a seed.
-        if "seed" in signature(objective).parameters:
-            self._seed_evaluations = True
-            self._rng: Random = Random(self.seed)
-
         bounds = self._collect_bounds()
 
         for run_id in range(n_runs):
-            seed = self.seed + run_id if self.seed else None  # new entropy for each seeded run
+            seed = self._generate_seed()  # new entropy for each seeded run
             algorithm = self.algorithm.clone()
             best_arms = algorithm.optimize(self._evaluate, bounds, n_trials, n_best, seed)
 
@@ -173,6 +178,36 @@ class Study:
                 result["n_best"] = n_best
                 result["run_id"] = run_id
                 self.results.append(result)
+
+    @property
+    def seeded_call(self) -> bool:
+        """
+        Indicates whether a seed is passed to the objective function during evaluation.
+
+        Returns:
+            True if `self.seed` is set and the `_objective` function accepts a 'seed';
+            False otherwise.
+        """
+        if not self._seeded_call:
+            self._seeded_call = (
+                self.seed is not None and "seed" in signature(self._objective).parameters
+            )
+        return self._seeded_call
+
+    @property
+    def rng(self) -> Random:
+        """
+        The Study's generator (RNG) instance.
+
+        If a seed was provided at initialization, the RNG is seeded with it for reproducibility.
+        Otherwise, a new RNG instance using system entropy is created.
+
+        Returns:
+            The RNG instance used for generating random numbers.
+        """
+        if not self._rng:
+            self._rng = Random(self.seed) if self.seed else Random()
+        return self._rng
 
     @property
     def best_value(self) -> float:

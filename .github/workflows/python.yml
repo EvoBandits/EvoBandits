@@ -67,7 +67,7 @@ jobs:
         with:
           name: wheels-linux-${{ matrix.platform.target }}
           path: dist
-      - name: pytest (x86_64)
+      - name: pytest
         if: ${{ startsWith(matrix.platform.target, 'x86_64') }}
         shell: bash
         run: |
@@ -77,7 +77,7 @@ jobs:
           pip install evobandits[test] --find-links dist --force-reinstall
           pip install pytest
           pytest
-      - name: pytest (others)
+      - name: pytest
         if: ${{ !startsWith(matrix.platform.target, 'x86') && matrix.platform.target != 'ppc64' }}
         uses: uraimo/run-on-arch-action@v2
         with:
@@ -86,7 +86,7 @@ jobs:
           githubToken: ${{ github.token }}
           install: |
             apt-get update
-            apt-get install -y --no-install-recommends python3 python3-pip python3-sklearn python3-sklearn-lib python3-numba
+            apt-get install -y --no-install-recommends python3 python3-pip python3-sklearn python3-sklearn-lib
             pip3 install -U pip pytest
           run: |
             set -e
@@ -131,7 +131,7 @@ jobs:
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
             set -e
-            apk add py3-pip py3-virtualenv py3-scikit-learn py3-numpy py3-numba
+            apk add py3-pip py3-virtualenv py3-scikit-learn py3-numpy
             python3 -m virtualenv .venv --system-site-packages
             source .venv/bin/activate
             pip install evobandits --no-index --find-links dist --force-reinstall
@@ -145,7 +145,7 @@ jobs:
           distro: alpine_latest
           githubToken: ${{ github.token }}
           install: |
-            apk add py3-virtualenv py3-scikit-learn py3-numpy py3-numba
+            apk add py3-virtualenv py3-scikit-learn py3-numpy
           run: |
             set -e
             python3 -m virtualenv .venv --system-site-packages

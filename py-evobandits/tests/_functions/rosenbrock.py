@@ -17,6 +17,7 @@ Objective function and useful parameters for the multidimensional rosenbrock fun
 """
 
 from evobandits import Arm, IntParam
+from numpy.random import default_rng
 
 # Bounds and best Arm to mock EvoBandits optimization (two-dimensional, for n_best = 1)
 BOUNDS = [(-5, 10), (-5, 10)]
@@ -43,6 +44,13 @@ def function(number: list):
             for i in range(len(number) - 1)
         ]
     )
+
+
+def noisy(number: list, seed: int | None = None):
+    result = function(number)
+    rng = default_rng(seed)
+    result += rng.random()
+    return result
 
 
 if __name__ == "__main__":
