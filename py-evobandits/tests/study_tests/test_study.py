@@ -203,16 +203,14 @@ def test_output_properties(direction, best_solution, best_params, best_value, me
     [
         [None, rb.function, rb.PARAMS, False, nullcontext()],
         [42, rb.function, rb.PARAMS, False, nullcontext()],
-        [None, rb.noisy, rb.PARAMS, False, nullcontext()],
-        [42, rb.noisy, rb.PARAMS, True, nullcontext()],
-        # [42, rb.noisy, {"number": IntParam(-5, 10, 2), "seed": 42}, True, nullcontext()],
+        [None, rb.noisy_rosenbrock, rb.PARAMS, False, nullcontext()],
+        [42, rb.noisy_rosenbrock, rb.PARAMS, True, nullcontext()],
     ],
     ids=[
         "no_seed_unseeded_func",
         "with_seed_unseeded_func",
         "no_seed_seeded_func",
         "with_seed_seeded_func",
-        # "raise_error_seed_overwrites_param",
     ],
 )
 def test_seeded_call_property(seed, objective, params, exp_value, expectation):
