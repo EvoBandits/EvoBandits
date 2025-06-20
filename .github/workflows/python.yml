@@ -135,7 +135,7 @@ jobs:
             python3 -m virtualenv .venv --system-site-packages
             source .venv/bin/activate
             pip install pytest
-            pip install evobandits[test] --find-links dist --force-reinstall
+            pip install evobandits[test] --no-index --find-links dist --force-reinstall
             pytest
       - name: pytest
         if: ${{ !startsWith(matrix.platform.target, 'x86') }}
@@ -151,7 +151,7 @@ jobs:
             python3 -m virtualenv .venv --system-site-packages
             source .venv/bin/activate
             pip install pytest
-            pip install evobandits[test] --find-links dist --force-reinstall
+            pip install evobandits --find-links dist --force-reinstall
             pytest
 
   windows:
