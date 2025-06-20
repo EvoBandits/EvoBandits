@@ -131,7 +131,7 @@ jobs:
           options: -v ${{ github.workspace }}:/io -w /io
           run: |
             set -e
-            apk add py3-pip py3-virtualenv py3-scikit-learn py3-numpy gcc llvm python3-dev musl-dev
+            apk add py3-pip py3-virtualenv py3-scikit-learn py3-numpy
             python3 -m virtualenv .venv --system-site-packages
             source .venv/bin/activate
             pip install pytest
@@ -146,7 +146,7 @@ jobs:
           distro: alpine_latest
           githubToken: ${{ github.token }}
           install: |
-            apk add py3-pip py3-virtualenv py3-scikit-learn py3-numpy gcc llvm python3-dev musl-dev
+            apk add py3-pip py3-virtualenv py3-scikit-learn py3-numpy
           run: |
             set -e
             python3 -m virtualenv .venv --system-site-packages
