@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from numpy import random
-from evobandits import Study, IntParam, EvoBandits
+from evobandits import Study, IntParam, GMAB
 
 
 def noisy_rosenbrock(number: list):
@@ -34,10 +34,10 @@ if __name__ == "__main__":
     params = {"number": IntParam(-5, 10, 2)}
 
     # Customize the algorithm configuration if needed
-    my_evobandits = EvoBandits(population_size=100)
+    my_algorithm = GMAB(population_size=100)
 
     # Execute the Optimization
-    study = Study(seed=42, algorithm=my_evobandits)
+    study = Study(seed=42, algorithm=my_algorithm)
     study.optimize(noisy_rosenbrock, params, 20000, n_best=1, n_runs=10)
 
     print("Number of Results:", len(study.results))  # matches n_best * n_runs

@@ -15,7 +15,7 @@
 from contextlib import nullcontext
 
 import pytest
-from evobandits import Arm, EvoBandits
+from evobandits import GMAB, Arm
 
 from tests._functions import rosenbrock as rb
 
@@ -54,11 +54,11 @@ def test_arm():
         "with_mutation_span",
     ],
 )
-def test_evobandits_init(kwargs):
+def test_gmab_init(kwargs):
     expectation = kwargs.pop("exp", nullcontext())
     with expectation:
-        evobandits = EvoBandits(**kwargs)
-        assert isinstance(evobandits, EvoBandits)
+        gmab = GMAB(**kwargs)
+        assert isinstance(gmab, GMAB)
 
 
 @pytest.mark.parametrize(
@@ -88,13 +88,13 @@ def test_evobandits_init(kwargs):
         "fail_population_size_solution_size",
     ],
 )
-def test_evobandits(bounds, n_trials, kwargs):
+def test_gmab(bounds, n_trials, kwargs):
     expectation = kwargs.pop("exp", nullcontext())
     seed = kwargs.pop("seed", None)
     n_best = kwargs.pop("n_best", 1)
     with expectation:
-        evobandits = EvoBandits(**kwargs)
-        result = evobandits.optimize(rb.function, bounds, n_trials, n_best, seed)
+        gmab = GMAB(**kwargs)
+        result = gmab.optimize(rb.function, bounds, n_trials, n_best, seed)
 
         assert all(isinstance(r, Arm) for r in result)
         assert len(result) == n_best
@@ -103,11 +103,11 @@ def test_evobandits(bounds, n_trials, kwargs):
 @pytest.mark.parametrize(
     "this, other, expected_eq",
     [
-        [EvoBandits(), EvoBandits(), True],
-        [EvoBandits(population_size=1), EvoBandits(population_size=1), True],
-        [EvoBandits(), EvoBandits(population_size=1), False],
+        [GMAB(), GMAB(), True],
+        [GMAB(population_size=1), GMAB(population_size=1), True],
+        [GMAB(), GMAB(population_size=1), False],
     ],
     ids=["default_eq", "modified_eq", "not_eq"],
 )
-def test_evobandits_eq(this, other, expected_eq):
+def test_gmab_eq(this, other, expected_eq):
     assert (this == other) == expected_eq

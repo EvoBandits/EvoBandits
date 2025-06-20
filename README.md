@@ -23,16 +23,16 @@ pip install evobandits
 ```
 
 ```python
-from evobandits import EvoBandits
+from evobandits import GMAB
 
 def test_function(number: list) -> float:
     # your function here
 
 if __name__ == '__main__':
     bounds = [(-5, 10), (-5, 10)]
-    evobandits = EvoBandits(test_function, bounds)
+    algorithm = GMAB(test_function, bounds)
     n_trials = 10000
-    result = evobandits.optimize(n_trials)
+    result = algorithm.optimize(n_trials)
     print(result)
 ```
 

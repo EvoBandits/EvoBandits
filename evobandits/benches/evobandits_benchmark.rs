@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use evobandits::evobandits::EvoBandits;
+use evobandits::evobandits::GMAB;
 use rand::rng;
 use rand_distr::{Distribution, Normal};
 use std::hint::black_box;
@@ -47,11 +47,11 @@ fn benchmark_evobandits(c: &mut Criterion) {
             n_trials,
             |b, &n_trials| {
                 b.iter(|| {
-                    let mut evobandits = EvoBandits::new(Default::default());
+                    let mut gmab = GMAB::new(Default::default());
                     let bounds = vec![(-50, 50), (-50, 50)];
 
                     // Run the optimization
-                    let result = evobandits.optimize(
+                    let result = gmab.optimize(
                         black_box(noisy_rosenbrock),
                         black_box(bounds),
                         black_box(n_trials),

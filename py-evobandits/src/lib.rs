@@ -18,7 +18,7 @@ use pyo3::types::{PyDict, PyList};
 use std::panic;
 
 use evobandits_rust::arm::{Arm as RustArm, OptimizationFn};
-use evobandits_rust::evobandits::EvoBandits as RustEvoBandits;
+use evobandits_rust::evobandits::GMAB as RustGMAB;
 use evobandits_rust::genetic::{
     GeneticAlgorithm, CROSSOVER_RATE_DEFAULT, MUTATION_RATE_DEFAULT, MUTATION_SPAN_DEFAULT,
     POPULATION_SIZE_DEFAULT,
@@ -104,12 +104,12 @@ impl From<RustArm> for Arm {
 
 #[pyclass(eq)]
 #[derive(Debug, PartialEq, Clone)]
-struct EvoBandits {
-    evobandits: RustEvoBandits,
+struct GMAB {
+    gmab: RustGMAB,
 }
 
 #[pymethods]
-impl EvoBandits {
+impl GMAB {
     #[new]
     #[pyo3(signature = (
         population_size=POPULATION_SIZE_DEFAULT,
@@ -130,8 +130,8 @@ impl EvoBandits {
             mutation_span: mutation_span.unwrap(),
             ..Default::default()
         };
-        let evobandits = RustEvoBandits::new(genetic_algorithm);
-        Ok(EvoBandits { evobandits })
+        let gmab = RustGMAB::new(genetic_algorithm);
+        Ok(GMAB { gmab })
     }
 
     #[pyo3(signature = (
@@ -152,7 +152,7 @@ impl EvoBandits {
         let py_opti_function = PythonOptimizationFn::new(py_func);
 
         let result = panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            self.evobandits
+            self.gmab
                 .optimize(py_opti_function, bounds, n_trials, n_best, seed)
         }));
 
@@ -178,14 +178,14 @@ impl EvoBandits {
     }
 
     fn clone(&self) -> PyResult<Self> {
-        let evobandits = self.evobandits.clone(); // Uses the derived clone() from Clone trait
-        Ok(EvoBandits { evobandits })
+        let gmab = self.gmab.clone(); // Uses the derived clone() from Clone trait
+        Ok(GMAB { gmab })
     }
 }
 
 #[pymodule]
 fn evobandits(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    m.add_class::<EvoBandits>()?;
+    m.add_class::<GMAB>()?;
     m.add_class::<Arm>()?;
 
     m.add("POPULATION_SIZE_DEFAULT", POPULATION_SIZE_DEFAULT)?;
