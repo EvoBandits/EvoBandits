@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from random import Random
+
 import pytest
 from evobandits import CategoricalParam, IntParam
 from evobandits.study.study import Study
@@ -93,3 +95,24 @@ def test_evaluate(params, action_vector, exp_result, kwargs):
     # Verify if study evaluates the objective
     result = study._evaluate(action_vector)
     assert result == exp_result
+
+
+@pytest.mark.parametrize(
+    "study, other_study, expected_eq",
+    [
+        [Study(), Study(), False],
+        [Study(seed=42), Study(seed=42), True],
+        [Study(seed=42), Study(), False],
+    ],
+    ids=["default", "seeded", "mixed"],
+)
+def test_study_seed_generator(study, other_study, expected_eq):
+    # Verify generator
+    assert isinstance(study.rng, Random)
+
+    seed = study._generate_seed()
+    assert isinstance(seed, int)
+
+    # Verify seeded / unseeded behaviour
+    seed_eq = seed == other_study._generate_seed()
+    assert seed_eq == expected_eq

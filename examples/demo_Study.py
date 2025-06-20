@@ -16,7 +16,7 @@ from numpy import random
 from evobandits import Study, IntParam, GMAB
 
 
-def noisy_rosenbrock(number: list):
+def noisy_rosenbrock(number: list, seed: int | None = None):
     # Rosenbrock Function
     value = sum(
         [
@@ -25,7 +25,8 @@ def noisy_rosenbrock(number: list):
         ]
     )
     # Add Gaussian Noise
-    value += random.normal(0, 5)
+    rng = random.default_rng(seed)
+    value += rng.normal(0, 5)
     return value
 
 

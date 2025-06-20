@@ -17,6 +17,7 @@ from unittest.mock import create_autospec
 
 import pytest
 from evobandits import ALGORITHM_DEFAULT, GMAB, Study
+from evobandits.params.int_param import IntParam
 
 from tests._functions import clustering as cl
 from tests._functions import rosenbrock as rb
@@ -100,6 +101,7 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
         [rb.function, ["number"], 1, {"exp": pytest.raises(TypeError)}],
         [rb.function, {1: "number"}, 1, {"exp": pytest.raises(TypeError)}],
         [rb.function, {"number": "BaseParam"}, 1, {"exp": pytest.raises(TypeError)}],
+        [rb.function, {"seed": IntParam(0, 100)}, 1, {"exp": pytest.raises(ValueError)}],
         [rb.function, rb.PARAMS, 1, {"maximize": "False", "exp": pytest.raises(TypeError)}],
         [rb.function, rb.PARAMS, 1, {"n_runs": "2", "exp": pytest.raises(TypeError)}],
         [rb.function, rb.PARAMS, 1, {"n_runs": 0, "exp": pytest.raises(ValueError)}],
@@ -112,6 +114,7 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
         "invalid_params_not_a_mapping",
         "invalid_params_not_a_str_key",
         "invalid_params_not_a_BaseParam_value",
+        "invalid_params_contains_seed",
         "invalid_maximize_type",
         "invalid_n_runs_type",
         "invalid_n_runs_value",
@@ -165,7 +168,7 @@ def test_optimize(objective, params, n_trials, kwargs):
     ],
     ids=["default_minimize", "default_maximize"],
 )
-def test_study_properties(direction, best_solution, best_params, best_value, mean_value):
+def test_output_properties(direction, best_solution, best_params, best_value, mean_value):
     # Mock dependencies
     mock_algorithm = create_autospec(GMAB, instance=True)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
@@ -193,3 +196,27 @@ def test_study_properties(direction, best_solution, best_params, best_value, mea
     assert study.best_params == best_params
     assert study.best_value == best_value
     assert study.mean_value == mean_value
+
+
+@pytest.mark.parametrize(
+    "seed, objective, params, exp_value, expectation",
+    [
+        [None, rb.function, rb.PARAMS, False, nullcontext()],
+        [42, rb.function, rb.PARAMS, False, nullcontext()],
+        [None, rb.noisy_rosenbrock, rb.PARAMS, False, nullcontext()],
+        [42, rb.noisy_rosenbrock, rb.PARAMS, True, nullcontext()],
+    ],
+    ids=[
+        "no_seed_unseeded_func",
+        "with_seed_unseeded_func",
+        "no_seed_seeded_func",
+        "with_seed_seeded_func",
+    ],
+)
+def test_seeded_call_property(seed, objective, params, exp_value, expectation):
+    study = Study(seed)
+    study._objective = objective
+    study._params = params
+
+    with expectation:
+        assert study.seeded_call == exp_value
