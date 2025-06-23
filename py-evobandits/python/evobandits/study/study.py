@@ -188,7 +188,7 @@ class Study:
             True if `self.seed` is set and the `_objective` function accepts a 'seed';
             False otherwise.
         """
-        if not self._seeded_call:
+        if self._seeded_call is None:
             self._seeded_call = (
                 self.seed is not None and "seed" in signature(self._objective).parameters
             )
