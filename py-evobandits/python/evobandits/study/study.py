@@ -155,8 +155,8 @@ class Study:
                 raise TypeError(f"Parameter '{k}' must implement BaseParam, got {type(v)}.")
         if "seed" in params.keys():
             raise ValueError(
-                "A parameter named 'seed' was found in the decision space at `study.params`."
-                "Using 'seed' as parameter can cause conflicts with the internal rng used by"
+                "A parameter named 'seed' was found in the decision space at `study.params`. "
+                "Using 'seed' as a parameter can cause conflicts with the internal RNG used by "
                 "the Study. Please consider renaming this parameter to avoid ambiguity."
             )
         self._params = params
