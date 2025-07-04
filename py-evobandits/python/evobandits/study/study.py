@@ -179,6 +179,39 @@ class Study:
                 result["run_id"] = run_id
                 self.results.append(result)
 
+    def refine(self, max_trials: int, results: list[dict[str, Any]]) -> None:
+        # TODO Docstring
+        for result in results or self.results:
+            value = result["value"]
+            std_err = result.get("value_std_dev", 0.0)
+            n_evaluations = result["n_evaluations"]
+
+            # Initialize Welford's algorithm variables
+            mean_eval = value
+            m2 = (std_err**2) * n_evaluations if n_evaluations > 1 else 0.0
+
+            while n_evaluations < max_trials:
+                # Prepare solution for evaluation
+                solution = result["params"].copy()
+                if self.seeded_call:
+                    solution.update({"seed": self._generate_seed()})
+                eval_value = self._direction * self._objective(**solution)
+                n_evaluations += 1
+
+                # Welford's online update
+                delta = eval_value - mean_eval
+                mean_eval += delta / n_evaluations
+                delta2 = eval_value - mean_eval
+                m2 += delta * delta2
+
+            # Calculate variance and std_err
+            variance = m2 / n_evaluations if n_evaluations > 1 else 0.0
+            std_err = (variance**0.5) / (n_evaluations**0.5) if n_evaluations > 0 else 0.0
+
+            result["refined_value"] = mean_eval
+            result["refined_std_err"] = std_err
+            result["refined_n_evaluations"] = n_evaluations
+
     @property
     def seeded_call(self) -> bool:
         """
