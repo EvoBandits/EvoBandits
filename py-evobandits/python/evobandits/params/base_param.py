@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 
 
 class BaseParam(ABC):
@@ -62,7 +62,7 @@ class BaseParam(ABC):
         raise NotImplementedError("Subclasses must implement the 'bounds' property.")
 
     @abstractmethod
-    def decode(self, actions: list[int]) -> bool | int | str | float | Callable | None | list:
+    def decode(self, actions: list[int]) -> bool | int | str | float | Callable | None | Sequence:
         """
         Abstract method to decode optimization actions as parameter values.
 

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 
 from evobandits.params.base_param import BaseParam
 
@@ -24,7 +24,7 @@ class CategoricalParam(BaseParam):
     A class representing a categorical parameter.
     """
 
-    def __init__(self, choices: list[ChoiceType]) -> None:
+    def __init__(self, choices: Sequence[ChoiceType]) -> None:
         """
         Creates a CategoricalParam that will suggest one of the choices during optimization.
 
@@ -50,7 +50,7 @@ class CategoricalParam(BaseParam):
             raise ValueError("All elements in choices must be of an immutable or callable type")
 
         super().__init__(size=1)
-        self.choices: list[ChoiceType] = choices
+        self.choices: Sequence[ChoiceType] = choices
 
     def __repr__(self) -> str:
         return f"CategoricalParam(choices={self.choices})"
@@ -68,7 +68,7 @@ class CategoricalParam(BaseParam):
         """
         return [(0, len(self.choices) - 1)]
 
-    def decode(self, actions: list[int]) -> ChoiceType | list[ChoiceType]:
+    def decode(self, actions: list[int]) -> ChoiceType | Sequence[ChoiceType]:
         """
         Decodes an action from the optimization problem to the value of the parameter.
 
@@ -78,7 +78,7 @@ class CategoricalParam(BaseParam):
         Returns:
             The resulting choice(s).
         """
-        values: list[ChoiceType] = [self.choices[idx] for idx in actions]
+        values: Sequence[ChoiceType] = [self.choices[idx] for idx in actions]
 
         if len(values) == 1:
             return values[0]
