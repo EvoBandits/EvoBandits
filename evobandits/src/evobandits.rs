@@ -62,7 +62,7 @@ impl GMAB {
         max_number_pulls
     }
 
-    fn find_best_ucb(&self, simulations_used: usize) -> i32 {
+    fn find_best_ucb(&mut self, simulations_used: usize) -> i32 {
         let arm_index_ucb_norm_min: i32 = *self.sample_average_tree.iter().next().unwrap().1;
         let ucb_norm_min: f64 = self.arm_memory[arm_index_ucb_norm_min as usize].get_value();
 
@@ -99,6 +99,9 @@ impl GMAB {
                 / self.arm_memory[*arm_index as usize].get_n_evaluations() as f64)
                 .sqrt();
             let ucb_value: f64 = transformed_sample_mean + penalty_term;
+
+            // Save the ucb value
+            self.arm_memory[*arm_index as usize].set_ucb(ucb_value);
 
             // new best solution found
             if ucb_value < best_ucb_value {
