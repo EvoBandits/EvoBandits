@@ -251,6 +251,7 @@ class Study:
             self._rng = Random(self.seed) if self.seed else Random()
         return self._rng
 
+    # TODO Add docstring
     @property
     def results(self) -> list[dict[str, Any]]:
         if not self._results:

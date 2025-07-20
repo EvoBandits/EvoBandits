@@ -136,6 +136,74 @@ def test_optimize(objective, params, n_trials, kwargs):
 
 
 @pytest.mark.parametrize(
+    "raw_results, direction, expected_results",
+    [
+        (
+            [
+                {"id": 0, "value": 2.0, "n_evaluations": 1},
+                {"id": 1, "value": 3.0, "n_evaluations": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1},
+                {"id": 3, "value": 1.0, "n_evaluations": 2},
+            ],
+            1,
+            [
+                {"id": 3, "value": 1.0, "n_evaluations": 2, "ucb_rank": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1, "ucb_rank": 2},
+                {"id": 0, "value": 2.0, "n_evaluations": 1, "ucb_rank": 3},
+                {"id": 1, "value": 3.0, "n_evaluations": 1, "ucb_rank": 4},
+            ],
+        ),
+        (
+            [
+                {"id": 0, "value": 2.0, "n_evaluations": 1},
+                {"id": 1, "value": 3.0, "n_evaluations": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1},
+                {"id": 3, "value": 3.0, "n_evaluations": 2},
+            ],
+            -1,
+            [
+                {"id": 3, "value": 3.0, "n_evaluations": 2, "ucb_rank": 1},
+                {"id": 1, "value": 3.0, "n_evaluations": 1, "ucb_rank": 2},
+                {"id": 0, "value": 2.0, "n_evaluations": 1, "ucb_rank": 3},
+                {"id": 2, "value": 1.0, "n_evaluations": 1, "ucb_rank": 4},
+            ],
+        ),
+        (
+            [
+                {"id": 0, "value": 1.0, "n_evaluations": 1},
+                {"id": 1, "value": 1.0, "n_evaluations": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1},
+            ],
+            1,
+            [
+                {"id": 0, "value": 1.0, "n_evaluations": 1, "ucb_rank": 1},
+                {"id": 1, "value": 1.0, "n_evaluations": 1, "ucb_rank": 2},
+                {"id": 2, "value": 1.0, "n_evaluations": 1, "ucb_rank": 3},
+            ],
+        ),
+    ],
+    ids=["minimization", "maximization", "all_equal_means_rank_sequential"],
+)
+def test_results_property(raw_results, direction, expected_results):
+    # Mock dependencies
+    mock_algorithm = create_autospec(GMAB, instance=True)
+    study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
+    study._direction = direction
+    study._results = raw_results
+
+    assert study.results == expected_results
+
+
+def test_results_property_raises_no_results():
+    # Mock dependencies
+    mock_algorithm = create_autospec(GMAB, instance=True)
+    study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
+
+    with pytest.raises(AttributeError):
+        _ = study.results
+
+
+@pytest.mark.parametrize(
     "direction, results, best_solution, best_params, best_value, mean_value",
     [
         [
@@ -241,8 +309,3 @@ def test_seeded_call_property(seed, objective, params, exp_value, expectation):
 
     with expectation:
         assert study.seeded_call == exp_value
-
-
-# TODO: Add test for study.results property
-def test_results_property():
-    assert True
