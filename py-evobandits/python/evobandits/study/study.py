@@ -251,15 +251,26 @@ class Study:
             self._rng = Random(self.seed) if self.seed else Random()
         return self._rng
 
-    # TODO Add docstring
     @property
     def results(self) -> list[dict[str, Any]]:
+        """
+        Ranks and returns all results found during optimization.
+
+        Returns:
+            A list of ranked results (as dictionaries) found during optimization.
+        """
         if not self._results:
             raise AttributeError("Study has no results. Run study.optimize() first.")
         return self._ucb_ranking(self._results, self._direction)
 
     @results.setter
     def results(self, results: list[dict[str, Any]]) -> None:
+        """
+        Sets the Study's raw results.
+
+        Args:
+            A list of results (as dictionaries) found during optimization.
+        """
         self._results = results
 
     @property
