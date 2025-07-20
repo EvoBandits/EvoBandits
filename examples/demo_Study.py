@@ -39,12 +39,9 @@ if __name__ == "__main__":
 
     # Execute the Optimization
     study = Study(seed=42, algorithm=my_algorithm)
-    study.optimize(noisy_rosenbrock, params, 2000, n_best=1, n_runs=10)
+    study.optimize(noisy_rosenbrock, params, 20000, n_best=1, n_runs=10)
 
     print("Number of Results:", len(study.results))  # matches n_best * n_runs
     print("Best configuration:", study.best_params)
     print("Best result: ", study.best_value)
     print("Mean result:", study.mean_value)
-
-    for r in study.results:
-        print(r)
