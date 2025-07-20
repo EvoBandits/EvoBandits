@@ -27,11 +27,10 @@ ARM_BEST = [Arm([1, 1])]
 PARAMS = {"number": IntParam(-5, 10, 2)}
 TRIAL_BEST = [
     {
-        "run_id": 0,
-        "n_best": 1,
         "value": 0.0,
         "value_std_dev": 0.0,
         "n_evaluations": 0,
+        "ucb_norm": 0,
         "params": {"number": [1, 1]},
     }
 ]

@@ -80,19 +80,17 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
                 "n_runs": 2,
                 "exp_result": [
                     {
-                        "run_id": 0,
-                        "n_best": 1,
                         "value": 0.0,
                         "value_std_dev": 0.0,
                         "n_evaluations": 0,
+                        "ucb_norm": 0,
                         "params": {"number": [1, 1]},
                     },
                     {
-                        "run_id": 1,
-                        "n_best": 1,
                         "value": 0.0,
                         "value_std_dev": 0.0,
                         "n_evaluations": 0,
+                        "ucb_norm": 0,
                         "params": {"number": [1, 1]},
                     },
                 ],
@@ -141,13 +139,34 @@ def test_optimize(objective, params, n_trials, kwargs):
 
 
 @pytest.mark.parametrize(
-    "direction, best_solution, best_params, best_value, mean_value",
+    "direction, results, best_solution, best_params, best_value, mean_value",
     [
         [
             +1,
+            [
+                {
+                    "value": 1.0,
+                    "n_evaluations": 10,
+                    "ucb_norm": 1,
+                    "params": {"number": [1, 1]},
+                },
+                {
+                    "value": 2.0,
+                    "n_evaluations": 10,
+                    "ucb_norm": 2,
+                    "params": {"number": [2, 2]},
+                },
+                {
+                    "value": 3.0,
+                    "n_evaluations": 10,
+                    "ucb_norm": 3,
+                    "params": {"number": [3, 3]},
+                },
+            ],
             {
                 "value": 1.0,
-                "num_pulls": 10,
+                "n_evaluations": 10,
+                "ucb_norm": 1,
                 "params": {"number": [1, 1]},
             },
             {"number": [1, 1]},
@@ -156,9 +175,30 @@ def test_optimize(objective, params, n_trials, kwargs):
         ],
         [
             -1,
+            [
+                {
+                    "value": 1.0,
+                    "n_evaluations": 10,
+                    "ucb_norm": 3,
+                    "params": {"number": [1, 1]},
+                },
+                {
+                    "value": 2.0,
+                    "n_evaluations": 10,
+                    "ucb_norm": 2,
+                    "params": {"number": [2, 2]},
+                },
+                {
+                    "value": 3.0,
+                    "n_evaluations": 10,
+                    "ucb_norm": 1,
+                    "params": {"number": [3, 3]},
+                },
+            ],
             {
                 "value": 3.0,
-                "num_pulls": 10,
+                "n_evaluations": 10,
+                "ucb_norm": 1,
                 "params": {"number": [3, 3]},
             },
             {"number": [3, 3]},
@@ -168,28 +208,12 @@ def test_optimize(objective, params, n_trials, kwargs):
     ],
     ids=["default_minimize", "default_maximize"],
 )
-def test_output_properties(direction, best_solution, best_params, best_value, mean_value):
+def test_output_properties(direction, results, best_solution, best_params, best_value, mean_value):
     # Mock dependencies
     mock_algorithm = create_autospec(GMAB, instance=True)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
     study._direction = direction
-    study.results = [
-        {
-            "value": 1.0,
-            "num_pulls": 10,
-            "params": {"number": [1, 1]},
-        },
-        {
-            "value": 2.0,
-            "num_pulls": 10,
-            "params": {"number": [2, 2]},
-        },
-        {
-            "value": 3.0,
-            "num_pulls": 10,
-            "params": {"number": [3, 3]},
-        },
-    ]
+    study._results = results
 
     # Access properties and verify
     assert study.best_solution == best_solution
@@ -220,3 +244,8 @@ def test_seeded_call_property(seed, objective, params, exp_value, expectation):
 
     with expectation:
         assert study.seeded_call == exp_value
+
+
+# TODO: Add test for study.results property
+def test_results_property():
+    assert True

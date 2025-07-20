@@ -19,6 +19,11 @@ from evobandits import CategoricalParam, IntParam
 from evobandits.study.study import Study
 
 
+# TODO: Add test for ucb ranking
+def test_ucb_ranking():
+    assert True
+
+
 @pytest.mark.parametrize(
     "params, exp_bounds",
     [

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import math
 from collections.abc import Callable, Mapping
 from inspect import signature
 from random import Random
@@ -54,14 +55,51 @@ class Study:
 
         self.seed: int | None = seed
         self.algorithm: GMAB = algorithm
-        self.results: list[dict[str, Any]] = []
 
         # 1 for minimization, -1 for maximization to avoid repeated branching during optimization.
         self._direction: int = 1
         self._params: ParamsType
         self._objective: Callable
+        self._results: list[dict[str, Any]]
         self._seeded_call = None
         self._rng = None
+
+    @staticmethod
+    def _ucb_ranking(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """
+        Ranks results using the Upper Confidence Bound (UCB).
+
+        The UCB is calculated as a sum of a normalized value and an exploration penalty:
+        UCB = normalized_value + sqrt(2 * ln(total_evaluations) / n_evaluations)
+
+        Args:
+            results: A list of dictionaries, each containing
+                'value' (float): The observed value (e.g., mean reward or cost) of the arm, and
+                'n_evaluations' (int): The number of times the arm has been evaluated.
+
+        Returns:
+            The results with each dictionary updated with a new key
+                'ucb_norm' (float): The computed normalized UCB value for the arm.
+
+        Notes:
+            - A small epsilon (1e-9) is used to avoid division by zero when all values are equal.
+            - This method assumes a minimization problem where lower 'ucb' is better.
+        """
+        total_evaluations = sum(r["n_evaluations"] for r in results)
+        ucb_norm_min = min(r["value"] for r in results)
+        ucb_norm_max = max(r["value"] for r in results)
+
+        if ucb_norm_min != ucb_norm_max:
+            denom = ucb_norm_max - ucb_norm_min
+        else:
+            denom = 1e-9  # prevent div by zero
+
+        for r in results:
+            normalized_value = (r["value"] - ucb_norm_min) / denom
+            penalty = math.sqrt(2.0 * math.log(total_evaluations) / r["n_evaluations"])
+            r["ucb_norm"] = normalized_value + penalty
+
+        return results
 
     def _collect_bounds(self) -> list[tuple[int, int]]:
         """
@@ -163,21 +201,22 @@ class Study:
 
         # input validation for objective, n_trials, n_best is managed by 'self.algorithm'
         self._objective = objective
-
         bounds = self._collect_bounds()
+        results = []
 
-        for run_id in range(n_runs):
+        for _ in range(n_runs):
             seed = self._generate_seed()  # new entropy for each seeded run
             algorithm = self.algorithm.clone()
             best_arms = algorithm.optimize(self._evaluate, bounds, n_trials, n_best, seed)
 
-            for n_best, arm in enumerate(best_arms, start=1):
+            for arm in best_arms:
                 result = arm.to_dict
                 action_vector = result.pop("action_vector")
                 result["params"] = self._decode(action_vector)
-                result["n_best"] = n_best
-                result["run_id"] = run_id
-                self.results.append(result)
+                results.append(result)
+
+        # Save results and apply UCB ranking
+        self.results = results
 
     @property
     def seeded_call(self) -> bool:
@@ -210,6 +249,17 @@ class Study:
         return self._rng
 
     @property
+    def results(self) -> list[dict[str, Any]]:
+        if not self._results:
+            raise AttributeError("Study has no results. Run study.optimize() first.")
+        return self._results
+
+    @results.setter
+    def results(self, results: list[dict[str, Any]]):
+        # Input validation
+        self._results = self._ucb_ranking(results)  # Apply ranking only if more than 1 results
+
+    @property
     def best_value(self) -> float:
         """
         Returns the best value found during optimization.
@@ -217,9 +267,7 @@ class Study:
         Returns:
             The best value among `study.results`.
         """
-        if not self.results:
-            raise AttributeError("Study has no results. Run study.optimize() first.")
-        return max(self.results, key=lambda r: -self._direction * r["value"])["value"]
+        return min(self.results, key=lambda r: self._direction * r["ucb_norm"])["value"]
 
     @property
     def mean_value(self) -> float:
@@ -229,8 +277,6 @@ class Study:
         Returns:
             The mean value of `study.results`.
         """
-        if not self.results:
-            raise AttributeError("Study has no results. Run study.optimize() first.")
         return mean([r["value"] for r in self.results])
 
     @property
@@ -241,9 +287,7 @@ class Study:
         Returns:
             The solution (as a dictionary) that yielded `study.best_value`.
         """
-        if not self.results:
-            raise AttributeError("Study has no results. Run study.optimize() first.")
-        return next(r for r in self.results if r["value"] == self.best_value)
+        return min(self.results, key=lambda r: self._direction * r["ucb_norm"])
 
     @property
     def best_params(self) -> dict[str, Any]:
@@ -253,4 +297,4 @@ class Study:
         Returns:
             The parameters (as a dictionary) that yielded `study.best_value`.
         """
-        return self.best_solution["params"]
+        return min(self.results, key=lambda r: self._direction * r["ucb_norm"])["params"]
