@@ -30,7 +30,6 @@ TRIAL_BEST = [
         "value": 0.0,
         "value_std_dev": 0.0,
         "n_evaluations": 0,
-        "ucb_norm": 0,
         "params": {"number": [1, 1]},
     }
 ]

@@ -65,7 +65,7 @@ class Study:
         self._rng = None
 
     @staticmethod
-    def _ucb_ranking(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def _ucb_ranking(results: list[dict[str, Any]], direction: int) -> list[dict[str, Any]]:
         """
         Ranks results using the Upper Confidence Bound (UCB).
 
@@ -76,14 +76,11 @@ class Study:
             results: A list of dictionaries, each containing
                 'value' (float): The observed value (e.g., mean reward or cost) of the arm, and
                 'n_evaluations' (int): The number of times the arm has been evaluated.
+            direction: 1 for minimization, -1 for maximization of the Study's obejctive
 
         Returns:
             The results with each dictionary updated with a new key
-                'ucb_norm' (float): The computed normalized UCB value for the arm.
-
-        Notes:
-            - A small epsilon (1e-9) is used to avoid division by zero when all values are equal.
-            - This method assumes a minimization problem where lower 'ucb' is better.
+                'ucb_rank' (float): The computed normalized UCB value for the arm.
         """
         total_evaluations = sum(r["n_evaluations"] for r in results)
         ucb_norm_min = min(r["value"] for r in results)
@@ -94,12 +91,18 @@ class Study:
         else:
             denom = 1e-9  # prevent div by zero
 
+        # Compute UCB value
         for r in results:
             normalized_value = (r["value"] - ucb_norm_min) / denom
             penalty = math.sqrt(2.0 * math.log(total_evaluations) / r["n_evaluations"])
-            r["ucb_norm"] = normalized_value + penalty
+            r["ucb_rank"] = normalized_value + penalty * direction
 
-        return results
+        # Convert UCB value -> ranking
+        sorted_results = sorted(results, key=lambda x: direction * x["ucb_rank"])
+        for rank, r in enumerate(sorted_results, start=1):
+            r["ucb_rank"] = rank
+
+        return sorted_results
 
     def _collect_bounds(self) -> list[tuple[int, int]]:
         """
@@ -252,12 +255,11 @@ class Study:
     def results(self) -> list[dict[str, Any]]:
         if not self._results:
             raise AttributeError("Study has no results. Run study.optimize() first.")
-        return self._results
+        return self._ucb_ranking(self._results, self._direction)
 
     @results.setter
-    def results(self, results: list[dict[str, Any]]):
-        # Input validation
-        self._results = self._ucb_ranking(results)  # Apply ranking only if more than 1 results
+    def results(self, results: list[dict[str, Any]]) -> None:
+        self._results = results
 
     @property
     def best_value(self) -> float:
@@ -267,7 +269,7 @@ class Study:
         Returns:
             The best value among `study.results`.
         """
-        return min(self.results, key=lambda r: self._direction * r["ucb_norm"])["value"]
+        return next(r["value"] for r in self.results if r["ucb_rank"] == 1)
 
     @property
     def mean_value(self) -> float:
@@ -287,7 +289,7 @@ class Study:
         Returns:
             The solution (as a dictionary) that yielded `study.best_value`.
         """
-        return min(self.results, key=lambda r: self._direction * r["ucb_norm"])
+        return next(r for r in self.results if r["ucb_rank"] == 1)
 
     @property
     def best_params(self) -> dict[str, Any]:
@@ -297,4 +299,4 @@ class Study:
         Returns:
             The parameters (as a dictionary) that yielded `study.best_value`.
         """
-        return min(self.results, key=lambda r: self._direction * r["ucb_norm"])["params"]
+        return next(r["params"] for r in self.results if r["ucb_rank"] == 1)

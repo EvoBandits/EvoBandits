@@ -19,9 +19,61 @@ from evobandits import CategoricalParam, IntParam
 from evobandits.study.study import Study
 
 
-# TODO: Add test for ucb ranking
-def test_ucb_ranking():
-    assert True
+@pytest.mark.parametrize(
+    "results, direction, exp_ranked_results",
+    [
+        (
+            [
+                {"id": 0, "value": 2.0, "n_evaluations": 1},
+                {"id": 1, "value": 3.0, "n_evaluations": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1},
+                {"id": 3, "value": 1.0, "n_evaluations": 2},
+            ],
+            1,
+            [
+                {"id": 3, "value": 1.0, "n_evaluations": 2, "ucb_rank": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1, "ucb_rank": 2},
+                {"id": 0, "value": 2.0, "n_evaluations": 1, "ucb_rank": 3},
+                {"id": 1, "value": 3.0, "n_evaluations": 1, "ucb_rank": 4},
+            ],
+        ),
+        (
+            [
+                {"id": 0, "value": 2.0, "n_evaluations": 1},
+                {"id": 1, "value": 3.0, "n_evaluations": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1},
+                {"id": 3, "value": 3.0, "n_evaluations": 2},
+            ],
+            -1,
+            [
+                {"id": 3, "value": 3.0, "n_evaluations": 2, "ucb_rank": 1},
+                {"id": 1, "value": 3.0, "n_evaluations": 1, "ucb_rank": 2},
+                {"id": 0, "value": 2.0, "n_evaluations": 1, "ucb_rank": 3},
+                {"id": 2, "value": 1.0, "n_evaluations": 1, "ucb_rank": 4},
+            ],
+        ),
+        (
+            [
+                {"id": 0, "value": 1.0, "n_evaluations": 1},
+                {"id": 1, "value": 1.0, "n_evaluations": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1},
+            ],
+            1,
+            [
+                {"id": 0, "value": 1.0, "n_evaluations": 1, "ucb_rank": 1},
+                {"id": 1, "value": 1.0, "n_evaluations": 1, "ucb_rank": 2},
+                {"id": 2, "value": 1.0, "n_evaluations": 1, "ucb_rank": 3},
+            ],
+        ),
+    ],
+    ids=["minimization", "maximization", "all_equal_means_rank_sequential"],
+)
+def test_ucb_ranking(results, direction, exp_ranked_results):
+    # Mock or patch dependencies
+    study = Study(seed=42)  # with seed to avoid warning logs
+
+    ranked_results = study._ucb_ranking(results, direction)
+    assert ranked_results == exp_ranked_results
 
 
 @pytest.mark.parametrize(

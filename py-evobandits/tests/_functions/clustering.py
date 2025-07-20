@@ -44,7 +44,6 @@ TRIALS_EXAMPLE = [
         "value": 0.0,
         "value_std_dev": 0.0,
         "n_evaluations": 0,
-        "ucb_norm": 0,
         "params": {
             "algorithm": KMeans,
             "init": "k-means++",
@@ -56,7 +55,6 @@ TRIALS_EXAMPLE = [
         "value": 0.0,
         "value_std_dev": 0.0,
         "n_evaluations": 0,
-        "ucb_norm": 0,
         "params": {
             "algorithm": KMeans,
             "init": "k-means++",
