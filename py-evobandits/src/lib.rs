@@ -81,11 +81,6 @@ impl Arm {
     }
 
     #[getter]
-    fn ucb(&self) -> f64 {
-        self.arm.get_ucb()
-    }
-
-    #[getter]
     fn to_dict(&self, py: Python) -> Py<PyDict> {
         let dict = PyDict::new(py);
         dict.set_item("action_vector", self.arm.get_action_vector().to_vec())
@@ -95,7 +90,6 @@ impl Arm {
             .unwrap();
         dict.set_item("n_evaluations", self.arm.get_n_evaluations())
             .unwrap();
-        dict.set_item("ucb", self.arm.get_ucb()).unwrap();
         dict.into()
     }
 }

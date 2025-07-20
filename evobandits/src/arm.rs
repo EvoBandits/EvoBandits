@@ -43,7 +43,6 @@ pub struct Arm {
     n_evaluations: i32,
     value: f64,
     corr_ssq: f64,
-    ucb: f64,
 }
 
 impl Arm {
@@ -53,7 +52,6 @@ impl Arm {
             n_evaluations: 0,
             value: 0.0,
             corr_ssq: 0.0,
-            ucb: 0.0,
         }
     }
 
@@ -95,14 +93,6 @@ impl Arm {
         let variance = self.corr_ssq / (self.n_evaluations - 1) as f64;
         (variance).sqrt()
     }
-
-    pub(crate) fn set_ucb(&mut self, ucb: f64) {
-        self.ucb = ucb
-    }
-
-    pub fn get_ucb(&self) -> f64 {
-        self.ucb
-    }
 }
 
 impl Clone for Arm {
@@ -112,7 +102,6 @@ impl Clone for Arm {
             n_evaluations: self.n_evaluations,
             value: self.value,
             corr_ssq: self.corr_ssq,
-            ucb: self.ucb,
         }
     }
 }
@@ -131,7 +120,6 @@ impl Hash for Arm {
     }
 }
 
-// TODO: Check if ucb needs a unittest
 #[cfg(test)]
 mod tests {
     use super::*;
