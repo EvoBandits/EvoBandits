@@ -4,7 +4,7 @@ The simulation of the objective function is often the most demanding part of an 
 
 ## Efficient Objective Function
 
-The example optimizes the configuration of a simple test function, which is referred to as Test Problem 4 (TP4) and explained in detail in the [GMAB Paper](https://ieeexplore.ieee.org/document/10818791) by Preil & Krapp (2025). With regard to the numba acceleration, it can be understood as easy-to-run placeholder for much more demanding objective that make use of the full numba toolset, such as parallelization or GPU acceleration.
+The example optimizes the configuration of a simple test function, which is referred to as Test Problem 4 (TP4) and explained in detail in the [GMAB Paper](https://ieeexplore.ieee.org/document/10818791) by Preil & Krapp (2025). With regard to the numba acceleration, it can be seen as a lightweight example representing more complex objectives that might leverage full Numba capabilities such as parallelization or GPU acceleration.
 
 ```python
 from numba import njit
@@ -18,14 +18,14 @@ def tp4_func(action_vector: np.ndarray, seed: int = -1) -> float:
 
 ## Reproducibility of Results
 
-Since numba-compiled function cannot use a global RNG seed at this time, the optimizer must generate and pass a new seed for each evaluation of the objective if results shall be reproduced:
+Since numba-compiled functions cannot use a global RNG seed at this time, the optimizer must generate and pass a new seed for each evaluation of the objective if results shall be reproduced:
 
 * As shown above, `tp4_func` must accept a parameter `seed`. In this instance, a sentinel value of `-1` is used instead of `None` to denote an unseeded run, as this avoids a more complex and explicit numba setup that handles an optional function argument.
 * A seed must be passed to the `Study` on initialization to set up a seeded experiment. The Study will then automatically generate an independent seed from the range of non-negative integers for each evaluation and pass it to `tp4_func`.
 
 ## Simulation
 
-As users retain full freedom over the internal of the objective function when using EvoBandits, numba-accelerated function integrate seamlessly with the optimization. For details on the configuration and execution of the optimization, please refer to the API Reference and other examples on this page.
+EvoBandits treats Numba-compiled and pure Python functions equivalently. For details on the configuration and execution of the optimization, please refer to the Reference and other examples on this page.
 
 ```python
 if __name__ == "__main__":
@@ -57,8 +57,10 @@ Preil, D., & Krapp, M. (2024). Genetic Multi-Armed Bandits: A Reinforcement Lear
 
 ## Try it yourself!
 
-The complete example is available on [Github](https://github.com/EvoBandits/EvoBandits/blob/main/examples/efficient_objective_function.py). Running it requires additional dependencies, which can be installed using:
+The complete example is available on [Github](https://github.com/EvoBandits/EvoBandits/blob/main/examples/efficient_objective_function.py). Running it requires a compatible additional dependencies, which can be installed using:
 
 ```bash
 pip install evobandits[examples]
 ```
+
+This command will install Numba and other packages required to run example scripts.
