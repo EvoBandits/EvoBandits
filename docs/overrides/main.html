@@ -14,7 +14,12 @@
  limitations under the License.
 -->
 
-{% extends "base.html" %} {% block styles %} {{ super() }}
+{% extends "base.html" %} {% block extrahead %}
+<meta
+    name="google-site-verification"
+    content="Z-avrlpfnBwmc5udETNQpapu48-OqwgHaKMZ0YKVHE0"
+/>
+{% endblock %} {% block styles %} {{ super() }}
 <style>
     #copy-markdown-btn:hover {
         color: var(--md-primary-fg-color) !important;

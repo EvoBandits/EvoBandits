@@ -66,8 +66,6 @@ nav:
   - Home: index.md
   - Installation: installation.md
   - Tutorials:
-      - Overview: tutorials/index.md
-      - Getting Started: tutorials/getting_started.md
       - Efficient Objective Function: tutorials/efficient_objective_function.md
   - Reference:
       - Study: references/study.md
