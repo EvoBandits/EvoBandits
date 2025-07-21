@@ -76,7 +76,7 @@ class Study:
             results: A list of dictionaries, each containing
                 'value' (float): The observed value (e.g., mean reward or cost) of the arm, and
                 'n_evaluations' (int): The number of times the arm has been evaluated.
-            direction: 1 for minimization, -1 for maximization of the Study's obejctive
+            direction: 1 for minimization, -1 for maximization of the Study's objective
 
         Returns:
             The results with each dictionary updated with a new key
