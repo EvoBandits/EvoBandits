@@ -80,7 +80,7 @@ class Study:
 
         Returns:
             The results with each dictionary updated with a new key
-                'ucb_rank' (float): The computed normalized UCB value for the arm.
+                'ucb_rank' (int): The ranking position of the arm based on the computed UCB value.
         """
         total_evaluations = sum(r["n_evaluations"] for r in results)
         ucb_norm_min = min(r["value"] for r in results)
