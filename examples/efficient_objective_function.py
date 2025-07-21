@@ -37,10 +37,6 @@ def tp4_func(action_vector: np.ndarray, seed: int = -1) -> float:
             Defaults to -1, which acts as a sentinel value indicating no seeding.
             Note: -1 is used because Numba does not support None as a default argument.
 
-    This function is intended to test the integration of Numba-compiled objective functions.
-    Since Numba-compiled functions cannot use a global RNG seed, the optimizer must generate
-    and pass a new seed for each evaluation of tp4_func.
-
     Source:
         D. Preil and M. Krapp, "Genetic Multi-Armed Bandits: A Reinforcement Learning Inspired
         Approach for Simulation Optimization," in IEEE Transactions on Evolutionary Computation,
@@ -54,12 +50,15 @@ def tp4_func(action_vector: np.ndarray, seed: int = -1) -> float:
             -GAMMA_2 * (val - EPS_2) ** 2
         )
 
-    # Add Gaussian noise with std = 100 * len(action_vector)
+    # Simulate Gaussian noise with std = 100 * len(action_vector)
     if seed != -1:
         np.random.seed(seed)
     res += np.random.normal(0.0, 100.0 * n)
 
-    return -res  # negate result to model a minimization problem
+    # Negate result to model a minimization problem
+    res = -res
+
+    return res
 
 
 if __name__ == "__main__":
