@@ -69,7 +69,7 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
             cl.function,
             cl.PARAMS,
             2,
-            {"n_best": 2, "optimize_ret": cl.ARMS_EXAMPLE, "exp_result": cl.TRIALS_EXAMPLE},
+            {"n_best": 2, "optimize_ret": cl.ARMS_EXAMPLE, "_results_expected": cl.TRIALS_EXAMPLE},
         ],
         [rb.function, rb.PARAMS, 1, {"maximize": True}],
         [
@@ -78,18 +78,14 @@ def test_study_init(seed, kwargs, exp_algorithm, caplog):
             1,
             {
                 "n_runs": 2,
-                "exp_result": [
+                "_results_expected": [
                     {
-                        "run_id": 0,
-                        "n_best": 1,
                         "value": 0.0,
                         "value_std_dev": 0.0,
                         "n_evaluations": 0,
                         "params": {"number": [1, 1]},
                     },
                     {
-                        "run_id": 1,
-                        "n_best": 1,
                         "value": 0.0,
                         "value_std_dev": 0.0,
                         "n_evaluations": 0,
@@ -125,7 +121,7 @@ def test_optimize(objective, params, n_trials, kwargs):
     mock_algorithm = create_autospec(GMAB, instance=True)
     mock_algorithm.optimize.return_value = kwargs.pop("optimize_ret", rb.ARM_BEST)
     mock_algorithm.clone.return_value = mock_algorithm
-    exp_result = kwargs.pop("exp_result", rb.TRIAL_BEST)
+    _results = kwargs.pop("_results_expected", rb.TRIAL_BEST)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
 
     # Extract expected exceptions
@@ -135,19 +131,107 @@ def test_optimize(objective, params, n_trials, kwargs):
     with expectation:
         study.optimize(objective, params, n_trials, **kwargs)
 
-        result = study.results
-        assert result == exp_result
+        assert study._results == _results
         assert mock_algorithm.optimize.call_count == kwargs.get("n_runs", 1)
 
 
 @pytest.mark.parametrize(
-    "direction, best_solution, best_params, best_value, mean_value",
+    "raw_results, direction, expected_results",
+    [
+        (
+            [
+                {"id": 0, "value": 2.0, "n_evaluations": 1},
+                {"id": 1, "value": 3.0, "n_evaluations": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1},
+                {"id": 3, "value": 1.0, "n_evaluations": 2},
+            ],
+            1,
+            [
+                {"id": 3, "value": 1.0, "n_evaluations": 2, "ucb_rank": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1, "ucb_rank": 2},
+                {"id": 0, "value": 2.0, "n_evaluations": 1, "ucb_rank": 3},
+                {"id": 1, "value": 3.0, "n_evaluations": 1, "ucb_rank": 4},
+            ],
+        ),
+        (
+            [
+                {"id": 0, "value": 2.0, "n_evaluations": 1},
+                {"id": 1, "value": 3.0, "n_evaluations": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1},
+                {"id": 3, "value": 3.0, "n_evaluations": 2},
+            ],
+            -1,
+            [
+                {"id": 3, "value": 3.0, "n_evaluations": 2, "ucb_rank": 1},
+                {"id": 1, "value": 3.0, "n_evaluations": 1, "ucb_rank": 2},
+                {"id": 0, "value": 2.0, "n_evaluations": 1, "ucb_rank": 3},
+                {"id": 2, "value": 1.0, "n_evaluations": 1, "ucb_rank": 4},
+            ],
+        ),
+        (
+            [
+                {"id": 0, "value": 1.0, "n_evaluations": 1},
+                {"id": 1, "value": 1.0, "n_evaluations": 1},
+                {"id": 2, "value": 1.0, "n_evaluations": 1},
+            ],
+            1,
+            [
+                {"id": 0, "value": 1.0, "n_evaluations": 1, "ucb_rank": 1},
+                {"id": 1, "value": 1.0, "n_evaluations": 1, "ucb_rank": 2},
+                {"id": 2, "value": 1.0, "n_evaluations": 1, "ucb_rank": 3},
+            ],
+        ),
+    ],
+    ids=["minimization", "maximization", "all_equal_means_rank_sequential"],
+)
+def test_results_property(raw_results, direction, expected_results):
+    # Mock dependencies
+    mock_algorithm = create_autospec(GMAB, instance=True)
+    study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
+    study._direction = direction
+    study._results = raw_results
+
+    assert study.results == expected_results
+
+
+def test_results_property_raises_no_results():
+    # Mock dependencies
+    mock_algorithm = create_autospec(GMAB, instance=True)
+    study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
+
+    with pytest.raises(AttributeError):
+        _ = study.results
+
+
+@pytest.mark.parametrize(
+    "direction, results, best_solution, best_params, best_value, mean_value",
     [
         [
             +1,
+            [
+                {
+                    "value": 1.0,
+                    "n_evaluations": 10,
+                    "ucb_rank": 1,
+                    "params": {"number": [1, 1]},
+                },
+                {
+                    "value": 2.0,
+                    "n_evaluations": 10,
+                    "ucb_rank": 2,
+                    "params": {"number": [2, 2]},
+                },
+                {
+                    "value": 3.0,
+                    "n_evaluations": 10,
+                    "ucb_rank": 3,
+                    "params": {"number": [3, 3]},
+                },
+            ],
             {
                 "value": 1.0,
-                "num_pulls": 10,
+                "n_evaluations": 10,
+                "ucb_rank": 1,
                 "params": {"number": [1, 1]},
             },
             {"number": [1, 1]},
@@ -156,9 +240,30 @@ def test_optimize(objective, params, n_trials, kwargs):
         ],
         [
             -1,
+            [
+                {
+                    "value": 1.0,
+                    "n_evaluations": 10,
+                    "ucb_rank": 3,
+                    "params": {"number": [1, 1]},
+                },
+                {
+                    "value": 2.0,
+                    "n_evaluations": 10,
+                    "ucb_rank": 2,
+                    "params": {"number": [2, 2]},
+                },
+                {
+                    "value": 3.0,
+                    "n_evaluations": 10,
+                    "ucb_rank": 1,
+                    "params": {"number": [3, 3]},
+                },
+            ],
             {
                 "value": 3.0,
-                "num_pulls": 10,
+                "n_evaluations": 10,
+                "ucb_rank": 1,
                 "params": {"number": [3, 3]},
             },
             {"number": [3, 3]},
@@ -168,28 +273,12 @@ def test_optimize(objective, params, n_trials, kwargs):
     ],
     ids=["default_minimize", "default_maximize"],
 )
-def test_output_properties(direction, best_solution, best_params, best_value, mean_value):
+def test_output_properties(direction, results, best_solution, best_params, best_value, mean_value):
     # Mock dependencies
     mock_algorithm = create_autospec(GMAB, instance=True)
     study = Study(seed=42, algorithm=mock_algorithm)  # seeding to avoid warning log
     study._direction = direction
-    study.results = [
-        {
-            "value": 1.0,
-            "num_pulls": 10,
-            "params": {"number": [1, 1]},
-        },
-        {
-            "value": 2.0,
-            "num_pulls": 10,
-            "params": {"number": [2, 2]},
-        },
-        {
-            "value": 3.0,
-            "num_pulls": 10,
-            "params": {"number": [3, 3]},
-        },
-    ]
+    study._results = results
 
     # Access properties and verify
     assert study.best_solution == best_solution
