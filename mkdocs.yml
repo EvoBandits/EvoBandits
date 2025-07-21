@@ -68,7 +68,7 @@ nav:
   - Tutorials:
       - Overview: tutorials/index.md
       - Getting Started: tutorials/getting_started.md
-      - Advanced Usage: tutorials/advanced_usage.md
+      - Efficient Objective Function: tutorials/efficient_objective_function.md
   - Reference:
       - Study: references/study.md
       - Params: references/params.md
