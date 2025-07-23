@@ -1,6 +1,8 @@
 ## Summary
 The simulation of the objective function is often the most demanding part of an experiment, especially when simulating with an efficient optimizer. This guide demonstrates how to accelerate simulation with EvoBandits using [`Numba`](https://numba.pydata.org/), an open source JIT compiler, using a simple example.
 
+---
+
 ## Efficient Objective Function
 The example optimizes the configuration of a simple test function, which is referred to as Test Problem 4 (TP4) and explained in detail in the [GMAB Paper](https://ieeexplore.ieee.org/document/10818791) by Preil & Krapp (2025). With regard to the numba acceleration, it can be seen as a lightweight example representing more complex objectives that might leverage full Numba capabilities such as parallelization or GPU acceleration.
 
@@ -14,7 +16,7 @@ def tp4_func(action_vector: np.ndarray, seed: int = -1) -> float:
     return res
 ```
 
-!!! note "Seeding with numba"
+!!! note "Reproducibility with numba"
 
     Since numba-compiled functions cannot use a global RNG seed at this time, the optimizer must generate and pass a new seed for each evaluation of the objective if results shall be reproduced:
 
@@ -49,6 +51,8 @@ EvoBandits treats Numba-compiled and pure Python functions equivalently. For det
     Best configuration:  {'action_vector': [54, 55, 57, 57, 57]}
     ```
 
+---
+
 ## References
 
 ```
@@ -56,17 +60,17 @@ Preil, D., & Krapp, M. (2024). Genetic Multi-Armed Bandits: A Reinforcement Lear
 ```
 
 ## Try it yourself!
-You can find the full example in the `evobandits.examples` module, available on [GitHub](https://github.com/EvoBandits/EvoBandits/blob/main/examples/efficient_objective_function.py).
+You can find the full example in the `evobandits.examples` module, available on [GitHub](https://github.com/EvoBandits/EvoBandits/blob/main/examples/demo_Study.py).
 
 !!! note
 
-    Running the examples requires additional dependencies, such as Numba and NumPy, which can be installed using:
+    Running the examples requires additional dependencies, such NumPy, which can be installed using:
 
     ```bash
     pip install evobandits[examples]
     ```
 
-??? quote "Expand to copy `examples/efficient\_objective\_function.py`"
+??? quote "Expand to copy `examples/demo\Study.py`"
 
     ```python
     --8<-- "examples/efficient_objective_function.py"

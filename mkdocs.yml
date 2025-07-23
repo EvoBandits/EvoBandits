@@ -81,6 +81,7 @@ nav:
   - Installation: installation.md
   - Tutorials:
       - Efficient Objective Function: tutorials/efficient_objective_function.md
+      - Reproducibility: tutorials/reproducibility.md
   - Reference:
       - Study: references/study.md
       - Params: references/params.md
