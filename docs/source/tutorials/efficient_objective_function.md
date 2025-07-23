@@ -64,7 +64,7 @@ You can find the full example in the `evobandits.examples` module, available on 
 
 !!! note
 
-    Running the examples requires additional dependencies, such NumPy, which can be installed using:
+    Running the examples requires additional dependencies, such as Numba and NumPy, which can be installed using:
 
     ```bash
     pip install evobandits[examples]

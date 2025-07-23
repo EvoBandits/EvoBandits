@@ -2,9 +2,9 @@
 
 Reproducibility in EvoBandits depends on the user’s control over randomness inside the objective function. While the optimization process itself can be seeded, deterministic or reproducible behavior of the objective must also be ensured manually. This can be achieved in different ways:
 
-=== "seeing per evaluation (preferred)"
+=== "seeding per evaluation (preferred)"
 
-    Seeding is fully controlled by EvoBandits using a random seed. The `Study` automatically generates an independent, non-negative seed for each evaluation and propagates it to the objective function.
+    Here, seeding is fully controlled by EvoBandits. If initialized with a random seed, `Study` automatically generates an independent, non-negative seed for each evaluation and propagates it to the objective function.
 
     ```python
     from evobandits import Study
@@ -18,7 +18,7 @@ Reproducibility in EvoBandits depends on the user’s control over randomness in
 
 === "global seeding"
 
-    A random seed can be applied globally to control the objective function. However, a seed must still be passed to EvoBandits to control the optimization process itself, including sampling and algorithm behavior.
+    A random seed can be applied globally to control the objective function. However, a seed must still be passed to `Study` to control the optimization process itself, including sampling and algorithm behavior.
 
     ```python
     import random
@@ -65,7 +65,7 @@ You can experiment with seeding yourself using this simple example from the `evo
 
 !!! note
 
-    Running the examples requires additional dependencies, such as Numba and NumPy, which can be installed using:
+    Running the examples requires additional dependencies, such as NumPy, which can be installed using:
 
     ```bash
     pip install evobandits[examples]
