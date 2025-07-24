@@ -76,7 +76,7 @@ markdown_extensions:
       alternate_style: true
 
 nav:
-  - Home: source/index.md
+  - Home: index.md
   - Installation: source/installation.md
   - Tutorials:
       - Efficient Objective Function: source/tutorials/efficient_objective_function.md
