@@ -20,8 +20,8 @@ edit_uri: edit/main/docs/source/
 
 theme:
   name: material
-  logo: assets/Logo.svg
-  favicon: assets/Logo.svg
+  logo: assets/Logo-dark.svg
+  favicon: assets/Logo-dark.svg
   font: false
   custom_dir: docs/overrides
   icon:
