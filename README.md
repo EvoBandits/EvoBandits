@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvoBandits/EvoBandits/refs/heads/add-logo/docs/assets/Logo-dark.svg">
-    <img src="https://raw.githubusercontent.com/EvoBandits/EvoBandits/refs/heads/add-logo/docs/assets/Logo.svg" alt="EvoBandits" width="200"/>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/EvoBandits/EvoBandits/refs/heads/main/docs/assets/Logo-dark.svg">
+    <img src="https://raw.githubusercontent.com/EvoBandits/EvoBandits/refs/heads/main/docs/assets/Logo.webp" alt="EvoBandits" width="200"/>
   </picture>
 </p>
 
