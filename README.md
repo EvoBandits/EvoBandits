@@ -1,16 +1,5 @@
-<style>
-  .logo-img {
-    filter: invert(0);
-  }
-  @media (prefers-color-scheme: dark) {
-    .logo-img {
-      filter: invert(1);
-    }
-  }
-</style>
-
 <p align="center">
-  <img src="https://raw.githubusercontent.com/EvoBandits/EvoBandits/refs/heads/add-logo/docs/assets/Logo.svg" alt="EvoBandits" width="200" class="logo-img"/>
+  <img src="https://raw.githubusercontent.com/EvoBandits/EvoBandits/refs/heads/add-logo/docs/assets/Logo.svg" alt="EvoBandits" width="200"/>
 </p>
 
 <p align="center">
