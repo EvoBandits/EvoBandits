@@ -18,10 +18,10 @@ repo_url: https://github.com/EvoBandits/EvoBandits
 repo_name: EvoBandits/EvoBandits
 edit_uri: edit/main/docs/source/
 
-docs_dir: docs/source
-
 theme:
   name: material
+  logo: assets/Logo-dark.svg
+  favicon: assets/Logo.svg
   font: false
   custom_dir: docs/overrides
   icon:
@@ -77,10 +77,10 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Installation: installation.md
+  - Installation: source/installation.md
   - Tutorials:
-      - Efficient Objective Function: tutorials/efficient_objective_function.md
-      - Reproducibility: tutorials/reproducibility.md
+      - Efficient Objective Function: source/tutorials/efficient_objective_function.md
+      - Reproducibility: source/tutorials/reproducibility.md
   - Reference:
-      - Study: references/study.md
-      - Params: references/params.md
+      - Study: source/references/study.md
+      - Params: source/references/params.md
