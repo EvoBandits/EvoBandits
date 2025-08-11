@@ -77,10 +77,10 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Installation: source/installation.md
+  - Installation: installation.md
   - Tutorials:
-      - Efficient Objective Function: source/tutorials/efficient_objective_function.md
-      - Reproducibility: source/tutorials/reproducibility.md
+      - Efficient Objective Function: tutorials/efficient_objective_function.md
+      - Reproducibility: tutorials/reproducibility.md
   - Reference:
-      - Study: source/references/study.md
-      - Params: source/references/params.md
+      - Study: references/study.md
+      - Params: references/params.md
